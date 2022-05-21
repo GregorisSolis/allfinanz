@@ -1,0 +1,12 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body{
+	@apply bg-[#1E2127];
+}
+
+nav{
+	background: rgb(10,84,166);
+	background: linear-gradient(135deg, rgba(10,84,166,1) 16%, rgba(11,40,52,1) 56%, rgba(18,18,18,1) 100%);
+}
