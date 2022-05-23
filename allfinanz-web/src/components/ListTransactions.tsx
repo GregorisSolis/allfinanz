@@ -1,4 +1,5 @@
 import { ItemTransaction } from './ItemTransaction'
+import { ButtonAdd } from './ButtonAdd'
 
 export function ListTransactions(){
 	return(
@@ -21,6 +22,7 @@ export function ListTransactions(){
 				type='Credito/Nubank'
 				description='Coca cola'
 			/>
+			<ButtonAdd text="Agregar nueva transacción" width='90%'/>
 		</div>
 	)
 }

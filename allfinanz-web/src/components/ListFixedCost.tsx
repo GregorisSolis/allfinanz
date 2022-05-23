@@ -1,4 +1,5 @@
 import { ItemTransaction } from './ItemTransaction'
+import { ButtonAdd } from './ButtonAdd'
 
 export function ListFixedCost(){
 	return(
@@ -21,6 +22,7 @@ export function ListFixedCost(){
 				type='Credito/Nubank'
 				description='Coca cola'
 			/>
+			<ButtonAdd text="Agregar nuevo gasto fijo" width='90%'/>
 		</div>
 	)
 }

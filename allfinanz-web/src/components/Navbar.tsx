@@ -7,6 +7,7 @@ export function Navbar(){
 
 				<div className=" h-full w-80 text-2xl flex justify-around items-center">
 					<a className="h-full flex items-center hover:text-sky-500 transition" href="#">Home</a>
+					<a className="h-full flex items-center hover:text-sky-500 transition" href="#">Extracto</a>
 					<a className="h-full flex items-center hover:text-sky-500 transition" href="#">Perfil</a>
 					<a className="h-full flex items-center hover:text-sky-500 transition" href="#">Entrar</a>
 				</div>

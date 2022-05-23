@@ -4,7 +4,7 @@ export function Card(props){
 	let colorFont = props.colorFont
 
 	return(
-		<div className='w-[300px] h-[190px] shadow-md rounded m-4 p-4 flex-col' style={{background: backgroundValue, color: colorFont}} >
+		<div className='min-w-[300px] h-[210px] shadow-md rounded m-4 p-4 flex-col' style={{background: backgroundValue, color: colorFont}} >
 			<div className='h-16'>
 				<h1 className="text-4xl">{props.nameCard}</h1>
 			</div>

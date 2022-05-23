@@ -1,8 +1,10 @@
 import { Card } from './Card'
+import { ButtonAdd } from './ButtonAdd'
 
 export function ListCard(){
 	return(
-		<div className="flex">
+		<div className="flex overflow-x-auto overflow-y-hidden scrollbar scrollbar-thumb-zinc-700 scrollbar-thin">
+			<ButtonAdd width='300px' text='Agregar nueva tarjeta'/>
 			<Card 
 				nameCard='Inter'
 				totalUsed='126.1'
