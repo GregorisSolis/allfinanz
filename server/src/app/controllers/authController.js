@@ -74,9 +74,9 @@ router.get('/info-user/:userId', async (req, res) => {
 
 	try {
 
-		const infoUser = await User.findById(req.params.userId)
+		const user = await User.findById(req.params.userId)
 
-		return res.send({ infoUser })
+		return res.send({ user })
 
 	} catch (err) {
 		return res.status(400).send({ message: 'Error loanding user info.' })

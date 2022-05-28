@@ -29,13 +29,12 @@ router.post('/post', multer(multerConfig).single('file'), async (req, res) => {
 
 router.delete('/remove-post/:key', async (req, res) => {
 
-	const post = await Post.findOne({ key: req.params.key })
+	const post = await Post.findOneAndDelete({ key: req.params.key })
 
-	await post.remove();
+	//esta linea de codigo se encarga de eliminar la foto de amazon s3
+	post.remove()
 
 	return res.send();
-
-
 })
 
 module.exports = app => app.use('/auth', router)

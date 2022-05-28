@@ -11,7 +11,7 @@
   "author": "gregoris solis",
   "license": "ISC",
   "dependencies": {
-    "aws-sdk": "^2.955.0",
+    "aws-sdk": "^2.1144.0",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.0",
     "connect-mongo": "^3.2.0",
@@ -32,7 +32,6 @@
     "passport": "^0.4.1",
     "passport-local": "^1.0.0"
   },
-  "devDependencies": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/GregorisSolis/controlBank_Backend.git"

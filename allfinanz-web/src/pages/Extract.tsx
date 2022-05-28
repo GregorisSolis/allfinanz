@@ -2,10 +2,13 @@ import { CalendarContent } from '../components/CalendarContent'
 import { ListCard } from '../components/ListCard'
 import { ListTransactions } from '../components/ListTransactions'
 import { SidebarInfoUser } from '../components/SidebarInfoUser'
+import { Navbar } from '../components/Navbar'
 
 export function Extract(){
 
 	return(
+		<>
+		<Navbar />
 		<div className="w-full h-96 text-white flex">
 			<div className="w-4/5 m-auto p-4">
 
@@ -28,5 +31,6 @@ export function Extract(){
 
 			</div>
 		</div>
+		</>
 	)
 }

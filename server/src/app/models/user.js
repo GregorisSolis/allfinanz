@@ -6,14 +6,14 @@ const UserSchema = new mongoose.Schema({
 	email: { type: String, required: true, unique: true, lowercase: true },
 	password: { type: String, required: true, select: false },
 	createdAt: { type: Date, default: Date.now },
-	savings: { type: mongoose.Schema.Types.Decimal128, initialize: 0 },
-	monthlyIconme: { type: mongoose.Schema.Types.Decimal128, initialize: 0 },
+	savings: { type: mongoose.Schema.Types.Decimal128, default: 0 },
+	monthlyIconme: { type: mongoose.Schema.Types.Decimal128, default: 0 },
 	passwordResetToken: { type: String, select: false },
 	passwordResetExpires: { type: Date, select: false },
-	photoProfileUrl: String,
-	photoBannerUrl: String,
-	keyPhotoProfile: String,
-	keyPhotoBanner: String,
+	imageUrl: String,
+	imageID: String,
+	amountCard: { type: Number, default: 0 },
+	amountTransaction: { type: Number, default: 0 }
 })
 
 UserSchema.pre('save', async function (next) {
