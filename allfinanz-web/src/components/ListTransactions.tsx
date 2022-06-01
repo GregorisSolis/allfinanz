@@ -1,7 +1,11 @@
+import { useState } from 'react'
 import { ItemTransaction } from './ItemTransaction'
 import { ButtonAdd } from './ButtonAdd'
 
 export function ListTransactions(){
+
+	let [isNewTransaction, setIsNewTransaction] = useState(true)
+
 	return(
 		<div className="w-[70%]">
 			<ItemTransaction
@@ -22,7 +26,7 @@ export function ListTransactions(){
 				type='Credito/Nubank'
 				description='Coca cola'
 			/>
-			<ButtonAdd text="Agregar nueva transacción" width='90%'/>
+			<ButtonAdd text="Agregar nueva transacción"  width='90%'/>
 		</div>
 	)
 }

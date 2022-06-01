@@ -18,6 +18,7 @@ export function ListCard(){
 		await API.get(`/card/all-card/user/${ID_USER}`)
 		.then(resp => {
 			setCards(resp.data.card)
+			console.log(resp.data.card)
 		})
 	}
 
@@ -28,11 +29,13 @@ export function ListCard(){
 			{cards.map((card) => (
 				<Card 
 					key={card._id}
+					IDCard={card._id}
 					nameCard={card.name}
 					totalUsed='126.1'
-					dayCloseCheck={card.cardCloseDay}
+					cardCloseDay={card.cardCloseDay}
 					backgroundValue={card.color}
 					colorFont={card.colorFont}
+					reload={() => loadCardUser()}
 				/>		
 			))}
 

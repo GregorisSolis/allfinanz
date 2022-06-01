@@ -11,9 +11,7 @@ const UserSchema = new mongoose.Schema({
 	passwordResetToken: { type: String, select: false },
 	passwordResetExpires: { type: Date, select: false },
 	imageUrl: String,
-	imageID: String,
-	amountCard: { type: Number, default: 0 },
-	amountTransaction: { type: Number, default: 0 }
+	imageID: String
 })
 
 UserSchema.pre('save', async function (next) {

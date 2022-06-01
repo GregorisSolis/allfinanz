@@ -12,14 +12,12 @@ router.use(authMiddleware)
 router.post('/new-transaction', async (req, res) => {
 	try {
 
-		console.log(req.userId)
-
 		const transaction = await Transaction.create({ ...req.body, user: req.userId })
 
 		return res.send({ transaction })
 	}
 	catch (err) {
-		return res.status(400).send({ message: 'Transaction failed.'})
+		return res.status(400).send({ message: 'Transaction failed.' + err})
 	}
 })
 

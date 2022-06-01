@@ -6,8 +6,10 @@ export function NewCard(props){
 	let [message, setMessage] = useState('')
 	let [name, setName] = useState('')
 	let [cardCloseDay, setCardCloseDay] = useState('')
-	let [color, setColor] = useState('#000')
-	let [colorFont, setColorFont] = useState('#000')
+	let [color, setColor] = useState('#000000')
+	let [colorFont, setColorFont] = useState('#000000')
+	let [amountCard, setAmountCard] = useState('')
+	let ID_USER = localStorage.getItem('iden')
 
 	function setNewCard(event: FormEvent){
 		event.preventDefault()
@@ -17,26 +19,12 @@ export function NewCard(props){
 		}else if(isNaN(cardCloseDay) || cardCloseDay <= 0 || cardCloseDay > 31){
 			setMessage('Fecha invalida, intenta de nuevo.')
 		}else{
-			API.post('/card/new-card/',{name,cardCloseDay,color,colorFont})
+			API.post('/card/new-card/',{name, cardCloseDay, color, colorFont})
 			.then(resp => {
-				setAmountNumberCardUSer(resp.data.card.user)
 				props.reload()
 				props.closeComponent()
 			})
 		}
-	}
-
-	function setAmountNumberCardUSer(ID_USER){
-		let amountCard = 0
-
-		API.get(`/auth/info-user/${ID_USER}`)
-		.then(resp => {
-			amountCard = resp.data.user.amountCard
-		})
-
-		amountCard = amountCard + 1
-
-		API.put(`/auth/edit/${ID_USER}`, {amountCard})
 	}
 
 	return(

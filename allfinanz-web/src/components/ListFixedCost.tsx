@@ -1,7 +1,13 @@
+import { useNavigate } from 'react-router-dom'
+
 import { ItemTransaction } from './ItemTransaction'
 import { ButtonAdd } from './ButtonAdd'
 
+
 export function ListFixedCost(){
+
+	const navigate = useNavigate()
+
 	return(
 		<div className="w-[70%]">
 			<ItemTransaction
@@ -22,7 +28,7 @@ export function ListFixedCost(){
 				type='Credito/Nubank'
 				description='Coca cola'
 			/>
-			<ButtonAdd text="Agregar nuevo gasto fijo" width='90%'/>
+			<ButtonAdd text="Agregar nuevo gasto fijo" action={() => navigate('transaccion/nueva')} width='90%'/>
 		</div>
 	)
 }

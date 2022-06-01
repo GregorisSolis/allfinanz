@@ -29,8 +29,6 @@ export function Profile(){
 	let [isUpdatePass, setIsUpdatePass] = useState(false)
 	let [imageUrl, setImageUrl] = useState(imgNotFound)
 	let [imageID, setImageID] = useState('')
-	let [amountTransaction, setAmountTransaction] = useState()
-	let [amountCard, setAmountCard] = useState()
 
 	async function loadUser(){
 
@@ -40,8 +38,6 @@ export function Profile(){
 				setSavings(resp.data.user.savings.$numberDecimal)
 				setMonthlyIconme(resp.data.user.monthlyIconme.$numberDecimal)
 				setEmail(resp.data.user.email)
-				setAmountTransaction(resp.data.user.amountTransaction)
-				setAmountCard(resp.data.user.amountCard)
 				if(resp.data.user.imageUrl !== undefined){
 					setImageUrl(resp.data.user.imageUrl)
 					setImageID(resp.data.user.imageID)
@@ -93,23 +89,15 @@ export function Profile(){
 					<h1 className="text-5xl capitalize">{name}</h1>
 				</div>
 
-				<div className="m-4 w-full rounded flex justify-between items-center">
-					<div className="bg-brand-200 w-[23%] h-16 text-center rounded shadow-lg p-1">
+				<div className="m-4 w-full rounded flex justify-end items-center">
+					<div className="mx-2 bg-brand-200 w-[23%] h-16 text-center rounded shadow-lg p-1">
 						<span className="text-sm">Renda mensual</span>
 						<p className="text-2xl font-bold">$ {monthlyIconme}</p>
 					</div>					
-					<div className="bg-brand-200 w-[23%] h-16 text-center rounded shadow-lg p-1">
+					<div className="mx-2 bg-brand-200 w-[23%] h-16 text-center rounded shadow-lg p-1">
 						<span className="text-sm">Dinero ahorrado</span>
 						<p className="text-2xl font-bold">$ {savings}</p>
 					</div>					
-					<div className="bg-brand-200 w-[23%] h-16 text-center rounded shadow-lg p-1">
-						<span className="text-sm">Transacciones</span>
-						<p className="text-2xl font-bold">{amountTransaction}</p>
-					</div>					
-					<div className="bg-brand-200 w-[23%] h-16 text-center rounded shadow-lg p-1">
-						<span className="text-sm">Nº Tarjetas</span>
-						<p className="text-2xl font-bold">{amountCard}</p>
-					</div>
 				</div>
 
 				<div className="bg-brand-200 w-full p-4 m-4 rounded shadow-lg">

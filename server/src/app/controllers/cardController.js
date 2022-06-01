@@ -21,7 +21,7 @@ router.post('/new-card', async (req, res) => {
 		return res.send({ card })
 	}
 	catch (err) {
-		return res.status(400).send({ message: 'Card failed.' + err})
+		return res.status(400).send({ message: 'Card failed. '})
 	}
 })
 
@@ -40,29 +40,39 @@ router.get('/all-card/user/:userId', async (req, res) => {
 	}
 })
 
+//MUESTRA TARJETAS DEL USUARIO
+router.get('/card-data/:nameCard/user/:userId', async (req, res) => {
 
-//MODIFICAR UNA TARJETA
-router.patch('/into-transaction/:cardId', async (req, res) => {
 	try {
 
-		if(await Card.findOne({ name: req.body.name })) {
-			return res.send({ message: 'Card already exists.'})
-		}
-
-		const card = await Card.findOneAndUpdate(req.params.cardId, { ...req.body }, { new: true })
+		const card = await Card.find({ user: req.params.userId, name: req.params.nameCard }).populate('user')
 
 		return res.send({ card })
 
 	} catch (err) {
+		return res.status(400).send({ message: "Error loading card." })
+	}
+})
 
-		return res.status(400).send({ message: "Error into-card." })
+//EDITAR UNA TARJETA
+router.patch('/edit-card/:id', async (req, res) => {
 
+	try{
+
+		const card = await Card.findByIdAndUpdate(req.params.id,
+			{ ...req.body, user: req.userId }, { new: true })
+
+		return res.send({ card })
+
+	}catch(err){
+
+		return res.status(400).send({ message: "Error updating card." + err})
 	}
 })
 
 
 //ELIMINAR UNA TARJETA
-router.delete('/romeve-card/:cardId', async (req, res) => {
+router.delete('/remove-card/:cardId', async (req, res) => {
 	try {
 
 		await Card.findByIdAndRemove(req.params.cardId)

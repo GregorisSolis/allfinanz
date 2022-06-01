@@ -9,6 +9,8 @@ import { SidebarInfoUser } from '../components/SidebarInfoUser'
 
 export function Home(){
 
+	document.title = 'Allfinanz'
+
 	return(
 		<>
 		<Navbar />
