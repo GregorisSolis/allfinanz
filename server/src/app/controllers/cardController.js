@@ -40,7 +40,7 @@ router.get('/all-card/user/:userId', async (req, res) => {
 	}
 })
 
-//MUESTRA TARJETAS DEL USUARIO
+//MUESTRA TARJETA DEL USUARIO
 router.get('/card-data/:nameCard/user/:userId', async (req, res) => {
 
 	try {

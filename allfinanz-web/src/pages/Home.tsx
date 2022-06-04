@@ -21,6 +21,7 @@ export function Home(){
 	document.title = 'Allfinanz'
 	let [listCostMonth, setListCostMonth] = useState([])
 	let [listCostFixed, setListCostFixed] = useState([])
+	let navigate = useNavigate()
 	let date = date_now()
 
 	async function loadTransaction(){
@@ -31,7 +32,7 @@ export function Home(){
 			let items = res.data.transactions
 			let listAA = []
 			let listBB = []
-			items.map((trans) => {
+			items.map((trans: any) => {
 				if(trans.category === 'GastoFijo'){
 					listAA.push(trans)
 				}else if(trans.date.month === date.month && trans.date.year === date.year){
