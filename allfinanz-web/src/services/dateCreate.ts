@@ -3,7 +3,7 @@ export function date_now(){
 		
 	return {
 		year: date.getFullYear(), 
-		month: date.getMonth()+1, 
+		month: date.getMonth()+2, 
 		day: date.getDate()
 	}
 }

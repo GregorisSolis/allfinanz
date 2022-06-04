@@ -32,7 +32,6 @@ export function Home(){
 			let listAA = []
 			let listBB = []
 			items.map((trans) => {
-			console.log(trans.date.month)
 				if(trans.category === 'GastoFijo'){
 					listAA.push(trans)
 				}else if(trans.date.month === date.month && trans.date.year === date.year){

@@ -7,6 +7,7 @@ import { typePayOptions } from '../services/typePayOptions'
 import { categoryOptions } from '../services/categoryOptions'
 import { askDivided } from '../services/askDivided'
 import { date_now } from '../services/dateCreate'
+import { setDividedInTransaction } from '../services/operationDividedIn'
 
 export function FormTransaction(){
 
@@ -22,6 +23,7 @@ export function FormTransaction(){
 	let [category, setCategory] = useState('')
 	let [card, setCard] = useState('')
 	let [message, setMessage] = useState('')
+	let [colorMessage, setColorMessage] = useState('#AA1008')
 	let [isDivided, setIsDivided] = useState(false)
 	let [dividedIn, setDividedIn] = useState(0)
 	const ID_USER = localStorage.getItem('iden')
@@ -62,14 +64,28 @@ export function FormTransaction(){
 			setMessage('El numero de cuotas es invalido')
 		}else{		
 
-			await API.post('/operation/new-transaction', 
-					 {value, description, category, type, date, card, dividedIn, isDivided})
-			.then(resp => {
-				navigate('/')
-			})
-			.catch(err =>{
-				setMessage('No se pudo agregar la transacción.')
-			})
+			(parseFloat(value)).toFixed(2)
+
+			if(dividedIn >= 2){
+				if(dividedIn >= 24){
+					setMessage(`Como las cuotas superan los dos años,
+								Te recomendamos agregarlo como una categoria: 'Gasto fijo'
+								y las cuotas en '0'.`)
+				}else{
+					setDividedInTransaction(value, description, category, type, card, dividedIn, isDivided)
+					setMessage(`LA TRANSACCION SE AGREGO!, fue divida en ${dividedIn} partes, el monto a pagar por mes es: $ ${value/dividedIn}.`)
+					setColorMessage('#0e5f7d')
+				}
+			}else{
+				await API.post('/operation/new-transaction', 
+						 {value, description, category, type, date, card, dividedIn, isDivided})
+				.then(resp => {
+					navigate('/')
+				})
+				.catch(err =>{
+					setMessage('No se pudo agregar la transacción.')
+				})
+			}
 
 		}
 	}
@@ -124,7 +140,7 @@ export function FormTransaction(){
 					</div>
 
 					<div className="flex justify-around items-center w-9/12 m-auto h-20">
-						<p className='text-red-500 normal-case w-5/12 h-12'>{message}</p>
+						<p className='text-red-500 normal-case w-5/12 h-12' style={{color: colorMessage}}>{message}</p>
 					</div>
 
 					<div className="flex justify-between w-1/4 m-auto">
