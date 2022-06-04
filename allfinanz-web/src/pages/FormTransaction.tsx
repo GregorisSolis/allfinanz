@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { API } from '../services/api'
 import { Navbar } from '../components/Navbar'
 import { SelectComponent } from '../components/SelectComponent'
@@ -13,6 +14,7 @@ export function FormTransaction(){
 		loadCards()
 	},[])
 
+	const navigate = useNavigate()
 	let [cards, setCards] = useState([])
 	let [value, setValue] = useState('')
 	let [type, setType] = useState('')
@@ -22,7 +24,6 @@ export function FormTransaction(){
 	let [message, setMessage] = useState('')
 	let [isDivided, setIsDivided] = useState(false)
 	let [dividedIn, setDividedIn] = useState(0)
-	let [date, setDate] = useState({})
 	const ID_USER = localStorage.getItem('iden')
 
 	if(value.includes(',')){
@@ -45,7 +46,13 @@ export function FormTransaction(){
 			setCard('')
 		}
 
-		setDate(date_now())
+		if(dividedIn <= 0){
+			setIsDivided(false)
+		}else{
+			setIsDivided(true)
+		}
+
+		let date = date_now()
 
 		if(!value || !type || !description || !category){
 			setMessage('Los campos no pueden ser enviados vacios.')
@@ -54,11 +61,11 @@ export function FormTransaction(){
 		}else if(dividedIn < 0){
 			setMessage('El numero de cuotas es invalido')
 		}else{		
+
 			await API.post('/operation/new-transaction', 
 					 {value, description, category, type, date, card, dividedIn, isDivided})
 			.then(resp => {
-				setMessage('')
-				console.log(resp.data.transaction)
+				navigate('/')
 			})
 			.catch(err =>{
 				setMessage('No se pudo agregar la transacción.')
@@ -108,24 +115,16 @@ export function FormTransaction(){
 							default='Tarjeta'
 						/>
 
-						<SelectComponent 
-							list={askDivided} 
-							change={e => setIsDivided(e.target.value)}
-							default='Es para pagar en cuotas?'
+						<input 
+							className="rounded w-5/12 my-6 px-1 text-xl bg-brand-200 h-12 border-b-2 focus:border-sky-500 outline-none" 
+							onChange={e => setDividedIn(e.target.value)}
+							placeholder="Numero de cuotas"
+							type="number"
 						/>
 					</div>
 
 					<div className="flex justify-around items-center w-9/12 m-auto h-20">
 						<p className='text-red-500 normal-case w-5/12 h-12'>{message}</p>
-						
-						{isDivided ?
-						<input 
-							className="rounded w-5/12 my-4 px-1 text-xl bg-brand-200 h-12 border-b-2 focus:border-sky-500 outline-none" 
-							onChange={e => setDividedIn(e.target.value)}
-							placeholder="Numero de cuotas"
-							type="number"
-						/>: null}
-
 					</div>
 
 					<div className="flex justify-between w-1/4 m-auto">

@@ -1,32 +1,29 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+
 import { ItemTransaction } from './ItemTransaction'
 import { ButtonAdd } from './ButtonAdd'
 
-export function ListTransactions(){
+export function ListTransactions(props){
 
-	let [isNewTransaction, setIsNewTransaction] = useState(true)
-
+	const navigate = useNavigate()
+	let list = props.list
+	
+	
 	return(
 		<div className="w-[70%]">
-			<ItemTransaction
-				value='450.5'
-				category='Casa'
-				type='Debito/Itau'
-				description='aluguel'
-			/>						
-			<ItemTransaction
-				value='30.43'
-				category='otro'
-				type='Credito/Inter'
-				description='Bicicleta'
-			/>	
-			<ItemTransaction
-				value='199.33'
-				category='entretenimiento'
-				type='Credito/Nubank'
-				description='Coca cola'
-			/>
-			<ButtonAdd text="Agregar nueva transacción"  width='90%'/>
+			{list.map((item) => (
+				<ItemTransaction
+					key={item._id}
+					_id={item._id}
+					value={item.value.$numberDecimal}
+					category={item.category}
+					type={item.type+'/'+item.card}
+					description={item.description}
+					reload={() => props.reload()}
+				/>						
+			))}						
+			<ButtonAdd text="Agregar nueva transacción" action={() => navigate('/nueva/transaccion')} width='90%'/>
 		</div>
 	)
 }

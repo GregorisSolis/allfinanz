@@ -17,7 +17,7 @@ router.post('/new-transaction', async (req, res) => {
 		return res.send({ transaction })
 	}
 	catch (err) {
-		return res.status(400).send({ message: 'Transaction failed.' + err})
+		return res.status(400).send({ message: 'Transaction failed.'})
 	}
 })
 
@@ -47,6 +47,18 @@ router.get('/all-transaction/type/:type/userId/:userId', async (req, res) => {
 	}
 })
 
+//BUSCAR TRANSACCIONES USANDO PALABRA LLAVE "category"
+router.get('/all-transaction/category/:category/userId/:userId', async (req, res) => {
+	try {
+		const transactions = await Transaction.find({ category: req.params.category, user: req.params.userId })
+
+		return res.send({ transactions })
+	}
+	catch (err) {
+		return res.status(400).send({ message: "Transaction not found."})
+	}
+})
+
 
 //MUESTRA TODAS LAS TRANSACCIONES DEL USUARIO POR TARJETA
 router.get('/all-transaction/user/:userId/card/:nameCard', async (req, res) => {
@@ -69,7 +81,7 @@ router.patch('/edit-transaction/:transactionId', async (req, res) => {
 
 	try {
 
-		const transaction = await Transaction.findOneAndUpdate(req.params.transactionId,
+		const transaction = await Transaction.findByIdAndUpdate(req.params.transactionId,
 			{ ...req.body, user: req.userId }, { new: true })
 
 		return res.send({ transaction })

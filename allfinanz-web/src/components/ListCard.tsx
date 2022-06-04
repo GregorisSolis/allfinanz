@@ -18,7 +18,6 @@ export function ListCard(){
 		await API.get(`/card/all-card/user/${ID_USER}`)
 		.then(resp => {
 			setCards(resp.data.card)
-			console.log(resp.data.card)
 		})
 	}
 
