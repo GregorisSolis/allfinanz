@@ -4,30 +4,37 @@ import { NewCard } from './NewCard'
 import { ButtonAdd } from './ButtonAdd'
 import { API } from '../services/api'
 
+interface ListCardProps {
+	listCostFixed: never[],
+	listCostMonth: never[],
+	date: Object
+}
 
-export function ListCard(){
+export function ListCard(props: ListCardProps) {
 
 	useEffect(() => {
 		loadCardUser()
-	},[])
+	}, [])
 
 	const ID_USER = localStorage.getItem('iden')
 	let [isNewCard, setIsNewCard] = useState(false)
 	const [cards, setCards] = useState([])
 
-	async function loadCardUser(){
+	async function loadCardUser() {
 		await API.get(`/card/all-card/user/${ID_USER}`)
-		.then(resp => {
-			setCards(resp.data.card)
-		})
+			.then(resp => {
+				setCards(resp.data.card)
+			})
 	}
 
-	return(
+
+
+	return (
 		<div className="flex overflow-x-auto overflow-y-hidden scrollbar scrollbar-thumb-zinc-700 scrollbar-thin">
-			<ButtonAdd width='300px' text='Agregar nueva tarjeta' action={() => setIsNewCard(true)}/>
-			
+			<ButtonAdd width='300px' text='Agregar nueva tarjeta' action={() => setIsNewCard(true)} />
+
 			{cards.map((card: any) => (
-				<Card 
+				<Card
 					key={card._id}
 					IDCard={card._id}
 					nameCard={card.name}
@@ -35,7 +42,10 @@ export function ListCard(){
 					backgroundValue={card.color}
 					colorFont={card.colorFont}
 					reload={() => loadCardUser()}
-				/>		
+					listCostFixed={props.listCostFixed}
+					listCostMonth={props.listCostMonth}
+					date={props.date}
+				/>
 			))}
 
 			{isNewCard ? <NewCard closeComponent={() => setIsNewCard(false)} reload={() => loadCardUser()} /> : null}

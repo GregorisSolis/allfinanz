@@ -2,7 +2,12 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { API } from '../services/api'
 
-export function SidebarInfoUser(props){
+interface SidebarInfoUserProps {
+	listCostFixed:never[],
+	listCostMonth:never[]
+}
+
+export function SidebarInfoUser(props: SidebarInfoUserProps){
 
 	useEffect(() => {
 		loadDataUser()
@@ -10,7 +15,7 @@ export function SidebarInfoUser(props){
 
 	const ID_USER = localStorage.getItem('iden')
 	const navigate = useNavigate()
-	let [monthlyIconme, setMonthlyIconme] = useState('')
+	let [monthlyIconme, setMonthlyIconme] = useState(0)
 	let [costFixed, setCostFixed] = useState(0)
 	let [costMonth, setCostMonth] = useState(0)
 	let [totalCost, setTotalCost] = useState(0)
@@ -33,13 +38,13 @@ export function SidebarInfoUser(props){
 
 	function operationTransactionTotal(){
 		let value = 0
-		props.listCostFixed.map((item) => {
+		props.listCostFixed.map((item: any) => {
 			value += parseFloat(item.value.$numberDecimal)
 		})
 		setCostFixed(parseFloat(value.toFixed(2)))
 
 		value = 0
-		props.listCostMonth.map((item) => {
+		props.listCostMonth.map((item: any) => {
 			value += parseFloat(item.value.$numberDecimal)
 		})
 		setCostMonth(parseFloat(value.toFixed(2)))

@@ -1,29 +1,36 @@
 import { useState } from 'react'
 import { Trash, Pen } from 'phosphor-react'
-import { Link } from 'react-router-dom'
 import { API } from '../services/api'
 import { ModifyTransaction } from './ModifyTransaction'
 
+interface ItemTransactionProps {
+	reload: () => void,
+	_id: string,
+	type: string,
+	category: string,
+	value: string,
+	description: string
+}
 
-export function ItemTransaction(props){
+export function ItemTransaction(props: ItemTransactionProps) {
 
 	let [isModifyTransaction, setIsModifyTransaction] = useState(false)
 
-	function removeTransaction(){
+	function removeTransaction() {
 		API.delete(`/operation/romeve-transaction/${props._id}`)
-		.then(resp => {
-			props.reload()
-		})
+			.then(() => {
+				props.reload()
+			})
 	}
 
-	return(
+	return (
 		<div className="w-[90%] flex justify-between bg-brand-200 p-4 m-4 rounded shadow-lg">
 			<div className="w-24">
 				<div className="text-center">
 					<span className="text-sky-200">Tipo</span>
 					<p className="mt-2">{props.type}</p>
 				</div>
-			</div>	
+			</div>
 
 			<div className="w-24">
 				<div className="text-center">
@@ -50,21 +57,21 @@ export function ItemTransaction(props){
 				<div className="text-center">
 					<span className="text-sky-200">Config</span>
 					<div className='flex justify-center items-center'>
-						<Trash className="hover:text-red-500 mt-2" onClick={() => removeTransaction()} size={20}/>
-						<Pen className="hover:text-sky-500 mt-2" onClick={() => setIsModifyTransaction(true)} size={20}/>
+						<Trash className="hover:text-red-500 mt-2" onClick={() => removeTransaction()} size={20} />
+						<Pen className="hover:text-sky-500 mt-2" onClick={() => setIsModifyTransaction(true)} size={20} />
 					</div>
 				</div>
 
-				{isModifyTransaction? 
+				{isModifyTransaction ?
 					<ModifyTransaction
 						_id={props._id}
-						category={props.category} 
-						value={props.value} 
+						category={props.category}
+						value={props.value}
 						description={props.description}
 						closeComponent={() => setIsModifyTransaction(false)}
 						reload={() => props.reload()}
 					/>
-				:null}
+					: null}
 			</div>
 
 		</div>

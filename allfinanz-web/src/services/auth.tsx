@@ -5,7 +5,7 @@ export const isAuthenticated = () => localStorage.getItem(TOKEN_KEY) !== null
 export const getToken = () => localStorage.getItem(TOKEN_KEY)
 
 //OBTENER EL TOKEN PARA HACER LOGIN
-export const login = token => {
+export const login = (token: any) => {
 	localStorage.setItem(TOKEN_KEY, token)
 }
 

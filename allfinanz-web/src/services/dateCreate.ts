@@ -1,9 +1,11 @@
+//CREAR LA DATA ACTUAL
+
 export function date_now(){
-	let date = new Date()
-		
+	let now = new Date()
+
 	return {
-		year: date.getFullYear(), 
-		month: date.getMonth()+1, 
-		day: date.getDate()
+		year: now.getFullYear(), 
+		month: now.getMonth()+1, 
+		day: now.getDate()
 	}
 }

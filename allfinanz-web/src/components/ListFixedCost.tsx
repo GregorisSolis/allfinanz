@@ -1,17 +1,20 @@
-import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ItemTransaction } from './ItemTransaction'
 import { ButtonAdd } from './ButtonAdd'
 
+interface listFixedCostProps{
+	list: never[],
+	reload: () => void
+}
 
-export function ListFixedCost(props){
+export function ListFixedCost(props: listFixedCostProps){
 
 	const navigate = useNavigate()
 	let list = props.list
 	
 	return(
 		<div className="w-[70%]">
-			{list.map((item) => (
+			{list.map((item: any) => (
 				<ItemTransaction
 					key={item._id}
 					_id={item._id}

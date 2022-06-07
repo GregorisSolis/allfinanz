@@ -1,10 +1,13 @@
-import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-
 import { ItemTransaction } from './ItemTransaction'
 import { ButtonAdd } from './ButtonAdd'
 
-export function ListTransactions(props){
+interface ListTransactionProps {
+	list: never[],
+	reload: () => void
+}
+
+export function ListTransactions(props: ListTransactionProps){
 
 	const navigate = useNavigate()
 	let list = props.list
@@ -12,7 +15,7 @@ export function ListTransactions(props){
 	
 	return(
 		<div className="w-[70%]">
-			{list.map((item) => (
+			{list.map((item: any) => (
 				<ItemTransaction
 					key={item._id}
 					_id={item._id}

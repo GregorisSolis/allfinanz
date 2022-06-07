@@ -21,7 +21,7 @@ export const Routers = () => (
 			<Route exact path="/login" element={<Login />}/>
 			<Route exact path="/registrate" element={<Register />}/>
 			<Route path="/perfil/completar/" element={ <PrivateRoute redirectTo="/login"> <ProfileComplete /> </PrivateRoute>}/>
-			<Route path="/extracto" element={ <PrivateRoute redirectTo="/login"> <Extract /> </PrivateRoute>}/>
+			<Route path="/extracto/" element={ <PrivateRoute redirectTo="/login"> <Extract /> </PrivateRoute>}/>
 			<Route path="/perfil" element={ <PrivateRoute redirectTo="/login"> <Profile /> </PrivateRoute>}/>
 			<Route path="/modificar/card/:nameCard" element={ <PrivateRoute redirectTo="/login"> <ModifyCard /> </PrivateRoute>}/>
 			<Route path="/nueva/transaccion" element={ <PrivateRoute redirectTo="/login"> <FormTransaction /> </PrivateRoute>}/>

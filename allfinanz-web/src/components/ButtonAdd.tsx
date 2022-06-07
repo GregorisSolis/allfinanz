@@ -1,6 +1,12 @@
 import { Plus } from 'phosphor-react'
 
-export function ButtonAdd(props){
+interface ButtonAddProps{
+	width: string,
+	text: string,
+	action: () => void
+}
+
+export function ButtonAdd(props: ButtonAddProps){
 	return(
 		<button 
 			className=" transition flex justify-center items-center hover:text-sky-200 bg-brand-200 p-4 m-4 rounded hover:shadow-xl text-sm" 

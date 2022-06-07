@@ -3,8 +3,6 @@ import { useNavigate } from 'react-router-dom'
 import { isAuthenticated } from '../services/auth'
 import { API } from '../services/api'
 import { date_now } from '../services/dateCreate'
-
-
 import { Navbar } from '../components/Navbar'
 import { ListCard } from '../components/ListCard'
 import { ListFixedCost } from '../components/ListFixedCost'
@@ -30,8 +28,8 @@ export function Home(){
 		await API.get(`/operation/all-transaction/user/${ID_USER}`)
 		.then(res => {
 			let items = res.data.transactions
-			let listAA = []
-			let listBB = []
+			let listAA:any = []
+			let listBB:any = []
 			items.map((trans: any) => {
 				if(trans.category === 'GastoFijo'){
 					listAA.push(trans)
@@ -56,7 +54,11 @@ export function Home(){
 		
 					<div className="my-4">
 						<span className="text-2xl">Tarjetas</span>
-						<ListCard />
+						<ListCard 
+							listCostFixed={listCostFixed}
+							listCostMonth={listCostMonth}
+							date={date}
+						/>
 					</div>
 
 					<div className="my-4">

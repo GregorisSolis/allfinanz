@@ -1,11 +1,10 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { API } from '../services/api'
 import { Navbar } from '../components/Navbar'
 import { SelectComponent } from '../components/SelectComponent'
 import { typePayOptions } from '../services/typePayOptions'
 import { categoryOptions } from '../services/categoryOptions'
-import { askDivided } from '../services/askDivided'
 import { date_now } from '../services/dateCreate'
 import { setDividedInTransaction } from '../services/operationDividedIn'
 
@@ -58,7 +57,7 @@ export function FormTransaction(){
 
 		if(!value || !type || !description || !category){
 			setMessage('Los campos no pueden ser enviados vacios.')
-		}else if(value <= 0 || isNaN(value)){
+		}else if(parseFloat(value) <= 0 || isNaN(parseInt(value))){
 			setMessage('El valor no puede ser enviado.')
 		}else if(dividedIn < 0){
 			setMessage('El numero de cuotas es invalido')
@@ -73,16 +72,16 @@ export function FormTransaction(){
 								y las cuotas en '0'.`)
 				}else{
 					setDividedInTransaction(value, description, category, type, card, dividedIn, isDivided)
-					setMessage(`LA TRANSACCION SE AGREGO!, fue divida en ${dividedIn} partes, el monto a pagar por mes es: $ ${value/dividedIn}.`)
+					setMessage(`LA TRANSACCION SE AGREGO!, fue divida en ${dividedIn} partes, el monto a pagar por mes es: $ ${parseInt(value)/dividedIn}.`)
 					setColorMessage('#0e5f7d')
 				}
 			}else{
 				await API.post('/operation/new-transaction', 
 						 {value, description, category, type, date, card, dividedIn, isDivided})
-				.then(resp => {
+				.then(() => {
 					navigate('/')
 				})
-				.catch(err =>{
+				.catch(() =>{
 					setMessage('No se pudo agregar la transacción.')
 				})
 			}
@@ -113,13 +112,13 @@ export function FormTransaction(){
 					<div className="flex justify-around w-9/12 m-auto">
 						<SelectComponent 
 							list={typePayOptions} 
-							change={e => setType(e.target.value)}
+							change={(e: any) => setType(e.target.value)}
 							default='Tipo de pago'
 						/>
 						
 						<SelectComponent 
 							list={categoryOptions} 
-							change={e => setCategory(e.target.value)} 
+							change={(e: any) => setCategory(e.target.value)} 
 							default='Categoria'
 						/>
 					</div>
@@ -127,13 +126,13 @@ export function FormTransaction(){
 					<div className="flex justify-around w-9/12 m-auto">
 						<SelectComponent 
 							list={cards} 
-							change={e => setCard(e.target.value)} 
+							change={(e: any) => setCard(e.target.value)} 
 							default='Tarjeta'
 						/>
 
 						<input 
 							className="rounded w-5/12 my-6 px-1 text-xl bg-brand-200 h-12 border-b-2 focus:border-sky-500 outline-none" 
-							onChange={e => setDividedIn(e.target.value)}
+							onChange={(e: any) => setDividedIn(e.target.value)}
 							placeholder="Numero de cuotas"
 							type="number"
 						/>
