@@ -9,114 +9,115 @@ import { API } from '../services/api'
 import imgNotFound from '../assets/imgNotFound.jpg'
 
 
-export function Profile(){
+export function Profile() {
 
 	useEffect(() => {
 		loadUser()
-	},[])
+	}, [])
 
 	document.title = 'Allfinanz - Perfil'
 	const ID_USER = localStorage.getItem('iden')
 	const navigate = useNavigate()
 	let [name, setName] = useState('')
-	let [savings, setSavings] = useState(0)
-	let [monthlyIconme, setMonthlyIconme] = useState(0)
+	let [savings, setSavings] = useState('')
+	let [monthlyIconme, setMonthlyIconme] = useState('')
 	let [email, setEmail] = useState('')
-	let [numberCard, setNumberCard] = useState('')
-	let [numberTransaction, setNumberTransaction] = useState('')
 	let [isUpdateUser, setIsUpdateUser] = useState(false)
 	let [isUpdateFoto, setIsUpdateFoto] = useState(false)
 	let [isUpdatePass, setIsUpdatePass] = useState(false)
 	let [imageUrl, setImageUrl] = useState(imgNotFound)
 	let [imageID, setImageID] = useState('')
 
-	async function loadUser(){
+	async function loadUser() {
 
 		await API.get(`/auth/info-user/${ID_USER}`)
 			.then(resp => {
+				setSavings(resp.data.user.savings)
 				setName(resp.data.user.name)
 				setSavings(resp.data.user.savings.$numberDecimal)
 				setMonthlyIconme(resp.data.user.monthlyIconme.$numberDecimal)
 				setEmail(resp.data.user.email)
-				if(resp.data.user.imageUrl !== undefined){
+				if (resp.data.user.imageUrl !== undefined) {
 					setImageUrl(resp.data.user.imageUrl)
 					setImageID(resp.data.user.imageID)
 				}
 			})
-			.catch(err =>{
+			.catch(() => {
 				navigate('/login')
 			})
 	}
 
-	return(
+	return (
 		<>
-		<Navbar />
+			<Navbar location='profile'/>
 
-		{isUpdateUser ? 
-			<UpdateUser 
-				closeComponent={() => setIsUpdateUser(false)}
-				email={email}
-				name={name}
-				monthlyIconme={monthlyIconme}
-				reload={() => loadUser()}
-			/> 
-		: null}		
+			{isUpdateUser ?
+				<UpdateUser
+					closeComponent={() => setIsUpdateUser(false)}
+					email={email}
+					name={name}
+					monthlyIconme={monthlyIconme}
+					savings={savings}
+					reload={() => loadUser()}
+				/>
+				: null}
 
-		{isUpdateFoto ? 
-			<UpdatePhoto 
-				closeComponent={() => setIsUpdateFoto(false)}
-				reload={() => loadUser()}
-				idForRemove={imageID}
-			/> 
-		: null}
+			{isUpdateFoto ?
+				<UpdatePhoto
+					closeComponent={() => setIsUpdateFoto(false)}
+					reload={() => loadUser()}
+					idForRemove={imageID}
+				/>
+				: null}
 
-		{isUpdatePass ? 
-			<ResetPassword 
-				closeComponent={() => setIsUpdatePass(false)}
-				reload={() => loadUser()}
-			/> 
-		: null}		
+			{isUpdatePass ?
+				<ResetPassword
+					closeComponent={() => setIsUpdatePass(false)}
+					reload={() => loadUser()}
+				/>
+				: null}
 
 
-		<div className="w-full h-96 text-white flex">
-			<div className="w-8/12 m-auto p-4">
-
-				<div className="flex justify-between items-center">
-					<div className="overflow-hidden my-4 border-solid border-sky-900 h-52 bg-brand-200 w-52 border-8 rounded-full shadow-lg">
-						<img className="w-full h-full object-cover" src={imageUrl} alt="photo profile"/>
+			<div className="w-full h-[86vh] text-white flex">
+				<div className="w-8/12 h-5/6 m-auto bg-brand-800 rounded-lg shadow-2xl flex">
+					<div className='gradient w-2/6 h-full rounded-l-lg flex flex-col'>
+						<div onClick={() => setIsUpdateFoto(true)} className='overflow-hidden rounded-full w-[220px] h-[220px] m-auto border-4 border-white transition hover:opacity-80'>
+							<img className='object-cover w-full h-full' src={imageUrl} alt="foto de perfil" />
+						</div>
+						<div className='capitalize m-auto text-center'>
+							<h1 className='text-4xl'>{name}</h1>
+						</div>
 					</div>
-
-					<h1 className="text-5xl capitalize">{name}</h1>
-				</div>
-
-				<div className="m-4 w-full rounded flex justify-end items-center">
-					<div className="mx-2 bg-brand-200 w-[23%] h-16 text-center rounded shadow-lg p-1">
-						<span className="text-sm">Renda mensual</span>
-						<p className="text-2xl font-bold">$ {monthlyIconme}</p>
-					</div>					
-					<div className="mx-2 bg-brand-200 w-[23%] h-16 text-center rounded shadow-lg p-1">
-						<span className="text-sm">Dinero ahorrado</span>
-						<p className="text-2xl font-bold">$ {savings}</p>
-					</div>					
-				</div>
-
-				<div className="bg-brand-200 w-full p-4 m-4 rounded shadow-lg">
-
-					<div className="my-5 mx-4 flex flex-col">
-						<span className="text-sm">email:</span>
-						<p className="my-1 text-xl w-2/5 text-white p-1">{email}</p>
-					</div>					
-			
-					<div className="my-5 mx-4 flex justify-center items-center">
-						<button className="bg-sky-800 mx-4 p-2 rounded hover:bg-sky-500" onClick={() => setIsUpdateUser(true)}>Editar información</button>
-						<button className="bg-sky-800 mx-4 p-2 rounded hover:bg-sky-500" onClick={() => setIsUpdateFoto(true)}>Editar foto</button>
-						<button className="bg-sky-800 mx-4 p-2 rounded hover:bg-sky-500" onClick={() => setIsUpdatePass(true)}>Cambiar contraseña</button>
+					<div className='py-4 px-12 w-[70%]'>
+						<div className='w-full border-b-2 py-1 border-gray-800'>
+							<h2 className='text-2xl capitalize'>información</h2>
+						</div>
+						<div className='my-8 px-8 flex justify-between items-center'>
+							<div>
+								<h2 className='my-2 text-2xl capitalize'>renda mensual</h2>
+								<h2 className='my-2 text-lg text-gray-500'>$ {monthlyIconme}</h2>
+							</div>
+							<div>
+								<h2 className='my-1 text-2xl capitalize'>Ahorros</h2>
+								<h2 className='my-1 text-lg text-gray-500'>$ {savings}</h2>
+							</div>
+						</div>
+						<div className='my-8 px-8 flex justify-between items-center'>
+							<div>
+								<h2 className='my-1 text-2xl capitalize'>Email</h2>
+								<h2 className='my-1 text-lg text-gray-500'>{email}</h2>
+							</div>
+						</div>
+						<div className='w-full border-b-2 py-1 border-gray-800'>
+							<h2 className='text-2xl capitalize'>Modificar</h2>
+						</div>
+						<div className='my-8 px-8 flex justify-between items-center'>
+							<button onClick={() => setIsUpdatePass(true)} className='bg-sky-800 rounded p-2 shadow-xl hover:bg-sky-500'>Contraseña</button>
+							<button onClick={() => setIsUpdateUser(true)} className='bg-sky-800 rounded p-2 shadow-xl hover:bg-sky-500'>Información</button>
+						</div>
 					</div>
-
 				</div>
-
 			</div>
-		</div>
 		</>
 	)
 }

@@ -2,7 +2,8 @@ import { Link } from 'react-router-dom'
 import { isAuthenticated } from '../services/auth'
 import { logout } from '../services/auth'
 
-export function Navbar(){
+export function Navbar(props: {location: string}){
+	let location = props.location
 	return(
 		<nav className="h-20 text-white shadow-md">
 			<div className="flex justify-between items-center h-full w-10/12 m-auto">
@@ -11,14 +12,14 @@ export function Navbar(){
 
 				{isAuthenticated() ? 
 				<div className=" h-full w-80 text-2xl flex justify-around items-center">
-					<Link className="h-full flex items-center hover:text-sky-500 transition" to="/">Home</Link>
-					<Link className="h-full flex items-center hover:text-sky-500 transition" to="/extracto">Extracto</Link>
-					<Link className="h-full flex items-center hover:text-sky-500 transition" to="/Perfil">Perfil</Link>
-					<a className="h-full flex items-center hover:text-sky-500 transition" onClick={() => logout()} href="/">Salir</a>
+					<Link className={location === 'home' ? 'link text-sky-600' : 'link'} to="/">Home</Link>
+					<Link className={location === 'extract' ? 'link text-sky-600' : 'link'} to="/extracto">Extracto</Link>
+					<Link className={location === 'profile' ? 'link text-sky-600' : 'link'} to="/Perfil">Perfil</Link>
+					<a className="link" onClick={() => logout()} href="/">Salir</a>
 				</div>
 				:
 				<div className=" h-full w-80 text-2xl flex justify-end items-center">
-					<Link className="h-full flex items-center hover:text-sky-500 transition" to="/login">Entrar</Link>
+					<Link className="link" to="/login">Entrar</Link>
 				</div>
 				}
 			</div>

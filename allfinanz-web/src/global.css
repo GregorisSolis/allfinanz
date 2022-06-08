@@ -10,3 +10,11 @@ nav{
 	background: rgb(10,84,166);
 	background: linear-gradient(135deg, rgba(10,84,166,1) 16%, rgba(11,40,52,1) 56%, rgba(18,18,18,1) 100%);
 }
+
+.gradient{
+	background: linear-gradient(135deg, rgb(6, 53, 107) 16%, rgb(134, 0, 211) 56%, rgb(95, 3, 182) 100%)
+}
+
+.link{
+	@apply h-full flex items-center hover:text-sky-500 focus:text-sky-500 transition
+}

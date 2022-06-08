@@ -40,14 +40,14 @@ export function Home(){
 			setListCostFixed(listAA)
 			setListCostMonth(listBB)
 		})
-		.catch(err => {
-			navigate('/login')
+		.catch(() => {
+			navigate('/')
 		})	
 	}
 
 	return(
 		<>
-		<Navbar />
+		<Navbar location='home'/>
 		<div className="w-full h-96 text-white flex">
 			{ isAuthenticated() ? 
 				<div className="w-4/5 m-auto p-4">

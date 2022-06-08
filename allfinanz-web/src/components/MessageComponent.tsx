@@ -1,0 +1,16 @@
+interface MessageComponentProps{
+    title: string,
+    text: string,
+    action: () => void
+}
+
+export function MessageComponent(props: MessageComponentProps){
+    return(
+        <div className="fixed inset-0 bg-brand-200 flex justify-center items-center sahdow-4xl">
+            <div className="w-1/4 h-1/4 p-2 bg-[#495057] shadow-xl rounded-lg">
+                <p className="h-4/6 flex justify-center items-center" >{props.text}</p>
+                <button onClick={() => props.action()} className="hover:bg-sky-500 p-2 bg-sky-600 p-2 rounded" >continuar</button>
+            </div>
+        </div>
+    )
+}

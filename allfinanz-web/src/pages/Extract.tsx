@@ -52,7 +52,7 @@ export function Extract() {
 
 	return (
 		<>
-			<Navbar />
+			<Navbar location='extract'/>
 			<div className="w-full h-96 text-white flex">
 				<div className="w-4/5 m-auto p-4">
 

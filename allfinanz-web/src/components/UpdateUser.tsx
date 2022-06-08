@@ -1,38 +1,55 @@
-import { useState } from 'react'
+import { FormEvent, useState } from 'react'
 import { API } from '../services/api'
 
-export function UpdateUser(props){
+interface UpdateUserProps {
+	name: string,
+	monthlyIconme: string,
+	email: string,
+	savings: string,
+	reload: () => void,
+	closeComponent: () => void
+}
+
+export function UpdateUser(props: UpdateUserProps) {
 
 	let [message, setMessage] = useState('')
 	let [name, setName] = useState(props.name)
 	let [monthlyIconme, setMonthlyIconme] = useState(props.monthlyIconme)
 	let [email, setEmail] = useState(props.email)
+	let [savings, setSavings] = useState(props.savings)
 	const ID_USER = localStorage.getItem('iden')
 
+	if (savings.includes(',') || monthlyIconme.includes(',')) {
+		setSavings(savings.replace(',', '.'))
+		setMonthlyIconme(monthlyIconme.replace(',', '.'))
+	}
 
-
-	async function setUpdateUser(event: FormEvent){
+	async function setUpdateUser(event: FormEvent) {
 		event.preventDefault()
 
-		if(!email || !name || !monthlyIconme){
+		if (!email || !name || !monthlyIconme || !savings) {
 			setMessage("Los campos Nombre, Email y Renda mensual no pueden estar vacio.")
-		}else{
-			await API.put(`/auth/edit/${ID_USER}`, {name,email,monthlyIconme})
-				.then(resp => {
+		} else if (isNaN(parseInt(monthlyIconme)) || isNaN(parseInt(savings))) {
+			setMessage("Los campos 'Renda Mensual' y 'Ahorros' solo pueden ser numeros.")
+		} else {
+
+			await API.put(`/auth/edit/${ID_USER}`, { name, email, monthlyIconme: (parseFloat(monthlyIconme)).toFixed(2), savings: (parseFloat(savings)).toFixed(2) })
+				.then(() => {
 					props.reload()
 					props.closeComponent()
-				})			
+				})
 		}
 
 	}
 
-	return(
+	return (
 		<div className="m-0 fixed bg-brand-100 inset-0 transition flex justify-center items-center">
 			<form className="text-white bg-brand-800 flex flex-col p-4 rounded text-center w-[35%]" onSubmit={setUpdateUser}>
 				<h1 className="text-2xl">Actualizar información</h1>
-				<input className="m-4 bg-transparent border-b-2 outline-none focus:border-sky-500 hover:border-sky-500" value={name} placeholder="nombre completo" onChange={e => setName(e.target.value)}/>
-				<input className="m-4 bg-transparent border-b-2 outline-none focus:border-sky-500 hover:border-sky-500" value={email} placeholder="email" onChange={e => setEmail(e.target.value)}/>
-				<input className="m-4 bg-transparent border-b-2 outline-none focus:border-sky-500 hover:border-sky-500" value={monthlyIconme} placeholder="Renda Mensual" onChange={e => setMonthlyIconme(e.target.value)}/>
+				<input className="m-4 bg-transparent border-b-2 outline-none focus:border-sky-500 hover:border-sky-500" value={name} placeholder="nombre completo" onChange={e => setName(e.target.value)} />
+				<input className="m-4 bg-transparent border-b-2 outline-none focus:border-sky-500 hover:border-sky-500" value={email} placeholder="email" onChange={e => setEmail(e.target.value)} />
+				<input className="m-4 bg-transparent border-b-2 outline-none focus:border-sky-500 hover:border-sky-500" value={monthlyIconme} placeholder="Renda Mensual" onChange={e => setMonthlyIconme(e.target.value)} />
+				<input className="m-4 bg-transparent border-b-2 outline-none focus:border-sky-500 hover:border-sky-500" value={savings} placeholder="Renda Mensual" onChange={e => setSavings(e.target.value)} />
 				<div className="m-4">
 					<button className="mx-4 bg-sky-600 rounded p-2" type="submit">Confirmar</button>
 					<button className="mx-4 bg-red-600 rounded p-2" onClick={() => props.closeComponent()}>Cerrar</button>
