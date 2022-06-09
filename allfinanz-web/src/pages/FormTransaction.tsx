@@ -29,7 +29,6 @@ export function FormTransaction() {
 
 	let [isMessage, setIsMessage] = useState(false)
 	let [textMessage, setTextMessage] = useState('')
-	let [titleMessage, setTitleMessage] = useState('')
 	const ID_USER = localStorage.getItem('iden')
 
 	if (value.includes(',')) {
@@ -62,15 +61,12 @@ export function FormTransaction() {
 
 		if (!value || !type || !description || !category) {
 			setDividedInTransaction(value, description, category, type, card, dividedIn, isDivided)
-			setTitleMessage('Error')
 			setTextMessage('Los campos no pueden ser enviados vacios.')
 			setIsMessage(true)
 		} else if (parseFloat(value) <= 0 || isNaN(parseInt(value))) {
-			setTitleMessage('Error')
 			setTextMessage('El valor no se puede agregar.')
 			setIsMessage(true)
 		} else if (dividedIn < 0) {
-			setTitleMessage('Error')
 			setTextMessage('El numero de cuotas es invalido')
 			setIsMessage(true)
 		} else {
@@ -79,12 +75,10 @@ export function FormTransaction() {
 
 			if (dividedIn >= 2) {
 				if (dividedIn >= 24) {
-					setTitleMessage('Error')
 					setTextMessage(`Como las cuotas superan los dos años, Te recomendamos agregarlo como una categoria: 'Gasto fijo' y las cuotas en '0'.`)
 					setIsMessage(true)
 				} else {
 					setDividedInTransaction(value, description, category, type, card, dividedIn, isDivided)
-					setTitleMessage('Transacción Realizada')
 					setTextMessage(` Fue divida en ${dividedIn} partes, el monto a pagar por mes es: $ ${parseInt(value) / dividedIn}.`)
 					setIsMessage(true)
 				}
@@ -95,7 +89,6 @@ export function FormTransaction() {
 						navigate('/')
 					})
 					.catch(() => {
-						setTitleMessage('Error')
 						setTextMessage('No se pudo agregar la transacción.')
 						setIsMessage(true)
 					})
@@ -153,7 +146,7 @@ export function FormTransaction() {
 						/>
 					</div>
 
-					{isMessage ? <MessageComponent title={titleMessage} text={textMessage} action={() => setIsMessage(false)} /> : null}
+					{isMessage ? <MessageComponent text={textMessage} action={() => setIsMessage(false)} /> : null}
 
 					<div className="flex justify-between w-1/4 m-auto">
 						<button type="submit" className=" my-8 bg-sky-600 w-36 py-2 hover:bg-sky-500 rounded m-auto">Agregar</button>

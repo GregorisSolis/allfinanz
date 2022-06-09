@@ -1,5 +1,6 @@
 import { FormEvent, useState } from 'react'
 import { API } from '../services/api'
+import { MessageComponent } from './MessageComponent'
 
 interface UpdateUserProps {
 	name: string,
@@ -12,7 +13,8 @@ interface UpdateUserProps {
 
 export function UpdateUser(props: UpdateUserProps) {
 
-	let [message, setMessage] = useState('')
+	let [isMessage, setIsMessage] = useState(false)
+	let [textMessage, setTextMessage] = useState('')
 	let [name, setName] = useState(props.name)
 	let [monthlyIconme, setMonthlyIconme] = useState(props.monthlyIconme)
 	let [email, setEmail] = useState(props.email)
@@ -28,9 +30,11 @@ export function UpdateUser(props: UpdateUserProps) {
 		event.preventDefault()
 
 		if (!email || !name || !monthlyIconme || !savings) {
-			setMessage("Los campos Nombre, Email y Renda mensual no pueden estar vacio.")
+			setTextMessage("Los campos Nombre, Email y Renda mensual no pueden estar vacio.")
+			setIsMessage(true)
 		} else if (isNaN(parseInt(monthlyIconme)) || isNaN(parseInt(savings))) {
-			setMessage("Los campos 'Renda Mensual' y 'Ahorros' solo pueden ser numeros.")
+			setTextMessage("Los campos 'Renda Mensual' y 'Ahorros' solo pueden ser numeros.")
+			setIsMessage(true)
 		} else {
 
 			await API.put(`/auth/edit/${ID_USER}`, { name, email, monthlyIconme: (parseFloat(monthlyIconme)).toFixed(2), savings: (parseFloat(savings)).toFixed(2) })
@@ -44,6 +48,8 @@ export function UpdateUser(props: UpdateUserProps) {
 
 	return (
 		<div className="m-0 fixed bg-brand-100 inset-0 transition flex justify-center items-center">
+			{isMessage ? <MessageComponent text={textMessage} action={() => setIsMessage(false)} /> : null}
+
 			<form className="text-white bg-brand-800 flex flex-col p-4 rounded text-center w-[35%]" onSubmit={setUpdateUser}>
 				<h1 className="text-2xl">Actualizar información</h1>
 				<input className="m-4 bg-transparent border-b-2 outline-none focus:border-sky-500 hover:border-sky-500" value={name} placeholder="nombre completo" onChange={e => setName(e.target.value)} />
@@ -54,7 +60,6 @@ export function UpdateUser(props: UpdateUserProps) {
 					<button className="mx-4 bg-sky-600 rounded p-2" type="submit">Confirmar</button>
 					<button className="mx-4 bg-red-600 rounded p-2" onClick={() => props.closeComponent()}>Cerrar</button>
 				</div>
-				<p className='text-orange-500 normal-case transition h-12'>{message}</p>
 			</form>
 		</div>
 	)

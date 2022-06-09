@@ -1,10 +1,11 @@
-import { useState } from 'react'
+import { FormEvent, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { MessageComponent } from '../components/MessageComponent'
 import { API } from '../services/api'
 import { login } from '../services/auth'
 
 
-export function Register(){
+export function Register() {
 
 	document.title = 'Allfinanz - Registrate'
 	const navigate = useNavigate()
@@ -12,47 +13,55 @@ export function Register(){
 	const [name, setName] = useState('')
 	const [confirmPassword, setConfirmPassword] = useState('')
 	const [password, setPassword] = useState('')
-	const [message, setMessage] = useState('Al crear la contraseña recuerda usar simbolos y mas de 7 caracteres.')
+	let [isMessage, setIsMessage] = useState(false)
+	let [textMessage, setTextMessage] = useState('')
 
-	async function setRegister(event: FormEvent){
+
+	async function setRegister(event: FormEvent) {
 		event.preventDefault()
 
-		if(!password || !email || !confirmPassword || !name){
-			setMessage('Debes llenar todos los campos.')
-		}else{
+		if (!password || !email || !confirmPassword || !name) {
+			setTextMessage('Debes llenar todos los campos.')
+			setIsMessage(true)
+		} else {
 
-		if(password !== confirmPassword){
-			setMessage('Las contraseñas no coinciden.')
-		}else if(password.length <= 7){
-			setMessage('La contraseña es muy debil. intenta agregar !@#$%* y recuerda mas de 7 caracteres.')
-		}else if(!email.includes("@",".com")){
-			setMessage('Email invalido intenta otro.')
-		}else{
+			if (password !== confirmPassword) {
+				setTextMessage('Las contraseñas no coinciden.')
+				setIsMessage(true)
+			} else if (password.length <= 7) {
+				setTextMessage('La contraseña es muy debil. intenta agregar !@#$%* y recuerda mas de 7 caracteres.')
+				setIsMessage(true)
+			} else if (!email.includes("@") && !email.includes(".com")) {
+				setTextMessage('Email invalido intenta otro.')
+				setIsMessage(true)
+			} else {
 
-			await API.post('/auth/register', { email,password,name })
-			.then(resp => {
-				login(resp.data.token)
-				localStorage.setItem('iden',resp.data.user._id)
-				navigate(`/perfil/completar/`)
-			})
-			.catch(err => {
-				setMessage('El email ya esta registrado por otro usuario.')
-			})
+				await API.post('/auth/register', { email, password, name })
+					.then(resp => {
+						login(resp.data.token)
+						localStorage.setItem('iden', resp.data.user._id)
+						navigate(`/perfil/completar/`)
+					})
+					.catch(() => {
+						setTextMessage('El email ya esta registrado por otro usuario.')
+						setIsMessage(true)
+					})
 			}
 		}
-		
+
 	}
 
-	return(
+	return (
 		<div className="w-full min-h-96 text-white flex my-16">
-			<div className="m-auto min-w-[50%] w-2/4 rounded bg-brand-200 shadow-lg p-4">
+			{isMessage ? <MessageComponent text={textMessage} action={() => setIsMessage(false)} /> : null}
+
+			<div className="m-auto max:w-[90%] w-1/4 rounded bg-brand-200 shadow-xl p-4">
 				<form onSubmit={setRegister} className="flex flex-col text-center">
 					<h1 className="text-4xl mb-8">Crear cuenta</h1>
-					<input className="text-center transition w-11/12 m-auto my-4 px-1 text-xl bg-transparent border-b-2 hover:border-sky-600 focus:border-sky-500 outline-none" onChange={e => setName(e.target.value)}placeholder="nombre completo"/>
-					<input className="text-center transition w-11/12 m-auto my-4 px-1 text-xl bg-transparent border-b-2 hover:border-sky-600 focus:border-sky-500 outline-none" onChange={e => setEmail(e.target.value)}placeholder="email"/>
-					<input className="text-center transition w-11/12 m-auto my-4 px-1 text-xl bg-transparent border-b-2 hover:border-sky-600 focus:border-sky-500 outline-none" onChange={e => setPassword(e.target.value)} placeholder="password"/>
-					<input className="text-center transition w-11/12 m-auto my-4 px-1 text-xl bg-transparent border-b-2 hover:border-sky-600 focus:border-sky-500 outline-none" onChange={e => setConfirmPassword(e.target.value)} placeholder="confirmar contraseña"/>
-					<p className='text-orange-500 normal-case transition h-8'>{message}</p>
+					<input className="text-center transition w-11/12 m-auto my-4 px-1 text-xl bg-transparent border-b-2 hover:border-sky-600 focus:border-sky-500 outline-none" onChange={e => setName(e.target.value)} placeholder="nombre completo" />
+					<input className="text-center transition w-11/12 m-auto my-4 px-1 text-xl bg-transparent border-b-2 hover:border-sky-600 focus:border-sky-500 outline-none" onChange={e => setEmail(e.target.value)} placeholder="email" />
+					<input className="text-center transition w-11/12 m-auto my-4 px-1 text-xl bg-transparent border-b-2 hover:border-sky-600 focus:border-sky-500 outline-none" onChange={e => setPassword(e.target.value)} placeholder="password" />
+					<input className="text-center transition w-11/12 m-auto my-4 px-1 text-xl bg-transparent border-b-2 hover:border-sky-600 focus:border-sky-500 outline-none" onChange={e => setConfirmPassword(e.target.value)} placeholder="confirmar contraseña" />
 					<button type="submit" className="transition my-8 bg-sky-600 w-40 py-2 hover:bg-sky-500 rounded m-auto">Crear</button>
 					<a className="hover:text-sky-500 hover:underline transition" href="/login">Ir a login</a>
 				</form>

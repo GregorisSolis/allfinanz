@@ -1,60 +1,68 @@
-import { useState } from 'react'
+import { FormEvent, useState } from 'react'
 import { API } from '../services/api'
+import { MessageComponent } from './MessageComponent'
 
-export function NewCard(props){
+interface NewCardProps{
+	reload: () => void,
+	closeComponent: () => void,
+}
 
-	let [message, setMessage] = useState('')
+export function NewCard(props: NewCardProps) {
+
+	let [isMessage, setIsMessage] = useState(false)
+	let [textMessage, setTextMessage] = useState('')
 	let [name, setName] = useState('')
-	let [cardCloseDay, setCardCloseDay] = useState('')
+	let [cardCloseDay, setCardCloseDay] = useState(0)
 	let [color, setColor] = useState('#000000')
 	let [colorFont, setColorFont] = useState('#000000')
-	let [amountCard, setAmountCard] = useState('')
-	let ID_USER = localStorage.getItem('iden')
 
-	function setNewCard(event: FormEvent){
+	function setNewCard(event: FormEvent) {
 		event.preventDefault()
 
-		if(!name || !cardCloseDay){
-			setMessage("Todos los campos son obligatorio.")
-		}else if(isNaN(cardCloseDay) || cardCloseDay <= 0 || cardCloseDay > 31){
-			setMessage('Fecha invalida, intenta de nuevo.')
-		}else{
-			API.post('/card/new-card/',{name, cardCloseDay, color, colorFont})
-			.then(resp => {
-				props.reload()
-				props.closeComponent()
-			})
+		if (!name || !cardCloseDay) {
+			setTextMessage("Todos los campos son obligatorio.")
+			setIsMessage(true)
+		} else if (isNaN(cardCloseDay) || cardCloseDay <= 0 || cardCloseDay > 31) {
+			setTextMessage('Fecha invalida, intenta de nuevo.')
+			setIsMessage(true)
+		} else {
+			API.post('/card/new-card/', { name, cardCloseDay, color, colorFont })
+				.then(() => {
+					props.reload()
+					props.closeComponent()
+				})
 		}
 	}
 
-	return(
+	return (
 		<div className="fixed bg-brand-100 inset-0 flex justify-center items-center transition">
+			{isMessage ? <MessageComponent text={textMessage} action={() => setIsMessage(false)} /> : null}
+
 			<form className="lg:w-1/4 sm:w-11/12 bg-brand-800 rounded flex flex-col p-4 shadow-lg" onSubmit={setNewCard}>
 				<h1 className="text-2xl text-center">Nueva Tarjeta</h1>
-				<input 
+				<input
 					className="m-4 bg-transparent border-b-2 outline-none focus:border-sky-500 hover:border-sky-500"
 					placeholder="Nombre de la tarjeta"
 					onChange={e => setName(e.target.value)}
-				/>		
-				<input 
+				/>
+				<input
 					className="m-4 bg-transparent border-b-2 outline-none focus:border-sky-500 hover:border-sky-500"
 					placeholder="Cierre de factura"
 					type="number"
-					onChange={e => setCardCloseDay(e.target.value)}
+					onChange={(e: any) => setCardCloseDay(e.target.value)}
 				/>
-				<input 
+				<input
 					className="m-4 mb-0 w-1/4 bg-transparent border-b-2 outline-none focus:border-sky-500 hover:border-sky-500"
 					type="color"
 					onChange={e => setColor(e.target.value)}
 				/>
-				<span className="text-xs m-4 mt-0">Elige un color para el fondo de la tarjeta</span>				
-				<input 
+				<span className="text-xs m-4 mt-0">Elige un color para el fondo de la tarjeta</span>
+				<input
 					className="m-4 w-1/4 mb-0 bg-transparent border-b-2 outline-none focus:border-sky-500 hover:border-sky-500"
 					type="color"
 					onChange={e => setColorFont(e.target.value)}
 				/>
 				<span className="text-xs m-4 mt-0">Elige un color para la letra de la tarjeta</span>
-				<p className='mt-2 text-center text-orange-500 normal-case transition h-12'>{message}</p>
 				<div className="w-full flex justify-center items-center ">
 					<button className="mx-4 bg-sky-600 rounded p-2" type="submit">Confirmar</button>
 					<button className="mx-4 bg-red-600 rounded p-2" onClick={() => props.closeComponent()}>Cerrar</button>

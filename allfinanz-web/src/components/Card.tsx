@@ -9,7 +9,7 @@ interface CardProps {
 	colorFont: String,
 	nameCard: String,
 	IDCard: String,
-	date: {month: number, year: number},
+	date: {year: number, month: number, day: number},
 	cardCloseDay: String,
 	listCostFixed: never[],
 	listCostMonth: never[],

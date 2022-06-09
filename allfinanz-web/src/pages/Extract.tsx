@@ -5,6 +5,7 @@ import { ListTransactions } from '../components/ListTransactions'
 import { SidebarInfoUser } from '../components/SidebarInfoUser'
 import { Navbar } from '../components/Navbar'
 import { API } from '../services/api'
+import { MessageComponent } from '../components/MessageComponent'
 
 
 export function Extract() {
@@ -19,7 +20,9 @@ export function Extract() {
 	let navigate = useNavigate()
 	let [month, setMonth] = useState('')
 	let [year, setYear] = useState('')
-	let searchDate = { month: parseInt(month),year: parseInt(year) }
+	let searchDate = { month: parseInt(month), year: parseInt(year), day: 1 }
+	let [isMessage, setIsMessage] = useState(false)
+	let [textMessage, setTextMessage] = useState('')
 
 	async function loadTransaction() {
 
@@ -28,8 +31,8 @@ export function Extract() {
 		await API.get(`/operation/all-transaction/user/${ID_USER}`)
 			.then(res => {
 				let items = res.data.transactions
-				let listAA:any = []
-				let listBB:any = []
+				let listAA: any = []
+				let listBB: any = []
 				items.map((trans: any) => {
 					if (trans.category === 'GastoFijo') {
 						listAA.push(trans)
@@ -45,14 +48,24 @@ export function Extract() {
 			})
 	}
 
-	function setSearch(event: FormEvent){
+	function setSearch(event: FormEvent) {
 		event.preventDefault()
-		loadTransaction()
+		if (parseInt(month) <= 0 || parseInt(month) >= 12 || parseInt(year) < 0 || !month || !year) {
+			setTextMessage('Fecha invalida.')
+			setIsMessage(true)
+		} else if (isNaN(parseInt(month)) || isNaN(parseInt(year)) || month.includes(',') || year.includes(',')) {
+			setTextMessage('La fecha tiene que ser en numeros.')
+			setIsMessage(true)
+		} else {
+			loadTransaction()
+		}
 	}
 
 	return (
 		<>
-			<Navbar location='extract'/>
+			<Navbar location='extract' />
+			{isMessage ? <MessageComponent text={textMessage} action={() => setIsMessage(false)} /> : null}
+
 			<div className="w-full h-96 text-white flex">
 				<div className="w-4/5 m-auto p-4">
 
@@ -67,7 +80,7 @@ export function Extract() {
 					<div className="my-4">
 						<span className="text-2xl">Gastos del mes</span>
 						<div className="flex">
-							<ListTransactions list={listCostMonth} reload={() => loadTransaction()}/>
+							<ListTransactions list={listCostMonth} reload={() => loadTransaction()} />
 							<SidebarInfoUser
 								listCostFixed={listCostFixed}
 								listCostMonth={listCostMonth}
@@ -77,7 +90,7 @@ export function Extract() {
 
 					<div className="my-4">
 						<span className="text-2xl">Tarjetas</span>
-						<ListCard 
+						<ListCard
 							listCostFixed={listCostFixed}
 							listCostMonth={listCostMonth}
 							date={searchDate}

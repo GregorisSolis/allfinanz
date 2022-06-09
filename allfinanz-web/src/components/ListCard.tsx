@@ -7,7 +7,7 @@ import { API } from '../services/api'
 interface ListCardProps {
 	listCostFixed: never[],
 	listCostMonth: never[],
-	date: Object
+	date: {year: number, month: number, day: number}
 }
 
 export function ListCard(props: ListCardProps) {

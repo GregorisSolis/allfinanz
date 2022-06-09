@@ -18,3 +18,12 @@ nav{
 .link{
 	@apply h-full flex items-center hover:text-sky-500 focus:text-sky-500 transition
 }
+
+.animation-text{
+	animation: animation-error .3s infinite ease-in-out;
+}
+
+@keyframes animation-error{
+	from{color:rgb(255, 0, 0)}
+	to{color: rgb(90, 0, 0);}
+}
