@@ -29,7 +29,7 @@ export function Register() {
 				setTextMessage('Las contraseñas no coinciden.')
 				setIsMessage(true)
 			} else if (password.length <= 7) {
-				setTextMessage('La contraseña es muy debil. intenta agregar !@#$%* y recuerda mas de 7 caracteres.')
+				setTextMessage('La contraseña es muy debil. intenta agregar - !@#$%* - y mas de 7 caracteres.')
 				setIsMessage(true)
 			} else if (!email.includes("@") && !email.includes(".com")) {
 				setTextMessage('Email invalido intenta otro.')
@@ -55,7 +55,7 @@ export function Register() {
 		<div className="w-full min-h-96 text-white flex my-16">
 			{isMessage ? <MessageComponent text={textMessage} action={() => setIsMessage(false)} /> : null}
 
-			<div className="m-auto max:w-[90%] w-1/4 rounded bg-brand-200 shadow-xl p-4">
+			<div className="m-auto md:w-[90%] lg:w-1/4 rounded bg-brand-200 shadow-xl p-4">
 				<form onSubmit={setRegister} className="flex flex-col text-center">
 					<h1 className="text-4xl mb-8">Crear cuenta</h1>
 					<input className="text-center transition w-11/12 m-auto my-4 px-1 text-xl bg-transparent border-b-2 hover:border-sky-600 focus:border-sky-500 outline-none" onChange={e => setName(e.target.value)} placeholder="nombre completo" />

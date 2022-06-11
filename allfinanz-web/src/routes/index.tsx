@@ -10,6 +10,8 @@ import { Profile } from '../pages/Profile'
 import { ModifyCard } from '../pages/ModifyCard'
 import { FormTransaction } from '../pages/FormTransaction'
 import { PageNotFound } from "../pages/PageNotFound";
+import { ForgotPassword } from "../pages/forgotPassword";
+import { CreateResetPassword } from '../pages/CreateResetPassword'
 
 const PrivateRoute = ({ children, redirectTo }) => {
   return isAuthenticated() ? children : <Navigate to={redirectTo} />;
@@ -26,6 +28,8 @@ export const Routers = () => (
 			<Route path="/perfil" element={ <PrivateRoute redirectTo="/login"> <Profile /> </PrivateRoute>}/>
 			<Route path="/modificar/card/:nameCard" element={ <PrivateRoute redirectTo="/login"> <ModifyCard /> </PrivateRoute>}/>
 			<Route path="/nueva/transaccion" element={ <PrivateRoute redirectTo="/login"> <FormTransaction /> </PrivateRoute>}/>
+			<Route path="/recuperar-cuenta" element={<ForgotPassword />}/>
+			<Route path="/reset-password/:token/:email" element={<CreateResetPassword />}/>
 			<Route path="/*" element={<PageNotFound />}/>
 		</Routes>
 	</BrowserRouter>

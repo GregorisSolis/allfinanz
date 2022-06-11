@@ -27,7 +27,7 @@ router.post('/register', async (req, res) => {
 
 			return res.status(400).send({ message: 'User already exists.' })
 
-		}else if(password.length < 8 ){
+		} else if (password.length < 8) {
 			return res.status(400).send({ message: 'Short password.' })
 		}
 
@@ -87,16 +87,16 @@ router.get('/info-user/:userId', async (req, res) => {
 router.post('/forgot_password', async (req, res) => {
 	const { email } = req.body
 
-	try{
+	try {
 
 		const user = await User.findOne({ email })
 
-		if(!user){
-			return res.status(400).send({ message: "User not found"})
+		if (!user) {
+			return res.status(400).send({ message: "User not found" })
 		}
 
 		const token = crypto.randomBytes(20).toString('hex')
-		
+
 		const now = new Date()
 		now.setHours(now.getHours() + 1)
 
@@ -106,27 +106,26 @@ router.post('/forgot_password', async (req, res) => {
 				passwordResetExpires: now,
 			}
 		})
-		
+
 		mailer.sendMail({
 			to: email,
 			from: process.env.EMAIL_ALLFINANZ,
 			template: '/forgot_password',
-			subject: 'Reset password',
-			context: { token }
+			subject: 'ALLFINANZ - Reset password',
+			context: { token, email: email.replace('.com','') }
 
 		}, (err) => {
 			if (err) {
-				console.log(err)
-				return res.status(400).send({ message: 'Cannot send forgot password email'})
+				return res.status(400).send({ message: 'Cannot send forgot password email' })
 			}
 
 			return res.send()
 		})
 	}
 
-	
-	catch(err){
-		res.status(400).send({ message: 'message on forgot password, try again'})
+
+	catch (err) {
+		res.status(400).send({ message: 'message on forgot password, try again' })
 	}
 })
 
@@ -135,23 +134,23 @@ router.post('/reset_password', async (req, res) => {
 
 	const { email, token, password } = req.body
 
-	try{
+	try {
 
 		const user = await User.findOne({ email })
-		.select('+passwordResetToken passwordResetExpires')
+			.select('+passwordResetToken passwordResetExpires')
 
-		if (!user){
+		if (!user) {
 			return res.status(400).send({ message: "User not found" })
 		}
 
-		if (token !== user.passwordResetToken){
-			return res.status(400).send({ message: "Token Invalid"})
+		if (token !== user.passwordResetToken) {
+			return res.status(400).send({ message: "Token Invalid" })
 		}
 
 		const now = new Date()
 
-		if (now > user.passwordResetExpires){
-			return res.status(400).send({ message: "Token expired, generate a new one"})
+		if (now > user.passwordResetExpires) {
+			return res.status(400).send({ message: "Token expired, generate a new one" })
 		}
 
 		user.password = password
@@ -159,9 +158,9 @@ router.post('/reset_password', async (req, res) => {
 		await user.save()
 
 		res.send()
-	}	
-	catch (err){
-		res.status(400).send({ message: 'Cannot reset password, try again'})
+	}
+	catch (err) {
+		res.status(400).send({ message: 'Cannot reset password, try again' })
 	}
 })
 

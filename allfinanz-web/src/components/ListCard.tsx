@@ -7,7 +7,7 @@ import { API } from '../services/api'
 interface ListCardProps {
 	listCostFixed: never[],
 	listCostMonth: never[],
-	date: {year: number, month: number, day: number}
+	date: { year: number, month: number, day: number }
 }
 
 export function ListCard(props: ListCardProps) {
@@ -31,7 +31,6 @@ export function ListCard(props: ListCardProps) {
 
 	return (
 		<div className="flex overflow-x-auto overflow-y-hidden scrollbar scrollbar-thumb-zinc-700 scrollbar-thin">
-			<ButtonAdd width='300px' text='Agregar nueva tarjeta' action={() => setIsNewCard(true)} />
 
 			{cards.map((card: any) => (
 				<Card
@@ -48,6 +47,7 @@ export function ListCard(props: ListCardProps) {
 				/>
 			))}
 
+			<ButtonAdd width='300px' text='Agregar nueva tarjeta' action={() => setIsNewCard(true)} />
 			{isNewCard ? <NewCard closeComponent={() => setIsNewCard(false)} reload={() => loadCardUser()} /> : null}
 		</div>
 	)

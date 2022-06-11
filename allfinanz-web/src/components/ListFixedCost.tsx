@@ -13,7 +13,7 @@ export function ListFixedCost(props: listFixedCostProps){
 	let list = props.list
 	
 	return(
-		<div className="w-[70%]">
+		<div className="lg:w-[70%] md:w-[100%]">
 			{list.map((item: any) => (
 				<ItemTransaction
 					key={item._id}

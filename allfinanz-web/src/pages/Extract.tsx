@@ -50,7 +50,7 @@ export function Extract() {
 
 	function setSearch(event: FormEvent) {
 		event.preventDefault()
-		if (parseInt(month) <= 0 || parseInt(month) >= 12 || parseInt(year) < 0 || !month || !year) {
+		if (parseInt(month) <= 0 || parseInt(month) > 12 || parseInt(year) < 0 || !month || !year) {
 			setTextMessage('Fecha invalida.')
 			setIsMessage(true)
 		} else if (isNaN(parseInt(month)) || isNaN(parseInt(year)) || month.includes(',') || year.includes(',')) {

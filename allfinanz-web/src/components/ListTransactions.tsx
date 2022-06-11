@@ -14,7 +14,7 @@ export function ListTransactions(props: ListTransactionProps){
 	
 	
 	return(
-		<div className="w-[70%]">
+		<div className="lg:w-[70%] md:w-[90%]">
 			{list.map((item: any) => (
 				<ItemTransaction
 					key={item._id}

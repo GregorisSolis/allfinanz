@@ -54,7 +54,7 @@ export function SidebarInfoUser(props: SidebarInfoUserProps){
 	}
 
 	return(
-		<div className="bg-brand-200 w-[30%] h-[30%] my-4 rounded shadow-lg p-4">
+		<div className="bg-brand-200 lg:w-[30%] md:w-[90%] h-[30%] my-4 rounded shadow-lg p-4">
 			<h1 className="text-center w-full text-sky-800 font-bold text-xl">Detalles</h1>
 
 			<div className="w-full my-2">

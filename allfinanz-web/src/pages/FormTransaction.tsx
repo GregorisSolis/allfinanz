@@ -101,23 +101,23 @@ export function FormTransaction() {
 		<>
 			<Navbar location='' />
 			<div className="m-0 w-full">
-				<form className="text-white flex flex-col p-4 rounded text-center w-11/12 m-auto" onSubmit={setNewTransaction}>
+				<form className="text-white flex flex-col p-4 rounded text-center lg:w-11/12 md:w-[90%] m-auto" onSubmit={setNewTransaction}>
 					<h1 className="text-4xl mb-4 text-sky-500">Nueva Transacción</h1>
 
-					<div className="flex justify-around w-9/12 m-auto">
+					<div className="lg:flex md:block justify-around lg:w-9/12 md:w-full m-auto">
 						<input
-							className="rounded w-5/12 m-auto my-6 px-1 text-xl bg-brand-200 h-12 border-b-2 focus:border-sky-500 outline-none"
+							className="rounded lg:w-5/12 md:w-full m-auto my-6 px-1 text-xl bg-brand-200 h-12 border-b-2 focus:border-sky-500 outline-none"
 							onChange={e => setValue(e.target.value)}
 							placeholder="Valor"
 						/>
 						<input
-							className="rounded w-5/12 m-auto my-6 px-1 text-xl bg-brand-200 h-12 border-b-2 focus:border-sky-500 outline-none"
+							className="rounded lg:w-5/12 md:w-full m-auto my-6 px-1 text-xl bg-brand-200 h-12 border-b-2 focus:border-sky-500 outline-none"
 							onChange={e => setDescription(e.target.value)}
 							placeholder="Descripción"
 						/>
 					</div>
 
-					<div className="flex justify-around w-9/12 m-auto">
+					<div className="lg:flex md:block justify-around w-9/12 m-auto">
 						<SelectComponent
 							list={typePayOptions}
 							change={(e: any) => setType(e.target.value)}
@@ -131,7 +131,7 @@ export function FormTransaction() {
 						/>
 					</div>
 
-					<div className="flex justify-around w-9/12 m-auto">
+					<div className="lg:flex md:block justify-around w-9/12 m-auto">
 						<SelectComponent
 							list={cards}
 							change={(e: any) => setCard(e.target.value)}
@@ -139,7 +139,7 @@ export function FormTransaction() {
 						/>
 
 						<input
-							className="rounded w-5/12 my-6 px-1 text-xl bg-brand-200 h-12 border-b-2 focus:border-sky-500 outline-none"
+							className="rounded lg:w-5/12 md:w-100 my-6 px-1 text-xl bg-brand-200 h-12 border-b-2 focus:border-sky-500 outline-none"
 							onChange={(e: any) => setDividedIn(e.target.value)}
 							placeholder="Numero de cuotas"
 							type="number"
