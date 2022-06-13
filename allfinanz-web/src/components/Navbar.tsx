@@ -6,19 +6,19 @@ export function Navbar(props: {location: string}){
 	let location = props.location
 	return(
 		<nav className="h-20 text-white shadow-xl">
-			<div className="flex justify-between items-center h-full w-10/12 m-auto">
+			<div className="flex justify-between items-center h-full lg:w-10/12 md:w-full">
 
-				<div className="text-4xl uppercase">allfinanz</div>
+				<div className="text-4xl uppercase title mx-4">allfinanz</div>
 
 				{isAuthenticated() ? 
-				<div className=" h-full w-80 text-2xl flex justify-around items-center hidden-item">
+				<div className=" h-full w-80 text-2xl flex justify-around items-center nav_responsive">
 					<Link className={location === 'home' ? 'link text-sky-600' : 'link'} to="/">Home</Link>
 					<Link className={location === 'extract' ? 'link text-sky-600' : 'link'} to="/extracto">Extracto</Link>
 					<Link className={location === 'profile' ? 'link text-sky-600' : 'link'} to="/Perfil">Perfil</Link>
 					<a className="link" onClick={() => logout()} href="/">Salir</a>
 				</div>
 				:
-				<div className=" h-full w-80 text-2xl flex justify-end items-center">
+				<div className=" h-full w-80 text-2xl flex justify-end items-center mx-4">
 					<Link className="link" to="/login">Entrar</Link>
 				</div>
 				}

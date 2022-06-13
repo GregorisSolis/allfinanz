@@ -73,7 +73,7 @@ export function Home() {
 							</div>
 						</div>
 
-						<div className="my-4">
+						<div className="my-4 mb-16">
 							<span className="text-2xl">Transaciones del mes</span>
 							<ListTransactions list={listCostMonth} reload={() => loadTransaction()} />
 						</div>

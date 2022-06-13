@@ -11,13 +11,9 @@ nav{
 	background: linear-gradient(135deg, rgba(10,84,166,1) 16%, rgba(11,40,52,1) 56%, rgba(18,18,18,1) 100%);
 }
 
-.gradient{
-	background: linear-gradient(135deg, rgb(6, 53, 107) 16%, rgb(134, 0, 211) 56%, rgb(95, 3, 182) 100%)
-}
+.gradient{background: linear-gradient(135deg, rgb(6, 53, 107) 16%, rgb(134, 0, 211) 56%, rgb(95, 3, 182) 100%)}
 
-.link{
-	@apply h-full flex items-center hover:text-sky-500 focus:text-sky-500 transition
-}
+.link{@apply h-full flex items-center hover:text-sky-500 focus:text-sky-500 transition}
 
 .animation-text{animation: animation-error .3s infinite ease-in-out;}
 
@@ -37,4 +33,22 @@ nav{
 	.hidden-item{
 		display: none;
 	}
+
+	.nav_responsive{
+		position: fixed;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		height: 8vh;
+		width: 100%;
+		margin: 0;
+		background-color: #181a1d;
+		box-shadow: 2px 1px 2px 2px #13233a;
+	}
+
+	.title{
+		width: 100%;
+		text-align: center;
+	}
 }
+

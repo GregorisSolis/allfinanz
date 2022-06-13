@@ -66,20 +66,21 @@ export function Extract() {
 			<Navbar location='extract' />
 			{isMessage ? <MessageComponent text={textMessage} action={() => setIsMessage(false)} /> : null}
 
-			<div className="w-full h-96 text-white flex">
-				<div className="w-4/5 m-auto p-4">
+			<div className="w-full text-white lg:flex md:block">
 
-					<form onSubmit={setSearch} className="flex bg-brand-200 rounded p-2">
-						<input className="transition w-1/4 m-auto p-1  text-xl bg-transparent border-b-2 focus:border-sky-500 outline-none" onChange={e => setMonth(e.target.value)} placeholder="Mes" />
-						<input className="transition w-1/4 m-auto p-1  text-xl bg-transparent border-b-2 focus:border-sky-500 outline-none" onChange={e => setYear(e.target.value)} placeholder="Año" />
-						<div className="flex justify-center items-center m-4">
+				<div className="lg:w-4/5 md:w-[90%] m-auto p-4">
+
+					<form onSubmit={setSearch} className="lg:w-[63%] md:w-full flex justify-around items-center bg-brand-200 m-4 p-2 rounded">
+						<input className="w-[25%] m-1 text-center h-11 border-b-2 border-white bg-transparent hover:border-sky-500 focus:border-sky-500 outline-none" onChange={e => setMonth(e.target.value)} placeholder="Mes" />
+						<input className="w-[25%] m-1 text-center h-11 border-b-2 border-white bg-transparent hover:border-sky-500 focus:border-sky-500 outline-none" onChange={e => setYear(e.target.value)} placeholder="Año" />
+						<div className="">
 							<button type='submit' className="bg-sky-600 hover:bg-sky-500 rounded px-4 py-2 text-xl">Buscar</button>
 						</div>
 					</form>
 
 					<div className="my-4">
 						<span className="text-2xl">Gastos del mes</span>
-						<div className="flex">
+						<div className="lg:flex md:block">
 							<ListTransactions list={listCostMonth} reload={() => loadTransaction()} />
 							<SidebarInfoUser
 								listCostFixed={listCostFixed}
@@ -88,7 +89,7 @@ export function Extract() {
 						</div>
 					</div>
 
-					<div className="my-4">
+					<div className="my-4 mb-16">
 						<span className="text-2xl">Tarjetas</span>
 						<ListCard
 							listCostFixed={listCostFixed}
