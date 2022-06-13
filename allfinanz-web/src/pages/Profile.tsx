@@ -78,21 +78,21 @@ export function Profile() {
 				: null}
 
 
-			<div className="w-full h-[86vh] text-white flex">
-				<div className="w-8/12 h-5/6 m-auto bg-brand-800 rounded-lg shadow-2xl flex">
-					<div className='gradient w-2/6 h-full rounded-l-lg flex flex-col'>
-						<div onClick={() => setIsUpdateFoto(true)} className='overflow-hidden rounded-full w-[220px] h-[220px] m-auto border-4 border-white transition hover:opacity-80'>
+			<div className="w-full lg:h-[86vh] md:h-screen mb-12 text-white lg:flex md:block justify-center items-center">
+				<div className="lg:w-8/12 md:w-[90%] lg:h-5/6 md:w-full bg-brand-800 rounded-lg shadow-2xl lg:flex md:grid">
+					<div className='gradient lg:w-2/6 md:w-full w-full lg:rounded-l-lg md:rounded-none flex flex-col p-5'>
+						<div onClick={() => setIsUpdateFoto(true)} className='overflow-hidden rounded-full w-56 h-56 m-auto border-4 border-white transition hover:opacity-80'>
 							<img className='object-cover w-full h-full' src={imageUrl} alt="foto de perfil" />
 						</div>
 						<div className='capitalize m-auto text-center'>
 							<h1 className='text-4xl'>{name}</h1>
 						</div>
 					</div>
-					<div className='py-4 px-12 w-[70%]'>
+					<div className='py-4 px-12 lg:w-[70%] md:w-full'>
 						<div className='w-full border-b-2 py-1 border-gray-800'>
 							<h2 className='text-2xl capitalize'>información</h2>
 						</div>
-						<div className='my-8 px-8 flex justify-between items-center'>
+						<div className='my-8 px-8 lg:flex md:grid justify-between items-center'>
 							<div>
 								<h2 className='my-2 text-2xl capitalize'>renda mensual</h2>
 								<h2 className='my-2 text-lg text-gray-500'>$ {monthlyIconme}</h2>
@@ -102,7 +102,7 @@ export function Profile() {
 								<h2 className='my-1 text-lg text-gray-500'>$ {savings}</h2>
 							</div>
 						</div>
-						<div className='my-8 px-8 flex justify-between items-center'>
+						<div className='my-8 px-8 flex  justify-between items-center'>
 							<div>
 								<h2 className='my-1 text-2xl capitalize'>Email</h2>
 								<h2 className='my-1 text-lg text-gray-500'>{email}</h2>

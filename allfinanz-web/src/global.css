@@ -50,5 +50,9 @@ nav{
 		width: 100%;
 		text-align: center;
 	}
+
+	.large-content{
+		width: 90%;
+	}
 }
 

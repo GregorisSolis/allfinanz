@@ -6,7 +6,7 @@ export function Navbar(props: {location: string}){
 	let location = props.location
 	return(
 		<nav className="h-20 text-white shadow-xl">
-			<div className="flex justify-between items-center h-full lg:w-10/12 md:w-full">
+			<div className="flex justify-between items-center h-full lg:w-10/12 md:w-full m-auto">
 
 				<div className="text-4xl uppercase title mx-4">allfinanz</div>
 
