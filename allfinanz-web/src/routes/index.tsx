@@ -10,9 +10,10 @@ import { Profile } from '../pages/Profile'
 import { ModifyCard } from '../pages/ModifyCard'
 import { FormTransaction } from '../pages/FormTransaction'
 import { PageNotFound } from "../pages/PageNotFound";
-import { ForgotPassword } from "../pages/forgotPassword";
+import { ForgotPassword } from "../pages/ForgotPassword";
 import { CreateResetPassword } from '../pages/CreateResetPassword'
 
+// @ts-ignore
 const PrivateRoute = ({ children, redirectTo }) => {
   return isAuthenticated() ? children : <Navigate to={redirectTo} />;
 };

@@ -67,7 +67,7 @@ export function ModifyCard() {
 			<Navbar location='' />
 			{isMessage ? <MessageComponent text={textMessage} action={() => setIsMessage(false)} /> : null}
 
-			<div className="w-full min:h-96 text-white flex justify-center items-center my-16">
+			<div className="w-full min:h-96 text-white lg:flex md:block justify-center items-center my-16">
 
 				<div className="w-1/4">
 					<Card
@@ -83,7 +83,7 @@ export function ModifyCard() {
 					/>
 				</div>
 
-				<div className="min:w-1/4 w-1/4 rounded bg-brand-200 shadow-lg p-4">
+				<div className="lg:w-1/4 md:w-full m-4 rounded bg-brand-200 shadow-lg p-4">
 					<form onSubmit={setUpdateCard} className="flex flex-col text-center">
 						<h1 className="text-4xl mb-8">{name}</h1>
 						<div>
@@ -93,7 +93,7 @@ export function ModifyCard() {
 								value={color}
 								onChange={e => setColor(e.target.value)}
 							/>
-							<span className="text-xs mx-4">Color de la tarjeta</span>
+							<span className="lg:text-xs md:text-xl mx-4">Color de la tarjeta</span>
 						</div>
 						<div>
 							<input
@@ -102,7 +102,7 @@ export function ModifyCard() {
 								onChange={e => setColorFont(e.target.value)}
 								value={colorFont}
 							/>
-							<span className="text-xs mx-4">Color de las letras</span>
+							<span className="lg:text-xs md:text-xl mx-4">Color de las letras</span>
 						</div>
 						<div >
 							<input
@@ -111,7 +111,7 @@ export function ModifyCard() {
 								placeholder={cardCloseDay}
 								onChange={e => setCardCloseDay(e.target.value)}
 							/>
-							<span className="text-xs mx-3 flex">Dia de cierre</span>
+							<span className="lg:text-xs md:text-xl mx-3 flex">Dia de cierre</span>
 						</div>
 						<div>
 							<button type="submit" className="transition my-8 bg-sky-600 w-40 py-2 hover:bg-sky-500 rounded m-auto">Editar tarjeta</button>

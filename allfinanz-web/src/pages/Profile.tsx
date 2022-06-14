@@ -85,7 +85,7 @@ export function Profile() {
 							<img className='object-cover w-full h-full' src={imageUrl} alt="foto de perfil" />
 						</div>
 						<div className='capitalize m-auto text-center'>
-							<h1 className='text-4xl'>{name}</h1>
+							<h1 className='text-4xl my-4'>{name}</h1>
 						</div>
 					</div>
 					<div className='py-4 px-12 lg:w-[70%] md:w-full'>

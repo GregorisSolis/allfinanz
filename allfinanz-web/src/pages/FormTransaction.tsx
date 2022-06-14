@@ -104,7 +104,7 @@ export function FormTransaction() {
 				<form className="text-white flex flex-col p-4 rounded text-center lg:w-11/12 md:w-[90%] m-auto" onSubmit={setNewTransaction}>
 					<h1 className="text-4xl mb-4 text-sky-500">Nueva Transacción</h1>
 
-					<div className="lg:flex md:block justify-around lg:w-9/12 md:w-full m-auto">
+					<div className="lg:flex md:grid justify-around large-content w-9/12 m-auto">
 						<input
 							className="rounded lg:w-5/12 md:w-full m-auto my-6 px-1 text-xl bg-brand-200 h-12 border-b-2 focus:border-sky-500 outline-none"
 							onChange={e => setValue(e.target.value)}
@@ -117,7 +117,7 @@ export function FormTransaction() {
 						/>
 					</div>
 
-					<div className="lg:flex md:block justify-around w-9/12 m-auto">
+					<div className="lg:flex md:grid justify-around w-9/12 m-auto">
 						<SelectComponent
 							list={typePayOptions}
 							change={(e: any) => setType(e.target.value)}

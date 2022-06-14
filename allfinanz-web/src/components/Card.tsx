@@ -57,7 +57,8 @@ export function Card(props: CardProps) {
 
 	return (
 		<div
-			className='min-w-[300px] h-[210px] shadow-md rounded m-4 p-4 flex-col cursor-pointer hover:opacity-80'
+		className='min-w-[300px] h-[210px] shadow-md rounded m-4 p-4 flex-col cursor-pointer hover:opacity-80'
+			// @ts-ignore
 			style={{ background: backgroundValue, currentcolor: colorFont }}
 		>
 			<div className='h-16'>
