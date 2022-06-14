@@ -32,10 +32,9 @@ export function CreateResetPassword() {
                 .then(() => {
                     navigate('/perfil')
                 })
-                .catch((err) => {
+                .catch(() => {
                     setTextMessage('No se pudo agregar la nueva contraseña.')
                     setIsMessage(true)
-                    console.log(err)
                 })
         }
 
