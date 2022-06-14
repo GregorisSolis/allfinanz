@@ -39,10 +39,10 @@ PostSchema.pre('remove', function () {
 			})
 			.promise()
 			.then(response => {
-				console.log(response.status);
+				//console.log(response.status);
 			})
 			.catch(response => {
-				console.log(response.status);
+				//console.log(response.status);
 			});
 	} else {
 		return promisify(fs.unlink)(
