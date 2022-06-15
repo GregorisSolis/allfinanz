@@ -30,7 +30,7 @@ export function ListCard(props: ListCardProps) {
 
 
 	return (
-		<div className="flex lg:overflow-x-auto md:overflow-x-hidden overflow-y-hidden scrollbar scrollbar-thumb-zinc-700 scrollbar-thin">
+		<div className="flex overflow-y-hidden scrollbar scrollbar-thumb-zinc-700 scrollbar-thin">
 
 			{cards.map((card: any) => (
 				<Card

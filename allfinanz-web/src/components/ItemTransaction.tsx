@@ -28,7 +28,7 @@ export function ItemTransaction(props: ItemTransactionProps) {
 			<div className="lg:w-24 md:w-16">
 				<div className="text-center">
 					<span className="text-sky-200 lg:text-md md:text-sm">Tipo</span>
-					<p className="mt-2 lg:text-md md:text-sm">{props.type}</p>
+					<p className="mt-2 lg:text-md md:text-sm">{props.type.length > 11 ? (props.type).substr(0, 12)+'.': props.type}</p>
 				</div>
 			</div>
 
@@ -49,7 +49,7 @@ export function ItemTransaction(props: ItemTransactionProps) {
 			<div className="lg:w-24 md:w-16">
 				<div className="text-center">
 					<span className="text-sky-200 lg:text-md md:text-sm">Descripción</span>
-					<p className="mt-2 lg:text-md md:text-sm">{props.description}</p>
+					<p className="mt-2 lg:text-md md:text-sm">{props.description.length > 11 ? (props.description).substr(0, 7)+'...': props.description}</p>
 				</div>
 			</div>
 

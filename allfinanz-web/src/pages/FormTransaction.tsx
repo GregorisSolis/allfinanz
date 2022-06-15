@@ -47,6 +47,7 @@ export function FormTransaction() {
 	async function setNewTransaction(event: FormEvent) {
 		event.preventDefault()
 
+
 		if (card === 'default') {
 			setCard('')
 		}
@@ -79,8 +80,11 @@ export function FormTransaction() {
 					setIsMessage(true)
 				} else {
 					setDividedInTransaction(value, description, category, type, card, dividedIn, isDivided)
-					setTextMessage(` Fue divida en ${dividedIn} partes, el monto a pagar por mes es: $ ${parseInt(value) / dividedIn}.`)
+					setTextMessage(`La transacción fue divida en ${dividedIn} partes, el monto a pagar por los proximos ${dividedIn} meses es: $ ${(parseFloat(value)/dividedIn).toFixed(2)}`)
 					setIsMessage(true)
+					setValue('')
+					setDescription('')
+					setDividedIn(0)
 				}
 			} else {
 				await API.post('/operation/new-transaction',
@@ -109,11 +113,13 @@ export function FormTransaction() {
 							className="rounded lg:w-5/12 md:w-full m-auto my-6 px-1 text-xl bg-brand-200 h-12 border-b-2 focus:border-sky-500 outline-none"
 							onChange={e => setValue(e.target.value)}
 							placeholder="Valor"
+							value={value}
 						/>
 						<input
 							className="rounded lg:w-5/12 md:w-full m-auto my-6 px-1 text-xl bg-brand-200 h-12 border-b-2 focus:border-sky-500 outline-none"
 							onChange={e => setDescription(e.target.value)}
 							placeholder="Descripción"
+							value={description}
 						/>
 					</div>
 
@@ -143,6 +149,7 @@ export function FormTransaction() {
 							onChange={(e: any) => setDividedIn(e.target.value)}
 							placeholder="Numero de cuotas"
 							type="number"
+							value={dividedIn}
 						/>
 					</div>
 
