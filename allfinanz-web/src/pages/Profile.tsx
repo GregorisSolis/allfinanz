@@ -112,8 +112,8 @@ export function Profile() {
 							<h2 className='text-2xl capitalize'>Modificar</h2>
 						</div>
 						<div className='my-8 px-8 flex justify-between items-center'>
-							<button onClick={() => setIsUpdatePass(true)} className='bg-sky-800 rounded p-2 shadow-xl hover:bg-sky-500'>Contraseña</button>
-							<button onClick={() => setIsUpdateUser(true)} className='bg-sky-800 rounded p-2 shadow-xl hover:bg-sky-500'>Información</button>
+							<button onClick={() => setIsUpdatePass(true)} className='bg-sky-800 rounded p-2 shadow-xl hover:bg-sky-500 mx-1'>Contraseña</button>
+							<button onClick={() => setIsUpdateUser(true)} className='bg-sky-800 rounded p-2 shadow-xl hover:bg-sky-500 mx-1'>Información</button>
 						</div>
 					</div>
 				</div>

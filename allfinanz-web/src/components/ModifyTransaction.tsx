@@ -45,7 +45,7 @@ export function ModifyTransaction(props: ModifyTransactionProps) {
 	return (
 		<div className="flex justify-center items-center fixed inset-0 bg-moon-300">
 			{isMessage ? <MessageComponent text={textMessage} action={() => setIsMessage(false)} /> : null}
-			<form onSubmit={setModifyTrasnsaction} className="w-1/4 bg-moon-500 rounded py-4 px-8 flex flex-col shadow">
+			<form onSubmit={setModifyTrasnsaction} className="lg:w-1/4 md:w-[90%] bg-moon-500 rounded py-4 px-8 flex flex-col shadow">
 				<h1 className="text-2xl mb-8 text-center text-sky-600">Modificar Transacción</h1>
 				<input
 					className="transition w-11/12 m-auto my-4 px-1 text-xl bg-transparent border-b-2 focus:border-sky-500 outline-none"
