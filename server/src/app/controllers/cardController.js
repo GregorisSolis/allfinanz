@@ -12,8 +12,8 @@ router.use(authMiddleware)
 router.post('/new-card', async (req, res) => {
 	try {
 
-		if(await Card.findOne({ name: req.body.name })) {
-			return res.send({ message: 'Card already exists.'})
+		if (await Card.findOne({ name: req.body.name, user: req.userId })) {
+			return res.send({ message: 'Card already exists.' })
 		}
 
 		const card = await Card.create({ ...req.body, user: req.userId })
@@ -21,7 +21,7 @@ router.post('/new-card', async (req, res) => {
 		return res.send({ card })
 	}
 	catch (err) {
-		return res.status(400).send({ message: 'Card failed. '})
+		return res.status(400).send({ message: 'Card failed.' })
 	}
 })
 
@@ -57,16 +57,16 @@ router.get('/card-data/:nameCard/user/:userId', async (req, res) => {
 //EDITAR UNA TARJETA
 router.patch('/edit-card/:id', async (req, res) => {
 
-	try{
+	try {
 
 		const card = await Card.findByIdAndUpdate(req.params.id,
 			{ ...req.body, user: req.userId }, { new: true })
 
 		return res.send({ card })
 
-	}catch(err){
+	} catch (err) {
 
-		return res.status(400).send({ message: "Error updating card." + err})
+		return res.status(400).send({ message: "Error updating card." + err })
 	}
 })
 
@@ -80,7 +80,7 @@ router.delete('/remove-card/:cardId', async (req, res) => {
 		return res.send()
 
 	} catch (err) {
-		return res.status(400).send({ message: 'Error deleting card.'})
+		return res.status(400).send({ message: 'Error deleting card.' })
 	}
 })
 
