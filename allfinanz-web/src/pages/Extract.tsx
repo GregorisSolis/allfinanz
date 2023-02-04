@@ -1,4 +1,4 @@
-import { FormEvent, useEffect, useState } from 'react'
+import { FormEvent, useEffect, useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ListCard } from '../components/ListCard'
 import { ListTransactions } from '../components/ListTransactions'
@@ -23,6 +23,8 @@ export function Extract() {
 	let searchDate = { month: parseInt(month), year: parseInt(year), day: 1 }
 	let [isMessage, setIsMessage] = useState(false)
 	let [textMessage, setTextMessage] = useState('')
+	const inputMonth = useRef<HTMLInputElement>(null)
+	const inputYear = useRef<HTMLInputElement>(null)
 
 	async function loadTransaction() {
 
@@ -61,6 +63,12 @@ export function Extract() {
 		}
 	}
 
+	const handleNextInput = (event: FormEvent<HTMLInputElement>) => {
+		if (event.currentTarget.value.length === 2 && inputYear.current) {
+			inputYear.current.focus();
+		  }
+	  };
+
 	return (
 		<>
 			<Navbar location='extract' />
@@ -71,8 +79,8 @@ export function Extract() {
 				<div className="lg:w-4/5 md:w-[90%] m-auto p-4">
 
 					<form onSubmit={setSearch} className="lg:w-[63%] md:w-full flex justify-around items-center bg-brand-200 m-4 p-2 rounded">
-						<input className="w-[25%] m-1 text-center h-11 border-b-2 border-white bg-transparent hover:border-sky-500 focus:border-sky-500 outline-none" onChange={e => setMonth(e.target.value)} placeholder="Mes" />
-						<input className="w-[25%] m-1 text-center h-11 border-b-2 border-white bg-transparent hover:border-sky-500 focus:border-sky-500 outline-none" onChange={e => setYear(e.target.value)} placeholder="Año" />
+						<input ref={inputMonth} maxLength={2} onInput={handleNextInput} className="w-[25%] m-1 text-center h-11 border-b-2 border-white bg-transparent hover:border-sky-500 focus:border-sky-500 outline-none" onChange={e => setMonth(e.target.value)} placeholder="Mes" />
+						<input ref={inputYear} maxLength={4} className="w-[25%] m-1 text-center h-11 border-b-2 border-white bg-transparent hover:border-sky-500 focus:border-sky-500 outline-none" onChange={e => setYear(e.target.value)} placeholder="Año" />
 						<div className="">
 							<button type='submit' className="bg-sky-600 hover:bg-sky-500 rounded px-4 py-2 text-xl">Buscar</button>
 						</div>

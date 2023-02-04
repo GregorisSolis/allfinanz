@@ -4,7 +4,7 @@ import { date_now } from './dateCreate'
 
 export const setDividedInTransaction = (value: string,description:string ,category: string,type: string,card: string,dividedIn: number,isDivided: boolean) => {
 
-	let month = date_now().month + 1
+	let month = date_now().month
 	let year = date_now().year
 	let date = {}
 	let valueDivided: number
