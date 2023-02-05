@@ -14,6 +14,7 @@ export function ListFixedCost(props: listFixedCostProps){
 	
 	return(
 		<div className="lg:w-[70%] md:w-[100%]">
+			<ButtonAdd text="Agregar nuevo gasto fijo" action={() => navigate('/nuevo/gasto-fijo')} width='90%'/>
 			{list.map((item: any) => (
 				<ItemTransaction
 					key={item._id}
@@ -25,7 +26,6 @@ export function ListFixedCost(props: listFixedCostProps){
 					reload={() => props.reload()}
 				/>						
 			))}
-			<ButtonAdd text="Agregar nuevo gasto fijo" action={() => navigate('/nueva/transaccion')} width='90%'/>
 		</div>
 	)
 }

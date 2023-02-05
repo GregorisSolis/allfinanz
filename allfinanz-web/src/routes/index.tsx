@@ -9,6 +9,7 @@ import { Extract } from '../pages/Extract'
 import { Profile } from '../pages/Profile'
 import { ModifyCard } from '../pages/ModifyCard'
 import { FormTransaction } from '../pages/FormTransaction'
+import { FormTransactionFixe } from '../pages/FormTransactionFixe'
 import { PageNotFound } from "../pages/PageNotFound";
 import { ForgotPassword } from "../pages/ForgotPassword";
 import { CreateResetPassword } from '../pages/CreateResetPassword'
@@ -29,6 +30,7 @@ export const Routers = () => (
 			<Route path="/perfil" element={ <PrivateRoute redirectTo="/login"> <Profile /> </PrivateRoute>}/>
 			<Route path="/modificar/card/:nameCard" element={ <PrivateRoute redirectTo="/login"> <ModifyCard /> </PrivateRoute>}/>
 			<Route path="/nueva/transaccion" element={ <PrivateRoute redirectTo="/login"> <FormTransaction /> </PrivateRoute>}/>
+			<Route path="/nuevo/gasto-fijo" element={ <PrivateRoute redirectTo="/login"> <FormTransactionFixe /> </PrivateRoute>}/>
 			<Route path="/recuperar-cuenta" element={<ForgotPassword />}/>
 			<Route path="/reset-password/:token/:email" element={<CreateResetPassword />}/>
 			<Route path="/*" element={<PageNotFound />}/>

@@ -15,6 +15,7 @@ export function ListTransactions(props: ListTransactionProps){
 	
 	return(
 		<div className="lg:w-[70%] md:w-[90%]">
+			<ButtonAdd text="Agregar nueva transacción" action={() => navigate('/nueva/transaccion')} width='90%'/>
 			{list.map((item: any) => (
 				<ItemTransaction
 					key={item._id}
@@ -26,7 +27,6 @@ export function ListTransactions(props: ListTransactionProps){
 					reload={() => props.reload()}
 				/>						
 			))}						
-			<ButtonAdd text="Agregar nueva transacción" action={() => navigate('/nueva/transaccion')} width='90%'/>
 		</div>
 	)
 }

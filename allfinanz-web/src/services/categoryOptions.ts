@@ -1,5 +1,5 @@
 export const categoryOptions = [
-	{_id: 11,value: 'GastoFijo', name: 'Gasto Fijo'},
+  //{_id: 11,value: 'GastoFijo', name: 'Gasto Fijo'},
 	{_id: 0,value: 'Salud', name: 'Salud'},
 	{_id: 1,value: 'Ropa', name: 'Ropa'},
 	{_id: 2,value: 'Mercado', name: 'Mercado'},

@@ -11,7 +11,7 @@ import { date_now } from '../services/dateCreate'
 import { setDividedInTransaction } from '../services/operationDividedIn'
 import { API } from '../services/api'
 
-export function FormTransaction() {
+export function FormTransactionFixe() {
 
 	useEffect(() => {
 		loadCards()
@@ -22,7 +22,7 @@ export function FormTransaction() {
 	let [value, setValue] = useState('')
 	let [type, setType] = useState('')
 	let [description, setDescription] = useState('')
-	let [category, setCategory] = useState('')
+	let category = 'GastoFijo';
 	let [card, setCard] = useState('')
 	let [dividedIn, setDividedIn] = useState(0)
 	let [isDivided, setIsDivided] = useState(false)
@@ -106,7 +106,7 @@ export function FormTransaction() {
 			<Navbar location='' />
 			<div className="m-0 w-full">
 				<form className="text-white flex flex-col p-4 rounded text-center lg:w-11/12 md:w-[90%] my-4 m-auto" onSubmit={setNewTransaction}>
-					<h1 className="text-4xl mb-4 text-sky-500">Nueva Transacción</h1>
+					<h1 className="text-4xl mb-4 text-sky-500">Nuevo Gasto Fijo</h1>
 
 					<div className="lg:flex md:grid justify-around large-content w-9/12 my-4 m-auto">
 						<input
@@ -131,25 +131,9 @@ export function FormTransaction() {
 						/>
 
 						<SelectComponent
-							list={categoryOptions}
-							change={(e: any) => setCategory(e.target.value)}
-							default='Categoria'
-						/>
-					</div>
-
-					<div className="lg:flex md:block justify-around w-9/12 m-auto">
-						<SelectComponent
 							list={cards}
 							change={(e: any) => setCard(e.target.value)}
 							default='Tarjeta'
-						/>
-
-						<input
-							className="rounded lg:w-5/12 md:w-100 my-6 px-1 text-xl bg-brand-200 h-12 border-b-2 focus:border-sky-500 outline-none"
-							onChange={(e: any) => setDividedIn(e.target.value)}
-							placeholder="Numero de cuotas"
-							type="number"
-							value={dividedIn}
 						/>
 					</div>
 
