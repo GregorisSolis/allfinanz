@@ -90,7 +90,7 @@ export function FormTransaction() {
 				await API.post('/operation/new-transaction',
 					{ value, description, category, type, date, card, dividedIn, isDivided })
 					.then(() => {
-						navigate('/')
+						navigate('/dashboard')
 					})
 					.catch(() => {
 						setTextMessage('No se pudo agregar la transacción.')

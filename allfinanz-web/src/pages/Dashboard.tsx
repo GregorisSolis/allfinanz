@@ -17,7 +17,7 @@ export function Dashboard() {
 		loadTransaction()
 	}, [])
 
-	document.title = 'Allfinanz'
+	document.title = 'Allfinanz - Dashboard'
 	let [listCostMonth, setListCostMonth] = useState([])
 	let [listCostFixed, setListCostFixed] = useState([])
 	let navigate = useNavigate()
@@ -49,7 +49,6 @@ export function Dashboard() {
 	return (
 		<>
 			<Navbar location='Dashboard' />
-			{isAuthenticated() ?
 				<div className="w-full h-96 text-white lg:flex md:block">
 					<div className="md:w-[90%] lg:w-4/5 m-auto p-4">
 
@@ -80,9 +79,6 @@ export function Dashboard() {
 
 					</div>
 				</div>
-				:
-				<IsNotUser />
-			}
 		</>
 	)
 }

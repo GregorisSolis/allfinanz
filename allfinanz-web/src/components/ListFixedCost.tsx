@@ -22,6 +22,7 @@ export function ListFixedCost(props: listFixedCostProps){
 					value={item.value.$numberDecimal}
 					category={item.category}
 					type={item.type+'/'+item.card}
+					card={item.card}
 					description={item.description}
 					reload={() => props.reload()}
 				/>						

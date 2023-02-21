@@ -17,12 +17,12 @@ export function FormTransactionFixe() {
 		loadCards()
 	}, [])
 
+	let category = 'GastoFijo';
 	const navigate = useNavigate()
 	let [cards, setCards] = useState([])
 	let [value, setValue] = useState('')
 	let [type, setType] = useState('')
 	let [description, setDescription] = useState('')
-	let category = 'GastoFijo';
 	let [card, setCard] = useState('')
 	let [dividedIn, setDividedIn] = useState(0)
 	let [isDivided, setIsDivided] = useState(false)
@@ -90,7 +90,7 @@ export function FormTransactionFixe() {
 				await API.post('/operation/new-transaction',
 					{ value, description, category, type, date, card, dividedIn, isDivided })
 					.then(() => {
-						navigate('/')
+						navigate('/dashboard')
 					})
 					.catch(() => {
 						setTextMessage('No se pudo agregar la transacción.')
