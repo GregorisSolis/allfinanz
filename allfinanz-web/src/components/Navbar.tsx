@@ -11,8 +11,8 @@ export function Navbar(props: {location: string}){
 				<div className="text-4xl uppercase title mx-4">allfinanz</div>
 
 				{isAuthenticated() ? 
-				<div className=" h-full w-80 text-2xl flex justify-around items-center nav_responsive">
-					<Link className={location === 'home' ? 'link text-sky-600' : 'link'} to="/">Home</Link>
+				<div className=" h-full w-80 text-xl flex justify-around items-center nav_responsive">
+					<Link className={location === 'Dashboard' ? 'link text-sky-600' : 'link'} to="/dashboard">Dashboard</Link>
 					<Link className={location === 'extract' ? 'link text-sky-600' : 'link'} to="/extracto">Extracto</Link>
 					<Link className={location === 'profile' ? 'link text-sky-600' : 'link'} to="/Perfil">Perfil</Link>
 					<a className="link" onClick={() => logout()} href="/">Salir</a>

@@ -25,7 +25,7 @@ export function Login() {
 				.then(resp => {
 					login(resp.data.token)
 					localStorage.setItem('iden', resp.data.user._id)
-					navigate('/')
+					navigate('/dashboard')
 				})
 				.catch(() => {
 					setTextMessage('Ups.. algo no esta bien, revisa tu email o contraseña.')

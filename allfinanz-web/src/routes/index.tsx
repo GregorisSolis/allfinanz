@@ -2,6 +2,7 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { isAuthenticated } from '../services/auth'
 
 import { Home } from '../pages/Home'
+import { Dashboard } from '../pages/Dashboard'
 import { Login } from '../pages/Login'
 import { Register } from '../pages/Register'
 import { ProfileComplete } from '../pages/Profilecomplete'
@@ -25,6 +26,7 @@ export const Routers = () => (
 			<Route path="/" element={<Home />}/>
 			<Route path="/login" element={<Login />}/>
 			<Route path="/registrate" element={<Register />}/>
+			<Route path="/dashboard/" element={ <PrivateRoute redirectTo="/login"> <Dashboard /> </PrivateRoute>}/>
 			<Route path="/perfil/completar/" element={ <PrivateRoute redirectTo="/login"> <ProfileComplete /> </PrivateRoute>}/>
 			<Route path="/extracto/" element={ <PrivateRoute redirectTo="/login"> <Extract /> </PrivateRoute>}/>
 			<Route path="/perfil" element={ <PrivateRoute redirectTo="/login"> <Profile /> </PrivateRoute>}/>
