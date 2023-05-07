@@ -7,7 +7,6 @@ import { Navbar } from '../components/Navbar'
 import { API } from '../services/api'
 import { MessageComponent } from '../components/MessageComponent'
 
-
 export function Extract() {
 
 	useEffect(() => {
@@ -108,6 +107,7 @@ export function Extract() {
 
 				</div>
 			</div>
+
 		</>
 	)
 }

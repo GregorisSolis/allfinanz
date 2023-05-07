@@ -3,6 +3,8 @@ import { Card } from './Card'
 import { NewCard } from './NewCard'
 import { ButtonAdd } from './ButtonAdd'
 import { API } from '../services/api'
+import LineChart from '../pages/Statistics'
+
 
 interface ListCardProps {
 	listCostFixed: never[],
@@ -30,6 +32,10 @@ export function ListCard(props: ListCardProps) {
 
 
 	return (
+		<>
+		<div className='w-[30%]' >
+			<LineChart data={listCostMonth} />
+		</div>
 		<div className="flex overflow-y-hidden scrollbar scrollbar-thumb-zinc-700 scrollbar-thin">
 
 			{cards.map((card: any) => (
@@ -50,5 +56,6 @@ export function ListCard(props: ListCardProps) {
 			<ButtonAdd width='300px' text='Agregar nueva tarjeta' action={() => setIsNewCard(true)} />
 			{isNewCard ? <NewCard closeComponent={() => setIsNewCard(false)} reload={() => loadCardUser()} /> : null}
 		</div>
+		</>
 	)
 }
