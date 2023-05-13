@@ -1,72 +1,76 @@
-import React, { useRef, useEffect, useState } from 'react';
-import Chart from 'chart.js/auto';
-import { API } from '../services/api';
-const ID_USER = localStorage.getItem('iden')
+import React, { PureComponent, useEffect, useState } from 'react';
+import { PieChart, Pie, Sector, Cell, ResponsiveContainer } from 'recharts';
+import { API } from '../services/api'
 
-interface ChartProps {
-  data: never[];
+interface GraficsProps {
+  listData: never[]
 }
 
-const Grafics: React.FC<ChartProps> = ({ data }) => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const chartRef = useRef<Chart>();
-  const [cards, setCards] = useState([])
 
-  useEffect(() => {
+export function Grafics(props: GraficsProps) {
 
-    loadCardUser();
-    async function loadCardUser() {
-        await API.get(`/card/all-card/user/${ID_USER}`)
-        .then(resp => {
-            setCards(resp.data.card)
-		})
-    }
+    useEffect(() => {
+      loadCardUser()
+    }, [])
 
-    data.map(item => console.log(item))
+    let dataFilter:any = [];
+    const ID_USER = localStorage.getItem('iden')
+    const [cards, setCards] = useState([])
+    const [colors, setColors] = useState([])
 
-    if (canvasRef.current) {
-      const ctx = canvasRef.current.getContext('2d');
-      if (ctx) {
-        if (chartRef.current) {
-          chartRef.current.destroy();
+    props.listData.map((transation: any) => {
+        if(dataFilter.length > 0){
+          dataFilter.map((item: any) => {
+            if(item.name === transation.card){
+              item.value += parseFloat(transation.value.$numberDecimal);
+            }else{
+              dataFilter.push({name: transation.card,value: parseFloat(transation.value.$numberDecimal)});
+            }
+            //Aqui vas a colocar si el nombre del carton ya existe, vas a sumar el valor
+          })
+        }else{
+          dataFilter.push({name: transation.card,value: parseFloat(transation.value.$numberDecimal)});
         }
-        chartRef.current = new Chart(ctx, {
-          type: 'doughnut',
-          data: {
-            labels: data.map((element) => element.card).filter((value, index, self) => self.lastIndexOf(value) === index),
-            datasets: [
-              {
-                data: data.map((item) => {
-                    return {
-                      value: item.value.$numberDecimal,
-                      additionalString: "extra string"
-                    };
-                  }),
-                borderColor: 
-                data.map((item) => {
-                    const matchedCard = cards.find((card) => card.name === item.card);
-                    return matchedCard ? matchedCard.color : 'rgb(0, 0, 0)';
-                  }),
-                backgroundColor: data.map((item) => {
-                    const matchedCard = cards.find((card) => card.name === item.card);
-                    return matchedCard ? matchedCard.color : 'rgb(0, 0, 0)';
-                  }),
-              },
-            ],
-          },
-        });
-      }
+    })
+
+    async function loadCardUser() {
+      await API.get(`/card/all-card/user/${ID_USER}`)
+        .then(resp => {
+          setCards(resp.data.card)
+        })
+        getColorCard();
     }
-  }, [data]);
 
-  return (
-    <canvas
-      ref={canvasRef}
-      width={400}
-      height={400}
-      style={{ maxWidth: '100%', height: 'auto' }}
-    />
-  );
-};
-
-export default Grafics;
+    function getColorCard(){
+      let colorsFilter:any = [];
+      cards.map((card: any) => {
+        dataFilter.map((item: any) => {
+          if(item.name === card.name){
+              if(!colorsFilter.includes(card.color)){
+                colorsFilter.push(card.color);
+              }
+          }
+        })
+      })
+      setColors(colorsFilter);
+    }
+  
+    return (
+      <PieChart width={800} height={400} >
+        <Pie
+          data={dataFilter}
+          cx={120}
+          cy={200}
+          innerRadius={60}
+          outerRadius={80}
+          fill="#8884d8"
+          paddingAngle={5}
+          dataKey="value"
+        >
+          {dataFilter.map((entry, index) => (
+            <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
+          ))}
+        </Pie>
+      </PieChart>
+    );
+}

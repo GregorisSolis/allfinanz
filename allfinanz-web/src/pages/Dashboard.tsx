@@ -8,7 +8,7 @@ import { ListCard } from '../components/ListCard'
 import { ListFixedCost } from '../components/ListFixedCost'
 import { ListTransactions } from '../components/ListTransactions'
 import { SidebarInfoUser } from '../components/SidebarInfoUser'
-import Grafics from '../components/Grafics'
+import { Grafics } from '../components/Grafics'
 
 
 export function Dashboard() {
@@ -51,7 +51,7 @@ export function Dashboard() {
 			<Navbar location='Dashboard' />
 
 			<div className='w-[30%]' >
-				<Grafics data={listCostMonth} />
+				<Grafics listData={listCostMonth} />
 			</div>
 
 				<div className="w-full h-96 text-white lg:flex md:block">
