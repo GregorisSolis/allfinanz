@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { API } from '../services/api'
+import { LineChart } from './LineChart'
 
 interface SidebarInfoUserProps {
 	listCostFixed:never[],
@@ -10,12 +11,13 @@ interface SidebarInfoUserProps {
 export function SidebarInfoUser(props: SidebarInfoUserProps){
 
 	useEffect(() => {
-		loadDataUser()
+		loadDataUser();
 	})
 
 	const ID_USER = localStorage.getItem('iden')
 	const navigate = useNavigate()
 	let [monthlyIconme, setMonthlyIconme] = useState(0)
+	let [percentageCostMonth, setPercentageCostMonth] = useState(0)
 	let [costFixed, setCostFixed] = useState(0)
 	let [costMonth, setCostMonth] = useState(0)
 	let [totalCost, setTotalCost] = useState(0)
@@ -51,36 +53,26 @@ export function SidebarInfoUser(props: SidebarInfoUserProps){
 
 		setTotalCost(parseFloat((costFixed+costMonth).toFixed(2)))
 		setMissing(parseFloat((totalCost-monthlyIconme).toFixed(2)))
+
+		operationPercentage();
+	}
+
+	function operationPercentage(){
+         let percentageCostMonth = (costMonth / monthlyIconme * 100);
+		 setPercentageCostMonth(percentageCostMonth);
 	}
 
 	return(
-		<div className="bg-brand-200 lg:w-[30%] md:w-[90%] h-[30%] my-4 rounded shadow-lg p-4">
-			<h1 className="text-center w-full text-sky-800 font-bold text-xl">Detalles</h1>
+		<div className="bg-brand-200 lg:w-[30%] md:w-[90%] h-[30%] my-4 rounded shadow-lg py-4 px-8">
+			<h1 className="text-center w-full text-white text-xl">Detalles</h1>
 
-			<div className="w-full my-2">
-				<span className="text-sky-200 text-sm">Renda Mensual:</span>
-				<p className="font-bold text-2xl">$ {monthlyIconme}</p>
-			</div>
+            <LineChart title='Renda mensual' dataValue={monthlyIconme} bg_color='bg-emerald-500' percentage={0} />
 
-			<div className="w-full my-2">
-				<span className="text-sky-200 text-sm">Total de gastos fijos:</span>
-				<p className="font-bold text-2xl">$ {costFixed}</p>
-			</div>
+            <LineChart title='Gastos fijos' dataValue={costFixed} bg_color='bg-teal-500' percentage={0}/>
 
-			<div className="w-full my-2">
-				<span className="text-sky-200 text-sm">Total de gastos del mes:</span>
-				<p className="font-bold text-2xl">$ {costMonth}</p>
-			</div>			
+            <LineChart title='Gastos del mes' dataValue={costMonth} bg_color='bg-purple-700' percentage={percentageCostMonth}/>
 
-			<div className="w-full my-2">
-				<span className="text-sky-200 text-sm">Pasa de la renda mensual:</span>
-				<p className="font-bold text-red-600 text-2xl">$ {missing}</p>
-			</div>
-
-			<div className="w-full mt-16 text-red-600">
-				<span className="text-sky-200 text-sm flex justify-end">Total de gasto:</span>
-				<p className="font-bold text-2xl flex justify-end">$ {totalCost}</p>
-			</div>
+            <LineChart title='Gastos total' dataValue={totalCost} bg_color='bg-orange-500' percentage={0}/>		
 
 		</div>
 	)
