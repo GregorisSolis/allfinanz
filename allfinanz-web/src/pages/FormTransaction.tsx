@@ -106,13 +106,13 @@ export function FormTransaction() {
 			<Navbar location='' />
 			<div className="m-0 w-full">
 				<form className="text-white flex flex-col p-4 rounded text-center lg:w-11/12 md:w-[90%] my-4 m-auto" onSubmit={setNewTransaction}>
-					<h1 className="text-4xl mb-4 text-sky-500">Nueva Transacción</h1>
+					<h1 className="text-4xl mb-4 text-white-500">Nueva Transacción</h1>
 
 					<div className="lg:flex md:grid justify-around large-content w-9/12 my-4 m-auto">
 						<input
 							className="rounded lg:w-5/12 md:w-full m-auto my-6 px-1 text-xl bg-brand-200 h-12 border-b-2 focus:border-sky-500 outline-none"
 							onChange={e => setValue(e.target.value)}
-							placeholder="Valor"
+							placeholder=" 0.00"
 							value={value}
 						/>
 						<input

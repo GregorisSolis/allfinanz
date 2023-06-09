@@ -23,7 +23,7 @@ export function ListCard(props: ListCardProps) {
 	async function loadCardUser() {
 		await API.get(`/card/all-card/user/${ID_USER}`)
 			.then(resp => {
-				setCards(resp.data.card)
+				setCards(resp.data.card);
 			})
 	}
 

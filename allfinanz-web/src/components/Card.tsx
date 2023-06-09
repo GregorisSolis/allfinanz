@@ -55,11 +55,13 @@ export function Card(props: CardProps) {
 		props.reload()
 	}
 
+	let displayValue = totalCost < 1 ? 'none' : 'block';
+
 	return (
 		<div
 		className='min-w-[300px] h-[210px] shadow-md rounded m-4 p-4 flex-col cursor-pointer hover:opacity-80'
 			// @ts-ignore
-			style={{ background: backgroundValue, currentcolor: colorFont }}
+			style={{ background: backgroundValue, currentcolor: colorFont, display: displayValue}}
 		>
 			<div className='h-16'>
 				<h1 className="text-4xl">{props.nameCard}</h1>
