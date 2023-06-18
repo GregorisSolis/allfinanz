@@ -16,6 +16,7 @@ export function Navbar(props: {location: string}){
 					<Link className={location === 'extract' ? 'link text-sky-600' : 'link'} to="/extracto">Extracto</Link>
 					<Link className={location === 'profile' ? 'link text-sky-600' : 'link'} to="/Perfil">Perfil</Link>
 					<a className="link" onClick={() => logout()} href="/">Salir</a>
+					<div className="background_blur"></div>
 				</div>
 				:
 				<div className=" h-full w-80 text-2xl flex justify-end items-center mx-4">

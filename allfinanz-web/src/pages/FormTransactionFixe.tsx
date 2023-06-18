@@ -29,6 +29,8 @@ export function FormTransactionFixe() {
 
 	let [isMessage, setIsMessage] = useState(false)
 	let [textMessage, setTextMessage] = useState('')
+	let [typeMessage, setTypeMessage] = useState('')
+	let [linkMessage, setLinkMessage] = useState('0')
 	const ID_USER = localStorage.getItem('iden')
 
 	if (value.includes(',')) {
@@ -63,12 +65,15 @@ export function FormTransactionFixe() {
 		if (!value || !type || !description || !category) {
 			setDividedInTransaction(value, description, category, type, card, dividedIn, isDivided)
 			setTextMessage('Los campos no pueden ser enviados vacios.')
+			setTypeMessage('error');
 			setIsMessage(true)
 		} else if (parseFloat(value) <= 0 || isNaN(parseInt(value))) {
 			setTextMessage('El valor no se puede agregar.')
+			setTypeMessage('error');
 			setIsMessage(true)
 		} else if (dividedIn < 0) {
 			setTextMessage('El numero de cuotas es invalido')
+			setTypeMessage('error');
 			setIsMessage(true)
 		} else {
 
@@ -90,15 +95,27 @@ export function FormTransactionFixe() {
 				await API.post('/operation/new-transaction',
 					{ value, description, category, type, date, card, dividedIn, isDivided })
 					.then(() => {
-						navigate('/dashboard')
+						setTextMessage('Transacción agregada con exito.');
+						setTypeMessage('success');
+						setLinkMessage('Ir a Dashboard')
+						setIsMessage(true);
+						setValue('')
+						setDescription('')
+						setDividedIn(0)
 					})
 					.catch(() => {
-						setTextMessage('No se pudo agregar la transacción.')
-						setIsMessage(true)
+						setTextMessage('No se pudo agregar la transacción.');
+						setTypeMessage('error');
+						setIsMessage(true);
 					})
 			}
 
 		}
+	}
+
+	function clearAlertMessage(){
+		setLinkMessage('0');
+		setIsMessage(false);
 	}
 
 	return (
@@ -106,7 +123,7 @@ export function FormTransactionFixe() {
 			<Navbar location='' />
 			<div className="m-0 w-full">
 				<form className="text-white flex flex-col p-4 rounded text-center lg:w-11/12 md:w-[90%] my-4 m-auto" onSubmit={setNewTransaction}>
-					<h1 className="text-4xl mb-4 text-sky-500">Nuevo Gasto Fijo</h1>
+					<h1 className="text-4xl mb-4 text-white-500">Nuevo Gasto Fijo</h1>
 
 					<div className="lg:flex md:grid justify-around large-content w-9/12 my-4 m-auto">
 						<input
@@ -137,7 +154,15 @@ export function FormTransactionFixe() {
 						/>
 					</div>
 
-					{isMessage ? <MessageComponent text={textMessage} action={() => setIsMessage(false)} /> : null}
+					{isMessage ? 
+						<MessageComponent 
+							text={textMessage} 
+							type={typeMessage} 
+							link_title={linkMessage} 
+							link={() => navigate('/dashboard')} 
+							action={() => clearAlertMessage()} 
+						/> 
+					: null}
 
 					<div className="flex justify-between w-1/4 m-auto mb-4">
 						<button type="submit" className=" my-8 bg-sky-600 w-36 py-2 hover:bg-sky-500 rounded m-auto">Agregar</button>

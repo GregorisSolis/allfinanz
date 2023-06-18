@@ -64,7 +64,7 @@ export function Dashboard() {
 							/>
 						</div>
 
-						<div className="my-4 mb-16">
+						<div className="lg:my-4 md:my-0">
 							<span className="text-2xl">Transaciones del mes</span>
 							<div className="lg:flex md:block">
 								<ListTransactions list={listCostMonth} reload={() => loadTransaction()} />
@@ -76,7 +76,7 @@ export function Dashboard() {
 
 						</div>
 
-						<div className="lg:my-4 md:my-0">
+						<div className="my-4 mb-16">
 							<span className="text-2xl">Gastos Fijos</span>
 							<ListFixedCost list={listCostFixed} reload={() => loadTransaction()} />
 						</div>

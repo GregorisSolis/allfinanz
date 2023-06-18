@@ -7,7 +7,7 @@ interface LineChartProps {
 
 export function LineChart(props: LineChartProps) {
 
-    let percentage = Math.trunc(props.percentage);
+    let percentage = Math.trunc(props.percentage) || 0;
 
     return (
         <div className="w-full my-8">
@@ -18,7 +18,7 @@ export function LineChart(props: LineChartProps) {
             </div>
             <div className="line-grafic flex items-center relative w-full">
                 <div className="bg-moon-500 w-full h-1 rounded absolute"></div>
-                <div style={{ width: percentage+'%' }} className={props.bg_color + " shadow-2xl shadow-white transition h-1.5 rounded absolute"}></div>
+                <div style={{ width: percentage+'%' }} className={props.bg_color + " transition h-1.5 rounded absolute shadow loading_line"}></div>
             </div>
         </div>
     )

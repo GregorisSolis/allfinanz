@@ -95,28 +95,28 @@ export function SidebarInfoUser(props: SidebarInfoUserProps) {
       <LineChart
         title="Renda mensual"
         dataValue={monthlyIconme}
-        bg_color="bg-emerald-500"
+        bg_color="bg-emerald-500 shadow-emerald-500"
         percentage={percentageMonthlyIconme}
       />
 
       <LineChart
         title="Gastos fijos"
         dataValue={costFixed}
-        bg_color="bg-teal-500"
+        bg_color="bg-teal-500 shadow-teal-500"
         percentage={percentageCostFixed}
       />
 
       <LineChart
         title="Gastos del mes"
         dataValue={costMonth}
-        bg_color="bg-purple-700"
+        bg_color="bg-purple-700 shadow-purple-700"
         percentage={percentageCostMonth}
       />
 
       <LineChart
         title="Gastos total"
         dataValue={totalCost}
-        bg_color="bg-orange-500"
+        bg_color="bg-orange-500 shadow-orange-500"
         percentage={percentageTotalCost}
       />
     </div>

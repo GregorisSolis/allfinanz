@@ -15,6 +15,8 @@ export function Register() {
 	const [password, setPassword] = useState('')
 	let [isMessage, setIsMessage] = useState(false)
 	let [textMessage, setTextMessage] = useState('')
+	let [typeMessage, setTypeMessage] = useState('')
+	let [linkMessage, setLinkMessage] = useState('0')
 
 
 	async function setRegister(event: FormEvent) {
@@ -22,17 +24,25 @@ export function Register() {
 
 		if (!password || !email || !confirmPassword || !name) {
 			setTextMessage('Debes llenar todos los campos.')
+			setTypeMessage('warning');
+			setLinkMessage('0')
 			setIsMessage(true)
 		} else {
 
 			if (password !== confirmPassword) {
 				setTextMessage('Las contraseñas no coinciden.')
+				setTypeMessage('warning');
+				setLinkMessage('0')
 				setIsMessage(true)
 			} else if (password.length <= 7) {
 				setTextMessage('La contraseña es muy debil. intenta agregar - !@#$%* - y mas de 7 caracteres.')
+				setTypeMessage('warning');
+				setLinkMessage('0')
 				setIsMessage(true)
 			} else if (!email.includes("@") && !email.includes(".com")) {
 				setTextMessage('Email invalido intenta otro.')
+				setTypeMessage('warning');
+				setLinkMessage('0')
 				setIsMessage(true)
 			} else {
 
@@ -44,6 +54,8 @@ export function Register() {
 					})
 					.catch(() => {
 						setTextMessage('El email ya esta registrado por otro usuario.')
+						setTypeMessage('warning');
+						setLinkMessage('0')
 						setIsMessage(true)
 					})
 			}
@@ -53,7 +65,15 @@ export function Register() {
 
 	return (
 		<div className="w-full min-h-96 text-white flex my-16">
-			{isMessage ? <MessageComponent text={textMessage} action={() => setIsMessage(false)} /> : null}
+			{isMessage ? 
+				<MessageComponent 
+					text={textMessage} 
+					type={typeMessage} 
+					link_title={linkMessage} 
+					link={() => navigate('/login')} 
+					action={() => setIsMessage(false)} 
+				/> 
+			: null}
 
 			<div className="m-auto md:w-[90%] lg:w-1/4 rounded bg-brand-200 shadow-xl p-4">
 				<form onSubmit={setRegister} className="flex flex-col text-center">

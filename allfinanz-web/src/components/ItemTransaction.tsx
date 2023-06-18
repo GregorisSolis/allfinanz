@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Trash, Pen } from "phosphor-react";
 import { API } from "../services/api";
 import { ModifyTransaction } from "./ModifyTransaction";
@@ -15,11 +15,29 @@ interface ItemTransactionProps {
 
 export function ItemTransaction(props: ItemTransactionProps) {
   let [isModifyTransaction, setIsModifyTransaction] = useState(false);
+  let [typeFormated, setTypeFormated] = useState('');
+
+  useEffect(() => {
+		formatedValue();
+	})
 
   function removeTransaction() {
     API.delete(`/operation/romeve-transaction/${props._id}`).then(() => {
       props.reload();
     });
+  }
+
+  function formatedValue(){
+    let valueType = props.type;
+    valueType = valueType.trim();
+    if(valueType.length > 11){
+      valueType = props.type.substr(0, 12) + "."
+    }
+    if(valueType.includes('dinero')){
+      valueType = valueType.replace(/\//g,"")
+    }
+
+    setTypeFormated(valueType);
   }
 
   return (
@@ -28,9 +46,7 @@ export function ItemTransaction(props: ItemTransactionProps) {
         <div className="text-center">
           <span className="text-sky-200 lg:text-md md:text-sm">Tipo</span>
           <p className="mt-2 lg:text-md md:text-sm">
-            {props.type.length > 11
-              ? props.type.substr(0, 12) + "."
-              : props.type}
+            {typeFormated}
           </p>
         </div>
       </div>
@@ -45,7 +61,7 @@ export function ItemTransaction(props: ItemTransactionProps) {
       <div className="lg:w-24 md:w-16">
         <div className="text-center">
           <span className="text-sky-200 lg:text-md md:text-sm">Valor</span>
-          <p className="mt-2 lg:text-md md:text-sm">{props.value}</p>
+          <p className="mt-2 lg:text-md md:text-sm">{(parseFloat(props.value)).toFixed(2)}</p>
         </div>
       </div>
 

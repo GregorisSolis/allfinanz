@@ -29,6 +29,8 @@ export function FormTransaction() {
 
 	let [isMessage, setIsMessage] = useState(false)
 	let [textMessage, setTextMessage] = useState('')
+	let [typeMessage, setTypeMessage] = useState('')
+	let [linkMessage, setLinkMessage] = useState('0')
 	const ID_USER = localStorage.getItem('iden')
 
 	if (value.includes(',')) {
@@ -61,14 +63,17 @@ export function FormTransaction() {
 		let date = date_now()
 
 		if (!value || !type || !description || !category) {
-			setDividedInTransaction(value, description, category, type, card, dividedIn, isDivided)
+			setDividedInTransaction(value, description, category, type, card, dividedIn, isDivided);
 			setTextMessage('Los campos no pueden ser enviados vacios.')
+			setTypeMessage('error');
 			setIsMessage(true)
 		} else if (parseFloat(value) <= 0 || isNaN(parseInt(value))) {
 			setTextMessage('El valor no se puede agregar.')
+			setTypeMessage('error');
 			setIsMessage(true)
 		} else if (dividedIn < 0) {
 			setTextMessage('El numero de cuotas es invalido')
+			setTypeMessage('error');
 			setIsMessage(true)
 		} else {
 
@@ -80,7 +85,9 @@ export function FormTransaction() {
 					setIsMessage(true)
 				} else {
 					setDividedInTransaction(value, description, category, type, card, dividedIn, isDivided)
-					setTextMessage(`La transacción fue divida en ${dividedIn} partes, el monto a pagar por los proximos ${dividedIn} meses es: $ ${(parseFloat(value)/dividedIn).toFixed(2)}`)
+					setTextMessage(`La transacción fue divida en ${dividedIn} partes, el monto a pagar los proximos ${dividedIn} meses es: $ ${(parseFloat(value)/dividedIn).toFixed(2)}`)
+					setTypeMessage('info');
+					setLinkMessage('Ir a Dashboard')
 					setIsMessage(true)
 					setValue('')
 					setDescription('')
@@ -90,15 +97,31 @@ export function FormTransaction() {
 				await API.post('/operation/new-transaction',
 					{ value, description, category, type, date, card, dividedIn, isDivided })
 					.then(() => {
-						navigate('/dashboard')
+						setTextMessage('Transacción agregada con exito.');
+						setTypeMessage('success');
+						setLinkMessage('Ir a Dashboard')
+						setIsMessage(true);
+
+						setValue('')
+						setDescription('')
+						setDividedIn(0)
+						setType('');
+						setCategory('');
+						setCard('');
 					})
 					.catch(() => {
 						setTextMessage('No se pudo agregar la transacción.')
+						setTypeMessage('error');
 						setIsMessage(true)
 					})
 			}
 
 		}
+	}
+
+	function clearAlertMessage(){
+		setLinkMessage('0');
+		setIsMessage(false);
 	}
 
 	return (
@@ -149,11 +172,20 @@ export function FormTransaction() {
 							onChange={(e: any) => setDividedIn(e.target.value)}
 							placeholder="Numero de cuotas"
 							type="number"
+							min="0"
 							value={dividedIn}
 						/>
 					</div>
-
-					{isMessage ? <MessageComponent text={textMessage} action={() => setIsMessage(false)} /> : null}
+			
+					{isMessage ? 
+						<MessageComponent 
+							text={textMessage} 
+							type={typeMessage} 
+							link_title={linkMessage} 
+							link={() => navigate('/dashboard')} 
+							action={() => clearAlertMessage()} 
+						/> 
+					: null}
 
 					<div className="flex justify-between w-1/4 m-auto mb-4">
 						<button type="submit" className=" my-8 bg-sky-600 w-36 py-2 hover:bg-sky-500 rounded m-auto">Agregar</button>

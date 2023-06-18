@@ -12,12 +12,17 @@ export function Login() {
 	const [password, setPassword] = useState('')
 	let [isMessage, setIsMessage] = useState(false)
 	let [textMessage, setTextMessage] = useState('')
+	let [typeMessage, setTypeMessage] = useState('')
+	let [linkMessage, setLinkMessage] = useState('0')
+	
 
 	async function setLogin(event: FormEvent) {
 		event.preventDefault()
 
 		if (!password || !email) {
 			setTextMessage('Debes llenar todos los campos.')
+			setTypeMessage('warning');
+			setLinkMessage('0')
 			setIsMessage(true)
 		} else {
 
@@ -29,6 +34,8 @@ export function Login() {
 				})
 				.catch(() => {
 					setTextMessage('Ups.. algo no esta bien, revisa tu email o contraseña.')
+					setTypeMessage('warning');
+					setLinkMessage('0')
 					setIsMessage(true)
 				})
 		}
@@ -37,7 +44,15 @@ export function Login() {
 
 	return (
 		<div className="w-full min-h-96 text-white flex my-16">
-			{isMessage ? <MessageComponent text={textMessage} action={() => setIsMessage(false)} /> : null}
+			{isMessage ? 
+				<MessageComponent 
+					text={textMessage} 
+					type={typeMessage} 
+					link_title={linkMessage} 
+					link={() => navigate('/login')} 
+					action={() => setIsMessage(false)} 
+				/> 
+			: null}
 
 			<div className="m-auto md:w-[90%] lg:w-1/4 rounded bg-brand-200 shadow-lg p-4">
 				<form onSubmit={setLogin} className="flex flex-col text-center">
