@@ -72,7 +72,14 @@ export function Extract() {
 	return (
 		<>
 			<Navbar location='extract' />
-			{isMessage ? <MessageComponent text={textMessage} action={() => setIsMessage(false)} /> : null}
+			{isMessage ? 
+				<MessageComponent 
+					text={textMessage} 
+					action={() => setIsMessage(false)} 
+					type={'null'} 
+					link_title={'null'} 
+					link={() => null} 
+				/> : null}
 
 			<div className="w-full text-white lg:flex md:block">
 

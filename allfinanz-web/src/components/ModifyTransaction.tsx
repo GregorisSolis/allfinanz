@@ -66,6 +66,9 @@ export function ModifyTransaction(props: ModifyTransactionProps) {
         <MessageComponent
           text={textMessage}
           action={() => setIsMessage(false)}
+          type={'null'} 
+					link_title={'null'} 
+					link={() => null} 
         />
       ) : null}
       <form

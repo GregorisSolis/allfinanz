@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { isAuthenticated } from '../services/auth'
+import { logout } from '../services/auth'
 import { API } from '../services/api'
 import { date_now } from '../services/dateCreate'
 import { Navbar } from '../components/Navbar'
@@ -8,7 +8,6 @@ import { ListCard } from '../components/ListCard'
 import { ListFixedCost } from '../components/ListFixedCost'
 import { ListTransactions } from '../components/ListTransactions'
 import { SidebarInfoUser } from '../components/SidebarInfoUser'
-import { IsNotUser } from '../components/IsNotUser'
 
 
 export function Dashboard() {
@@ -44,7 +43,8 @@ export function Dashboard() {
 				setListCostMonth(listBB)
 			})
 			.catch(() => {
-				navigate('/')
+				logout();
+				navigate('/');
 			})
 		setIsLoading('');
 	}

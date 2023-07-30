@@ -34,7 +34,14 @@ export function ProfileComplete() {
 
 	return (
 		<div className="w-full min-h-96 text-white flex my-16">
-			{isMessage ? <MessageComponent text={textMessage} action={() => setIsMessage(false)} /> : null}
+			{isMessage ? 
+			
+				<MessageComponent text={textMessage} 
+				action={() => setIsMessage(false)} 
+				type={'null'} 
+				link_title={'null'} 
+				link={() => null} 
+			/> : null}
 			<div className="m-auto min-w-2/4 w-1/4 large-content rounded bg-brand-200 shadow-lg p-4">
 				<form onSubmit={setSavingsAndMonthlyIconmeDB} className="flex flex-col text-center">
 					<h1 className="text-4xl mb-8">Completar</h1>

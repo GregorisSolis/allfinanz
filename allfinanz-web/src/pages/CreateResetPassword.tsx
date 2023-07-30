@@ -44,7 +44,14 @@ export function CreateResetPassword() {
         <>
             <Navbar location="" />
             <div className="w-full h-96 text-white flex justify-center items-center my-16">
-                {isMessage ? <MessageComponent text={textMessage} action={() => setIsMessage(false)} /> : null}
+                {isMessage ? 
+                    <MessageComponent 
+                        text={textMessage} 
+                        action={() => setIsMessage(false)} 
+                        type={'null'} 
+                        link_title={'null'} 
+                        link={() => null} 
+                    /> : null}
                 <div className="m-auto md:w-[90%] lg:w-1/4 rounded bg-brand-200 shadow-lg p-4">
                     <form onSubmit={setResetPassword} className="flex flex-col text-center">
                         <h1 className="text-2xl mb-8">Crear nueva contraseña</h1>

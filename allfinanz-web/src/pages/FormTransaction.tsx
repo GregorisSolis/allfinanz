@@ -101,13 +101,9 @@ export function FormTransaction() {
 						setTypeMessage('success');
 						setLinkMessage('Ir a Dashboard')
 						setIsMessage(true);
-
+						setDividedIn(0)
 						setValue('')
 						setDescription('')
-						setDividedIn(0)
-						setType('');
-						setCategory('');
-						setCard('');
 					})
 					.catch(() => {
 						setTextMessage('No se pudo agregar la transacción.')

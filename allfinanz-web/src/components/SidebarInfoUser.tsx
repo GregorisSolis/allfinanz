@@ -68,17 +68,29 @@ export function SidebarInfoUser(props: SidebarInfoUserProps) {
     let percentageMonthlyIconme = (totalCost / monthlyIconme) * 100;
     setPercentageMonthlyIconme(percentageMonthlyIconme);
 
+
     if (percentageMonthlyIconme > 100) {
       setPercentageMonthlyIconme(100);
     } else {
       setPercentageMonthlyIconme(percentageMonthlyIconme);
     }
 
+
     let percentageCostMonth = (costMonth / monthlyIconme) * 100;
-    setPercentageCostMonth(percentageCostMonth);
+    if (percentageCostMonth > 100) {
+      setPercentageCostMonth(100);
+    } else {
+      setPercentageTotalCost(percentageCostMonth);
+    }
+
 
     let percentageCostFixed = (costFixed / monthlyIconme) * 100;
-    setPercentageCostFixed(percentageCostFixed);
+    if (percentageCostFixed > 100) {
+      setPercentageCostFixed(100);
+    } else {
+      setPercentageCostFixed(percentageCostFixed);
+    }
+
 
     let percentageTotalCost = (totalCost / monthlyIconme) * 100;
     if (percentageTotalCost > 100) {

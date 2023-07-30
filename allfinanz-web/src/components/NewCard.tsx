@@ -36,7 +36,14 @@ export function NewCard(props: NewCardProps) {
 
 	return (
 		<div className="fixed bg-brand-100 inset-0 flex justify-center items-center transition">
-			{isMessage ? <MessageComponent text={textMessage} action={() => setIsMessage(false)} /> : null}
+			{isMessage ? 
+				<MessageComponent 
+					text={textMessage} 
+					action={() => setIsMessage(false)}
+					type={'null'} 
+					link_title={'null'} 
+					link={() => null} 
+				/> : null}
 
 			<form className="lg:w-1/4 sm:w-11/12 bg-brand-800 rounded flex flex-col p-4 shadow-lg" onSubmit={setNewCard}>
 				<h1 className="text-2xl text-center">Nueva Tarjeta</h1>

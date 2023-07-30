@@ -6,7 +6,6 @@ import { SelectComponent } from '../components/SelectComponent'
 import { MessageComponent } from '../components/MessageComponent'
 
 import { typePayOptions } from '../services/typePayOptions'
-import { categoryOptions } from '../services/categoryOptions'
 import { date_now } from '../services/dateCreate'
 import { setDividedInTransaction } from '../services/operationDividedIn'
 import { API } from '../services/api'
@@ -87,8 +86,6 @@ export function FormTransactionFixe() {
 					setDividedInTransaction(value, description, category, type, card, dividedIn, isDivided)
 					setTextMessage(`La transacción fue divida en ${dividedIn} partes, el monto a pagar por los proximos ${dividedIn} meses es: $ ${(parseFloat(value)/dividedIn).toFixed(2)}`)
 					setIsMessage(true)
-					setValue('')
-					setDescription('')
 					setDividedIn(0)
 				}
 			} else {
@@ -99,8 +96,6 @@ export function FormTransactionFixe() {
 						setTypeMessage('success');
 						setLinkMessage('Ir a Dashboard')
 						setIsMessage(true);
-						setValue('')
-						setDescription('')
 						setDividedIn(0)
 					})
 					.catch(() => {

@@ -48,7 +48,14 @@ export function UpdateUser(props: UpdateUserProps) {
 
 	return (
 		<div className="m-0 fixed bg-brand-100 inset-0 transition flex justify-center items-center">
-			{isMessage ? <MessageComponent text={textMessage} action={() => setIsMessage(false)} /> : null}
+			{isMessage ? 
+				<MessageComponent 
+					text={textMessage} 
+					action={() => setIsMessage(false)}
+					type={'null'} 
+					link_title={'null'} 
+					link={() => null} 
+				/> : null}
 
 			<form className="text-white bg-moon-500 flex flex-col p-4 rounded text-center w-[35%] large-content" onSubmit={setUpdateUser}>
 				<h1 className="text-2xl">Actualizar información</h1>

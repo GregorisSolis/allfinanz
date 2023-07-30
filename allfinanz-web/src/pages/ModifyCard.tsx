@@ -65,7 +65,14 @@ export function ModifyCard() {
 	return (
 		<>
 			<Navbar location='' />
-			{isMessage ? <MessageComponent text={textMessage} action={() => setIsMessage(false)} /> : null}
+			{isMessage ? 
+				<MessageComponent 
+					text={textMessage} 
+					action={() => setIsMessage(false)}
+					type={'null'} 
+					link_title={'null'} 
+					link={() => null} 
+				/> : null}
 
 			<div className="w-full min:h-96 text-white lg:flex md:block justify-center items-center my-16">
 
