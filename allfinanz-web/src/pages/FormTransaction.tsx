@@ -17,7 +17,7 @@ export function FormTransaction() {
 		loadCards()
 	}, [])
 
-	const navigate = useNavigate()
+	const navigate = useNavigate();
 	let [cards, setCards] = useState([])
 	let [value, setValue] = useState('')
 	let [type, setType] = useState('')
@@ -120,6 +120,21 @@ export function FormTransaction() {
 		setIsMessage(false);
 	}
 
+	//ESTE CODIGO SE ENCARGA DE FORMATAR EL PRECIO
+	if(value.length > 2){
+		value = value.replace(/\./g, '');
+		value = value.replace(/^0+(?=[1-9])/, '');
+		
+		
+		let before = value.slice(0, -2);
+		let after = value.slice(-2);
+		value = before + "." +after;
+	}
+	value = value.replace(/^\./, '');
+	value = value.replace(/^[a-zA-Z]+/, '');
+	value = value.replace(/^[^a-zA-Z0-9]+/, '');
+	value = value.trim();
+
 	return (
 		<>
 			<Navbar location='' />
@@ -131,7 +146,7 @@ export function FormTransaction() {
 						<input
 							className="rounded lg:w-5/12 md:w-full m-auto my-6 px-1 text-xl bg-brand-200 h-12 border-b-2 focus:border-sky-500 outline-none"
 							onChange={e => setValue(e.target.value)}
-							placeholder=" 0.00"
+							placeholder="0.00"
 							value={value}
 						/>
 						<input

@@ -113,6 +113,21 @@ export function FormTransactionFixe() {
 		setIsMessage(false);
 	}
 
+	//ESTE CODIGO SE ENCARGA DE FORMATAR EL PRECIO
+	if(value.length > 2){
+		value = value.replace(/\./g, '');
+		value = value.replace(/^0+(?=[1-9])/, '');
+		
+		
+		let before = value.slice(0, -2);
+		let after = value.slice(-2);
+		value = before + "." +after;
+	}
+	value = value.replace(/^\./, '');
+	value = value.replace(/^[a-zA-Z]+/, '');
+	value = value.replace(/^[^a-zA-Z0-9]+/, '');
+	value = value.trim();
+
 	return (
 		<>
 			<Navbar location='' />

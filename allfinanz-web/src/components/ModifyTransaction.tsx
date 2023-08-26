@@ -1,4 +1,5 @@
 import { FormEvent, useState, useEffect } from "react";
+import { useNavigate } from 'react-router-dom'
 import { SelectComponent } from "../components/SelectComponent";
 import { categoryOptions } from "../services/categoryOptions";
 import { API } from "../services/api";
@@ -19,6 +20,7 @@ export function ModifyTransaction(props: ModifyTransactionProps) {
     loadCards();
   }, []);
 
+	const navigate = useNavigate();
   const ID_USER = localStorage.getItem("iden");
   let [value, setValue] = useState(props.value);
   let [category, setCategory] = useState(props.category);
@@ -27,6 +29,8 @@ export function ModifyTransaction(props: ModifyTransactionProps) {
   let [description, setDescription] = useState(props.description);
   let [isMessage, setIsMessage] = useState(false);
   let [textMessage, setTextMessage] = useState("");
+  let [typeMessage, setTypeMessage] = useState('')
+  let [linkMessage, setLinkMessage] = useState('0')
 
   if (value.includes(",")) {
     setValue(value.replace(",", "."));
@@ -35,7 +39,8 @@ export function ModifyTransaction(props: ModifyTransactionProps) {
     event.preventDefault();
 
     if (!value || !description) {
-      setTextMessage("Debes prencher todos los campos.");
+			setTextMessage('Los campos no pueden ser enviados vacios.')
+			setTypeMessage('error');
       setIsMessage(true);
     } else if (value < "0" || isNaN(parseInt(value))) {
       setTextMessage("El valor es invalido.");
@@ -60,17 +65,22 @@ export function ModifyTransaction(props: ModifyTransactionProps) {
     });
   }
 
+  function clearAlertMessage(){
+		setLinkMessage('0');
+		setIsMessage(false);
+	}
+
   return (
     <div className="flex justify-center items-center fixed inset-0 bg-moon-300 z-50">
-      {isMessage ? (
-        <MessageComponent
-          text={textMessage}
-          action={() => setIsMessage(false)}
-          type={'null'} 
-					link_title={'null'} 
-					link={() => null} 
-        />
-      ) : null}
+					{isMessage ? 
+						<MessageComponent 
+							text={textMessage} 
+							type={typeMessage} 
+							link_title={linkMessage} 
+							link={() => navigate('/dashboard')} 
+							action={() => clearAlertMessage()} 
+						/> 
+					: null}
       <form
         onSubmit={setModifyTrasnsaction}
         className="lg:w-1/4 md:w-[90%] bg-moon-500 rounded py-4 px-8 flex flex-col shadow"

@@ -46,6 +46,36 @@ export function UpdateUser(props: UpdateUserProps) {
 
 	}
 
+	//ESTE CODIGO SE ENCARGA DE FORMATAR EL PRECIO
+	if(monthlyIconme.length > 2){
+		monthlyIconme = monthlyIconme.replace(/\./g, '');
+		monthlyIconme = monthlyIconme.replace(/^0+(?=[1-9])/, '');
+		
+		
+		let before = monthlyIconme.slice(0, -2);
+		let after = monthlyIconme.slice(-2);
+		monthlyIconme = before + "." +after;
+	}
+	monthlyIconme = monthlyIconme.replace(/^\./, '');
+	monthlyIconme = monthlyIconme.replace(/^[a-zA-Z]+/, '');
+	monthlyIconme = monthlyIconme.replace(/^[^a-zA-Z0-9]+/, '');
+	monthlyIconme = monthlyIconme.trim();
+
+	//ESTE CODIGO SE ENCARGA DE FORMATAR EL PRECIO
+	if(savings.length > 2){
+		savings = savings.replace(/\./g, '');
+		savings = savings.replace(/^0+(?=[1-9])/, '');
+		
+		
+		let before = savings.slice(0, -2);
+		let after = savings.slice(-2);
+		savings = before + "." +after;
+	}
+	savings = savings.replace(/^\./, '');
+	savings = savings.replace(/^[a-zA-Z]+/, '');
+	savings = savings.replace(/^[^a-zA-Z0-9]+/, '');
+	savings = savings.trim();
+
 	return (
 		<div className="m-0 fixed bg-brand-100 inset-0 transition flex justify-center items-center">
 			{isMessage ? 
