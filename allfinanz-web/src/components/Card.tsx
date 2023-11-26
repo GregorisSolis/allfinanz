@@ -55,7 +55,10 @@ export function Card(props: CardProps) {
 		props.reload()
 	}
 
-	let displayValue = totalCost < 1 ? 'none' : 'block';
+	let displayValue = 'block';
+	if(!window.location.pathname.includes('modificar')){
+		displayValue = totalCost < 1 ? 'none' : 'block';
+	}
 
 	return (
 		<div

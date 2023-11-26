@@ -22,10 +22,13 @@ export function ModifyCard() {
 	let [cardCloseDay, setCardCloseDay] = useState('')
 	let [isMessage, setIsMessage] = useState(false)
 	let [textMessage, setTextMessage] = useState('')
+	let [typeMessage, setTypeMessage] = useState('')
+	let [linkMessage, setLinkMessage] = useState('0')
 
 	async function loadCard() {
 		await API.get(`/card/card-data/${nameCard}/user/${ID_USER}`)
 			.then(resp => {
+				console.log(resp.data.card[0])
 				setName(resp.data.card[0].name)
 				setColor(resp.data.card[0].color)
 				setColorFont(resp.data.card[0].colorFont)
@@ -53,10 +56,14 @@ export function ModifyCard() {
 					loadCard()
 					setTextMessage('La tarjeta se ha editado.')
 					setIsMessage(true)
+					setTypeMessage('success');
+					setLinkMessage('Ir al dashboard')
 				})
 				.catch(() => {
 					setTextMessage('Error al editar la tarjeta.')
 					setIsMessage(true)
+					setTypeMessage('error');
+					setLinkMessage('0')
 
 				})
 		}
@@ -68,15 +75,15 @@ export function ModifyCard() {
 			{isMessage ? 
 				<MessageComponent 
 					text={textMessage} 
-					action={() => setIsMessage(false)}
-					type={'null'} 
-					link_title={'null'} 
-					link={() => null} 
+					action={() => setIsMessage(false)} 
+					type={typeMessage} 
+					link_title={linkMessage} 
+					link={() => navigate('/dashboard')} 
 				/> : null}
 
 			<div className="w-full min:h-96 text-white lg:flex md:block justify-center items-center my-16">
 
-				<div className="w-1/4">
+				<div className="w-1/8">
 					<Card
 						IDCard={cardID}
 						nameCard={name}

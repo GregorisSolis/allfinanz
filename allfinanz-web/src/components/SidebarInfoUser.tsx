@@ -80,7 +80,7 @@ export function SidebarInfoUser(props: SidebarInfoUserProps) {
     if (percentageCostMonth > 100) {
       setPercentageCostMonth(100);
     } else {
-      setPercentageTotalCost(percentageCostMonth);
+      setPercentageCostMonth(percentageCostMonth);
     }
 
 
