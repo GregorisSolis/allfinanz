@@ -1,8 +1,16 @@
 const multer = require("multer");
 const path = require("path");
 const crypto = require("crypto");
-const aws = require("aws-sdk");
+const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
 const multerS3 = require("multer-s3");
+
+const s3 = new S3Client({
+  region: process.env.AWS_DEFAULT_REGION,
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  }
+});
 
 const storageTypes = {
   local: multer.diskStorage({
@@ -14,18 +22,13 @@ const storageTypes = {
         if (err) cb(err);
 
         file.key = `${hash.toString("hex")}-${file.originalname}`;
-
         cb(null, file.key);
       });
     }
   }),
 
   s3: multerS3({
-    s3: new aws.S3(
-      process.env.AWS_ACCESS_KEY_ID,
-      process.env.AWS_SECRET_ACCESS_KEY,
-      process.env.AWS_DEFAULT_REGION,
-    ),
+    s3: s3,
     bucket: process.env.AWS_BUCKET,
     contentType: multerS3.AUTO_CONTENT_TYPE,
     acl: "public-read",
@@ -33,7 +36,6 @@ const storageTypes = {
       crypto.randomBytes(16, (err, hash) => {
         if (err) cb(err);
         const fileName = `${hash.toString("hex")}-${file.originalname}`;
-
         cb(null, fileName);
       });
     }

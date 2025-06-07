@@ -2,6 +2,9 @@ const express = require('express')
 const authMiddleware = require('../middlewares/auth')
 const Transaction = require('../models/transaction')
 
+const numberFormat = require('../../core/utils');
+
+
 const router = express.Router()
 
 //CODIGO ENCARGADO DE QUE LAS Transaction SE HAGAN CON AUTH
@@ -10,6 +13,24 @@ router.use(authMiddleware)
 
 //CREAR UNA TRANSACCIÓN
 router.post('/new-transaction', async (req, res) => {
+
+	let { value } = req.body
+
+	if (value !== undefined && value !== null && value !== '') {
+		value = numberFormat(value);
+		req.body.value = value;
+	} else {
+		return res.status(400).send({ message: 'Invalid value.' });
+	}
+
+	if (req.body.isDivided === true) {
+		req.body.dividedIn = req.body.dividedIn || 0;
+	}
+
+	if (!req.body.description || req.body.description.trim() === "") {
+		return res.status(400).send({ message: 'Invalid description.' });
+	}
+
 	try {
 
 		const transaction = await Transaction.create({ ...req.body, user: req.userId })
@@ -17,7 +38,7 @@ router.post('/new-transaction', async (req, res) => {
 		return res.send({ transaction })
 	}
 	catch (err) {
-		return res.status(400).send({ message: 'Transaction failed.'})
+		return res.status(400).send({ message: 'Transaction failed.', error: err})
 	}
 })
 

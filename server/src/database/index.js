@@ -1,7 +1,8 @@
-const mongoose = require('mongoose')
+const mongoose = require('mongoose');
 
-mongoose.connect(process.env.DATA_BASE_URL,
-	{ useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true })
-mongoose.Promise = global.Promise
+// Conexión sin opciones obsoletas
+mongoose.connect(process.env.DATA_BASE_URL);
 
-module.exports = mongoose
+mongoose.Promise = global.Promise;
+
+module.exports = mongoose;

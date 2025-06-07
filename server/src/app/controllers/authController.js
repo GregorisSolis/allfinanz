@@ -193,7 +193,6 @@ router.put('/edit_password/:userId', async (req, res) => {
 })
 
 //EDITAR DATOS USER - funciona tambien para usuarios de google
-
 router.put('/edit/:userId', async (req, res) => {
 
 	try {
@@ -213,4 +212,4 @@ router.put('/edit/:userId', async (req, res) => {
 
 })
 
-module.exports = app => app.use('/auth', router)
+module.exports = app => app.use('/user', router)
