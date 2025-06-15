@@ -1,18 +1,33 @@
-const mongoose = require('../../database')
+const mongoose = require('../../database');
 
 const TransactionSchema = new mongoose.Schema({
-	value: 			{ type: Number, required: true },
-	type: 			{ type: String, required: true },
-	user: 			{ type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-	isDivided: 		{ type: Boolean, default: false },
-	dividedIn: 		{ type: Number, default: 0},
-	description:	{ type: String, required: true },
-	category: 		{ type: String, required: true },
-	date: 			{ type: Object, required: true},
-	card: 			{ type: String},
-	createdAt: 		{ type: Date, default: Date.now }
-})
+    amount:         { type: Number, required: true },
+    description:    { type: String, required: true },
+    category:       { type: String, required: true },
 
-const Transaction = mongoose.model('Transaction', TransactionSchema)
+    type:           { type: String },
 
-module.exports = Transaction
+    date:           { type: Date, required: true },
+
+    fixed:          { type: Boolean, default: false },
+    observation:    { type: String },
+
+    user:           { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+
+    isDivided:      { type: Boolean, default: false },
+    dividedIn:      { type: Number, default: 0 },
+
+    card:           { type: String },
+
+    source:         { 
+        type: String, 
+        enum: ['salary', 'carryover', 'savings'], 
+        required: true 
+    },
+
+    createdAt:      { type: Date, default: Date.now }
+});
+
+const Transaction = mongoose.model('Transaction', TransactionSchema);
+
+module.exports = Transaction;

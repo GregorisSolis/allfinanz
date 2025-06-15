@@ -12,97 +12,94 @@ router.use(authMiddleware)
 
 
 //CREAR UNA TRANSACCIÓN
-router.post('/new-transaction', async (req, res) => {
+router.post('/', async (req, res) => {
+    let { amount, date } = req.body;
 
-	let { value } = req.body
+    if (amount === undefined || amount === null || amount === '') {
+        return res.status(400).send({ message: 'Invalid amount.' });
+    }
 
-	if (value !== undefined && value !== null && value !== '') {
-		value = numberFormat(value);
-		req.body.value = value;
-	} else {
-		return res.status(400).send({ message: 'Invalid value.' });
-	}
+    req.body.amount = amount;
 
-	if (req.body.isDivided === true) {
-		req.body.dividedIn = req.body.dividedIn || 0;
-	}
+    if (req.body.isDivided === true) {
+        req.body.dividedIn = req.body.dividedIn || 0;
+    }
 
-	if (!req.body.description || req.body.description.trim() === "") {
-		return res.status(400).send({ message: 'Invalid description.' });
-	}
+    if (!req.body.description || req.body.description.trim() === "") {
+        return res.status(400).send({ message: 'Invalid description.' });
+    }
 
-	try {
+    // Ajustar fecha a hora de Brasilia (UTC-3)
+    if (date) {
+        const inputDate = new Date(date);
+        // Restar 3 horas para pasar UTC a BRT
+        const brazilDate = new Date(inputDate.getTime() - 3 * 60 * 60 * 1000);
+        req.body.date = brazilDate;
+    } else {
+        return res.status(400).send({ message: 'Invalid date.' });
+    }
 
-		const transaction = await Transaction.create({ ...req.body, user: req.userId })
+    try {
+        const transaction = await Transaction.create({ ...req.body, user: req.userId });
+        return res.send({ transaction });
+    } catch (err) {
+        return res.status(400).send({ message: 'Transaction failed.', error: err });
+    }
+});
 
-		return res.send({ transaction })
-	}
-	catch (err) {
-		return res.status(400).send({ message: 'Transaction failed.', error: err})
-	}
-})
 
 
 //OBTENER LAS TRANSACCIONES ESPESIFICADA POR USUARIO
-router.get('/all-transaction/user/:IDUSER', async (req, res) => {
-	try {
-		const transactions = await Transaction.find({ user: req.params.IDUSER })
-
-		return res.send({ transactions })
-	}
-	catch (err) {
-		return res.status(400).send({ message: "Transactions not found."})
-	}
+router.get('/user/:user_id', async (req, res) => {
+    try {
+        const transactions = await Transaction.find({ user: req.params.user_id })
+        return res.send({ transactions })
+    }
+    catch (err) {
+        return res.status(400).send({ message: "Transactions not found."})
+    }
 })
 
 
-//BUSCAR TRANSACCIONES USANDO PALABRA LLAVE "type"
-router.get('/all-transaction/type/:type/userId/:userId', async (req, res) => {
-	try {
-		const transactions = await Transaction.find({ type: req.params.type, user: req.params.userId })
+//BUSCAR TRANSACCIONES POR TIPO, CATEGORIA OU CARTÃO
+router.get('/search', async (req, res) => {
+    try {
+        const type = req.headers.type;
+        const category = req.headers.category;
+        const card = req.headers.card;
+        const user_id = req.headers.user_id;
 
-		return res.send({ transactions })
-	}
-	catch (err) {
-		return res.status(400).send({ message: "Transaction not found." })
-	}
+        if (!user_id) {
+            return res.status(400).send({ 
+                message: "user_id é obrigatório nos headers" 
+            });
+        }
+
+        if (!type && !category && !card) {
+            return res.status(400).send({ 
+                message: "É necessário pelo menos um filtro: type, category ou card" 
+            });
+        }
+
+        let query = { user: user_id };
+
+        if (type) query.type = type;
+        if (category) query.category = category;
+        if (card) query.card = card;
+
+        const transactions = await Transaction.find(query);
+        return res.send({ transactions });
+    } catch (err) {
+        return res.status(400).send({ message: "Erro ao buscar transações." });
+    }
 })
-
-//BUSCAR TRANSACCIONES USANDO PALABRA LLAVE "category"
-router.get('/all-transaction/category/:category/userId/:userId', async (req, res) => {
-	try {
-		const transactions = await Transaction.find({ category: req.params.category, user: req.params.userId })
-
-		return res.send({ transactions })
-	}
-	catch (err) {
-		return res.status(400).send({ message: "Transaction not found."})
-	}
-})
-
-
-//MUESTRA TODAS LAS TRANSACCIONES DEL USUARIO POR TARJETA
-router.get('/all-transaction/user/:userId/card/:nameCard', async (req, res) => {
-
-	try {
-
-		const transactions = await Transaction.find({ card: req.params.nameCard, user: req.userId }).populate('user')
-
-		return res.send({ transactions })
-
-	} catch (err) {
-		return res.status(400).send({ message: "Error loading transactions."})
-	}
-
-})
-
 
 //EDITAR UNA TRANSACTION
-router.patch('/edit-transaction/:transactionId', async (req, res) => {
+router.patch('/:transaction_id', async (req, res) => {
 
 	try {
 
-		const transaction = await Transaction.findByIdAndUpdate(req.params.transactionId,
+		const transaction = await Transaction.findByIdAndUpdate(req.params.transaction_id,
 			{ ...req.body, user: req.userId }, { new: true })
 
 		return res.send({ transaction })
@@ -116,10 +113,10 @@ router.patch('/edit-transaction/:transactionId', async (req, res) => {
 
 
 //ELIMINAR UNA TRANSACTION
-router.delete('/romeve-transaction/:transactionId', async (req, res) => {
+router.delete('/:transaction_id', async (req, res) => {
 	try {
 
-		await Transaction.findByIdAndDelete(req.params.transactionId)
+		await Transaction.findByIdAndDelete(req.params.transaction_id)
 
 		return res.send()
 
@@ -128,4 +125,4 @@ router.delete('/romeve-transaction/:transactionId', async (req, res) => {
 	}
 })
 
-module.exports = app => app.use('/operation', router)
+module.exports = app => app.use('/transaction', router)
