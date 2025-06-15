@@ -12,7 +12,7 @@
   "author": "gregoris solis",
   "license": "ISC",
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.787.0",
+    "@aws-sdk/client-s3": "^3.826.0",
     "aws-sdk": "^2.1430.0",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.2",
