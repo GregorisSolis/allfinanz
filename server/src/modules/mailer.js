@@ -16,11 +16,11 @@ const handlebarOptions = {
 
   viewEngine: {
     extName: '.html',
-    partialsDir: path.resolve('./src/resources/mail/auth/'),
-    layoutsDir: path.resolve('./src/resources/mail/auth/'),
+    partialsDir: path.resolve('./src/resources/mail/user/'),
+    layoutsDir: path.resolve('./src/resources/mail/user/'),
     defaultLayout: 'forgot_password.html',
   },
-  viewPath: path.resolve('./src/resources/mail/auth/'),
+  viewPath: path.resolve('./src/resources/mail/user/'),
   extName: '.html',
 };
 
