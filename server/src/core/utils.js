@@ -32,4 +32,29 @@ function formatToTwoDecimals(value) {
   return Number(num.toFixed(2));
 }
 
-module.exports = { numberFormat, toDecimalFormat, formatToTwoDecimals };
+// Función auxiliar para construir filtro de fechas
+function buildDateFilter(dateInit, dateEnd) {
+  if (!dateInit && !dateEnd) return {};
+  
+  const dateFilter = { date: {} };
+  
+  if (dateInit) {
+      const initDate = new Date(dateInit);
+      if (isNaN(initDate.getTime())) {
+          throw new Error('Invalid date_init format');
+      }
+      dateFilter.date.$gte = initDate;
+  }
+  
+  if (dateEnd) {
+      const endDate = new Date(dateEnd);
+      if (isNaN(endDate.getTime())) {
+          throw new Error('Invalid date_end format');
+      }
+      dateFilter.date.$lte = endDate;
+  }
+  
+  return dateFilter;
+}
+
+module.exports = { numberFormat, toDecimalFormat, formatToTwoDecimals, buildDateFilter};
