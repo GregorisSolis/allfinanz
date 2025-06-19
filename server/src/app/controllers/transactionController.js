@@ -2,8 +2,7 @@ const express = require('express')
 const authMiddleware = require('../middlewares/auth')
 const Transaction = require('../models/transaction')
 
-const numberFormat = require('../../core/utils');
-
+const { buildDateFilter } = require('../../core/utils');
 
 const router = express.Router()
 
@@ -48,30 +47,63 @@ router.post('/', async (req, res) => {
 });
 
 
-
 //OBTENER LAS TRANSACCIONES ESPESIFICADA POR USUARIO
-router.get('/user/:user_id', async (req, res) => {
+router.get('/list', async (req, res) => {
     try {
-        const transactions = await Transaction.find({ user: req.params.user_id })
-        return res.send({ transactions })
+        const { user_id, date_init, date_end } = req.query;
+
+        // Validación de parámetros requeridos
+        if (!user_id) {
+            return res.status(400).json({ 
+                success: false,
+                message: "user_id is required in the parameters" 
+            });
+        }
+
+        // Construcción de query base
+        const baseQuery = { user: user_id };
+
+        // Construcción de filtro de fechas si se proporcionan
+        const dateFilter = buildDateFilter(date_init, date_end);
+        
+        // Consultas paralelas para mejor rendimiento
+        const [relatives, fixed] = await Promise.all([
+            Transaction.find({ 
+                ...baseQuery, 
+                fixed: false,
+                ...dateFilter 
+            }),
+            Transaction.find({ 
+                ...baseQuery, 
+                fixed: true 
+            })
+        ]);
+
+        return res.status(200).json({ 
+            success: true,
+            data: {
+                transactions: { relatives, fixed }
+            }
+        });
+
+    } catch (err) {
+        console.error('Error fetching transactions:', err);
+        return res.status(500).json({ 
+            success: false,
+            message: "Internal server error while fetching transactions" 
+        });
     }
-    catch (err) {
-        return res.status(400).send({ message: "Transactions not found."})
-    }
-})
+});
 
 
 //BUSCAR TRANSACCIONES POR TIPO, CATEGORIA OU CARTÃO
 router.get('/search', async (req, res) => {
     try {
-        const type = req.headers.type;
-        const category = req.headers.category;
-        const card = req.headers.card;
-        const user_id = req.headers.user_id;
+        const { type, category, card, user_id } = req.query;
 
         if (!user_id) {
             return res.status(400).send({ 
-                message: "user_id é obrigatório nos headers" 
+                message: "user_id é obrigatório nos parâmetros" 
             });
         }
 
@@ -92,7 +124,8 @@ router.get('/search', async (req, res) => {
     } catch (err) {
         return res.status(400).send({ message: "Erro ao buscar transações." });
     }
-})
+});
+
 
 //EDITAR UNA TRANSACTION
 router.patch('/:transaction_id', async (req, res) => {
