@@ -142,25 +142,28 @@ router.get('/:user_id', async (req, res) => {
 
         // Enviar relatório
         res.status(200).send({
-            period: {
-                first_day_of_period: period.first_day_of_period.toISOString().split('T')[0],
-                last_day_of_period: period.last_day_of_period.toISOString().split('T')[0],
-                days_in_period: period.days_in_period,
-                today_day: period.today_day
-            },
-            salary: {
-                base: salary.toFixed(2),
-                balance: salary_balance,
-                daily_limit
-            },
-            expenses: {
-                fixed: expenses.fixed,
-                relative: expenses.relative,
-                total: expenses.total
-            },
-            carryover,
-            savings: {
-                spent: expenses.savings_spent
+            success: true,
+            data: {
+                period: {
+                    first_day_of_period: period.first_day_of_period.toISOString().split('T')[0],
+                    last_day_of_period: period.last_day_of_period.toISOString().split('T')[0],
+                    days_in_period: period.days_in_period,
+                    today_day: period.today_day
+                },
+                salary: {
+                    base: salary.toFixed(2),
+                    balance: salary_balance,
+                    daily_limit
+                },
+                expenses: {
+                    fixed: expenses.fixed,
+                    relative: expenses.relative,
+                    total: expenses.total
+                },
+                carryover,
+                savings: {
+                    spent: expenses.savings_spent
+                }
             }
         });
 
