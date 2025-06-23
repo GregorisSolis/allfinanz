@@ -2,77 +2,37 @@
 @tailwind components;
 @tailwind utilities;
 
-body{
-	@apply bg-[#1E2127];
+body {
+	@apply bg-[#1E2127] font-montserrat;
 }
 
-nav{
-	background: rgb(10,84,166);
-	background: linear-gradient(135deg, rgba(10,84,166,1) 16%, rgba(11,40,52,1) 56%, rgba(18,18,18,1) 100%);
+@keyframes fadeIn {
+	from {
+		opacity: 0
+	}
+
+	to {
+		opacity: 1
+	}
 }
 
-nav a{z-index: 2;}
+@keyframes fadeOut {
+	from {
+		opacity: 1
+	}
 
-.background_blur{display: none;}
-
-.gradient{background: linear-gradient(135deg, rgb(6, 53, 107) 16%, rgb(134, 0, 211) 56%, rgb(95, 3, 182) 100%)}
-
-.link{@apply h-full flex items-center hover:text-sky-500 focus:text-sky-500 transition}
-
-.animation-text{animation: animation-error .3s infinite ease-in-out;}
-
-.animation-home{animation: topLevel 1s;}
-
-@keyframes animation-error{
-	from{color:rgb(255, 0, 0)}
-	to{color: rgb(90, 0, 0);}
+	to {
+		opacity: 0
+	}
 }
+
 
 @keyframes topLevel {
-	from{translate: 0 100vh;}
-	to{translate: 0 0;}
-}
-
-@media only screen and (max-width:720px){
-	.hidden-item{
-		display: none;
+	from {
+		translate: 0 100vh;
 	}
 
-	.nav_responsive{
-		position: fixed;
-		bottom: 0;
-		left: 0;
-		right: 0;
-		height: 8vh;
-		width: 100%;
-		margin: 0;
-		background: transparent;
-		box-shadow: 2px 1px 2px 2px #181a1de6;
-		z-index: 100000;
-	}
-
-	.background_blur{
-		display: block;
-		position: absolute;
-		width: 100%;
-		background: #181a1de6;
-		backdrop-filter: blur(5px);
-		box-shadow: 2px 1px 2px 2px #181a1de6;
-		z-index: 1;
-		height: 70px;
-	}
-
-	.title{
-		width: 100%;
-		text-align: center;
-	}
-
-	.large-content{
-		width: 90%;
-	}
-
-	.large-content-input{
-		width: 100%;
+	to {
+		translate: 0 0;
 	}
 }
-
