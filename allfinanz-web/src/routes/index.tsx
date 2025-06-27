@@ -10,10 +10,13 @@ import { Extract } from '../pages/Extract'
 import { Profile } from '../pages/Profile'
 import { ModifyCard } from '../pages/ModifyCard'
 import { FormTransaction } from '../pages/FormTransaction'
-import { FormTransactionFixe } from '../pages/FormTransactionFixe'
 import { PageNotFound } from "../pages/PageNotFound";
 import { ForgotPassword } from "../pages/ForgotPassword";
 import { CreateResetPassword } from '../pages/CreateResetPassword'
+import { Navbar } from '../components/Navbar'
+
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 // @ts-ignore
 const PrivateRoute = ({ children, redirectTo }) => {
@@ -22,6 +25,21 @@ const PrivateRoute = ({ children, redirectTo }) => {
 
 export const Routers = () => (
 	<BrowserRouter>
+		<ToastContainer 
+			toastClassName={() =>
+				"bg-slate-800/90 backdrop-blur-md border border-slate-700 text-white p-4 rounded-xl shadow-md"
+			}
+			position="bottom-right" 
+			autoClose={3000} 
+			hideProgressBar={false}
+			newestOnTop={false} 
+			closeOnClick
+			pauseOnFocusLoss
+			draggable
+			pauseOnHover
+			theme="dark"
+		/>
+		<Navbar />
 		<Routes>
 			<Route path="/" element={<Home />}/>
 			<Route path="/login" element={<Login />}/>
@@ -31,8 +49,8 @@ export const Routers = () => (
 			<Route path="/extracto/" element={ <PrivateRoute redirectTo="/login"> <Extract /> </PrivateRoute>}/>
 			<Route path="/perfil" element={ <PrivateRoute redirectTo="/login"> <Profile /> </PrivateRoute>}/>
 			<Route path="/modificar/card/:nameCard" element={ <PrivateRoute redirectTo="/login"> <ModifyCard /> </PrivateRoute>}/>
-			<Route path="/nueva/transaccion" element={ <PrivateRoute redirectTo="/login"> <FormTransaction /> </PrivateRoute>}/>
-			<Route path="/nuevo/gasto-fijo" element={ <PrivateRoute redirectTo="/login"> <FormTransactionFixe /> </PrivateRoute>}/>
+			<Route path="/gasto" element={ <PrivateRoute redirectTo="/login"> <FormTransaction /> </PrivateRoute>}/>
+			<Route path="/gasto/:id" element={ <PrivateRoute redirectTo="/login"> <FormTransaction /> </PrivateRoute>}/>
 			<Route path="/recuperar-cuenta" element={<ForgotPassword />}/>
 			<Route path="/reset-password/:token/:email" element={<CreateResetPassword />}/>
 			<Route path="/*" element={<PageNotFound />}/>

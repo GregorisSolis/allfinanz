@@ -1,68 +1,95 @@
 import { FormEvent, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { MessageComponent } from '../components/MessageComponent'
 import { API } from '../services/api'
 import { login } from '../services/auth'
+import { toast } from 'react-toastify'
+import { FiEye, FiEyeOff, FiLock, FiMail } from 'react-icons/fi'
 
 export function Login() {
 
-	document.title = 'Allfinanz - Login'
+	document.title = 'Allfinanz | Login'
 	const navigate = useNavigate()
 	const [email, setEmail] = useState('')
 	const [password, setPassword] = useState('')
-	let [isMessage, setIsMessage] = useState(false)
-	let [textMessage, setTextMessage] = useState('')
-	let [typeMessage, setTypeMessage] = useState('')
-	let [linkMessage, setLinkMessage] = useState('0')
-	
+	const [showPassword, setShowPassword] = useState(false)
 
 	async function setLogin(event: FormEvent) {
 		event.preventDefault()
 
 		if (!password || !email) {
-			setTextMessage('Debes llenar todos los campos.')
-			setTypeMessage('warning');
-			setLinkMessage('0')
-			setIsMessage(true)
+			toast.warning('Você deve preencher todos os campos.')
 		} else {
 
-			await API.post('/auth/authenticate', { email, password })
+			await API.post('/user/authenticate', { email, password })
 				.then(resp => {
 					login(resp.data.token)
 					localStorage.setItem('iden', resp.data.user._id)
 					navigate('/dashboard')
 				})
 				.catch(() => {
-					setTextMessage('Ups.. algo no esta bien, revisa tu email o contraseña.')
-					setTypeMessage('warning');
-					setLinkMessage('0')
-					setIsMessage(true)
+					toast.warning('Ops... algo está errado, verifique seu e-mail ou senha.')
 				})
 		}
 
 	}
 
 	return (
-		<div className="w-full min-h-96 text-white flex my-16">
-			{isMessage ? 
-				<MessageComponent 
-					text={textMessage} 
-					type={typeMessage} 
-					link_title={linkMessage} 
-					link={() => navigate('/login')} 
-					action={() => setIsMessage(false)} 
-				/> 
-			: null}
+		<div className="my-4 bg-slate-900 text-white p-6 rounded-xl shadow-lg max-w-md mx-auto ">
 
-			<div className="m-auto md:w-[90%] lg:w-1/4 rounded bg-brand-200 shadow-lg p-4">
-				<form onSubmit={setLogin} className="flex flex-col text-center">
-					<h1 className="text-4xl mb-8">Login</h1>
-					<input className="transition w-11/12 m-auto my-4 px-1 text-xl bg-transparent border-b-2 focus:border-sky-500 outline-none" onChange={e => setEmail(e.target.value)} placeholder="email" />
-					<input className="transition w-11/12 m-auto my-4 px-1 text-xl bg-transparent border-b-2 focus:border-sky-500 outline-none" onChange={e => setPassword(e.target.value)} type="password" placeholder="password" />
-					<button type="submit" className="transition my-8 bg-sky-600 w-40 py-2 hover:bg-sky-500 rounded m-auto">Entrar</button>
-					<span>Aun no tienes cuenta? <a className="hover:text-sky-500 hover:underline transition" href="/registrate">Crea una ahora</a></span>
-					<a className="hover:text-sky-500 hover:underline transition" href="/recuperar-cuenta">Olvide mi contraseña</a>
-				</form>
+			<form className="space-y-6" onSubmit={setLogin} noValidate>
+				
+				<div className="flex justify-center w-full my-12 mx-auto">
+					<h2 className="text-4xl font-thin">Login</h2>
+				</div>
+
+				<div className="flex items-center max-w-3xl border border-slate-700 border-2 rounded bg-transparent px-4 py-3 mb-4">
+					<FiMail className="text-xl text-slate-400 mr-2" />
+					<input
+						type="email"
+						id="email"
+						placeholder="E-mail"
+						className="bg-transparent outline-none text-xl w-full"
+						onChange={e => setEmail(e.target.value)}
+					/>
+				</div>
+
+				<div className="flex items-center max-w-3xl border border-slate-700 border-2 rounded bg-transparent px-4 py-3">
+					<FiLock className="text-xl text-slate-400 mr-2" />
+					<input
+						id="password"
+						type={showPassword ? "text" : "password"}
+						placeholder="Senha"
+						className="bg-transparent outline-none text-xl w-full"
+						onChange={e => setPassword(e.target.value)}
+						autoComplete="off"
+					/>
+					<button
+						type="button"
+						onClick={() => setShowPassword(!showPassword)}
+						className="focus:outline-none ml-2"
+						tabIndex={-1}
+					>
+						{showPassword ? (
+						<FiEyeOff className="text-xl text-slate-400" />
+						) : (
+						<FiEye className="text-xl text-slate-400" />
+						)}
+					</button>
+				</div>
+
+				<div className='items-center max-w-3xl mt-10 pt-10'>
+					<button 
+						type="submit" 
+						className="w-full text-lg my-8 bg-sky-600 py-4 hover:bg-sky-500 rounded m-auto"
+					>
+						<b>Entrar</b>
+					</button>
+				</div>
+			</form>
+
+			<div className='w-full flex justify-between aling-center my-2 py-2'>
+				<a className="hover:text-sky-500 hover:underline transition" href="/registrate">Criar conta</a>
+				<a className="hover:text-sky-500 hover:underline transition" href="/recuperar-cuenta">Esqueci minha senha</a>
 			</div>
 		</div>
 	)

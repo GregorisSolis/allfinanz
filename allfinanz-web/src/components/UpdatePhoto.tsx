@@ -1,6 +1,5 @@
 import { FormEvent, useState } from 'react'
 import { API } from '../services/api'
-import { MessageComponent } from './MessageComponent'
 
 interface UpdatePhotoProps{
 	idForRemove: string,
@@ -24,7 +23,7 @@ export function UpdatePhoto(props: UpdatePhotoProps){
 			const data = new FormData();
 			data.append("file", imageData, imageData.name);
 
-			API.post('/auth/post', data)
+			API.post('/user/post', data)
 			.then(res => {
 				let imageUrl = res.data.post.url
 				let imageID = res.data.post.key
@@ -44,12 +43,12 @@ export function UpdatePhoto(props: UpdatePhotoProps){
 
 	//elimina la foto, para luego agregar una nueva
 	function removePhotoFromAws(){
-		API.delete(`/auth/remove-post/${idForRemove}`)
+		API.delete(`/user/remove-post/${idForRemove}`)
 	}
 
 	//agregar imageID y la imageURL al usuario
 	function setUrlUserPhoto(imageUrl: string, imageID: string){
-		API.put(`/auth/edit/${ID_USER}`, { imageUrl, imageID})
+		API.put(`/user/edit/${ID_USER}`, { imageUrl, imageID})
 		.then(() => {
 			props.closeComponent()
 			props.reload()
@@ -58,14 +57,7 @@ export function UpdatePhoto(props: UpdatePhotoProps){
 
 	return(
 		<div className="m-0 fixed bg-brand-100 inset-0 transition flex justify-center items-center z-20">
-			{isMessage ? 
-				<MessageComponent 
-					text={textMessage}
-					action={() => setIsMessage(false)}
-					type={'null'} 
-					link_title={'null'} 
-					link={() => null} 
-				/> : null}
+
 			
 			<form className="text-white bg-moon-500 flex flex-col p-4 rounded text-center w-[35%] large-content" onSubmit={setPhotoProfile}>
 				<h1 className="text-2xl">Agregar nueva foto</h1>

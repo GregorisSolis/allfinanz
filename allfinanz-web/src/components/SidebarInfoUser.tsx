@@ -32,7 +32,7 @@ export function SidebarInfoUser(props: SidebarInfoUserProps) {
 
   function loadDataUser() {
 		setIsLoading('blur-sm animate-pulse transition');
-    API.get(`/auth/info-user/${ID_USER}`)
+    API.get(`/user/info-user/${ID_USER}`)
       .then((resp) => {
         setMonthlyIconme(
           parseFloat(resp.data.user.monthlyIconme.$numberDecimal)

@@ -30,7 +30,7 @@ export function Profile() {
 
 	async function loadUser() {
 
-		await API.get(`/auth/info-user/${ID_USER}`)
+		await API.get(`/user/info-user/${ID_USER}`)
 			.then(resp => {
 				setSavings(resp.data.user.savings)
 				setName(resp.data.user.name)

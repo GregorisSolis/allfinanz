@@ -1,6 +1,5 @@
 import { FormEvent, useState } from "react"
 import { Navigate, useNavigate, useParams } from "react-router-dom"
-import { MessageComponent } from "../components/MessageComponent"
 import { Navbar } from "../components/Navbar"
 import { API } from "../services/api"
 import { login } from "../services/auth"
@@ -28,7 +27,7 @@ export function CreateResetPassword() {
             setTextMessage('La contraseña es muy debil. intenta agregar - !@#$%* - y mas de 7 caracteres.')
             setIsMessage(true)
         } else {
-            API.post('/auth/reset_password', { token, password, email: email + '.com' })
+            API.post('/user/reset_password', { token, password, email: email + '.com' })
                 .then(() => {
                     navigate('/perfil')
                 })
@@ -42,16 +41,7 @@ export function CreateResetPassword() {
 
     return (
         <>
-            <Navbar location="" />
             <div className="w-full h-96 text-white flex justify-center items-center my-16">
-                {isMessage ? 
-                    <MessageComponent 
-                        text={textMessage} 
-                        action={() => setIsMessage(false)} 
-                        type={'null'} 
-                        link_title={'null'} 
-                        link={() => null} 
-                    /> : null}
                 <div className="m-auto md:w-[90%] lg:w-1/4 rounded bg-brand-200 shadow-lg p-4">
                     <form onSubmit={setResetPassword} className="flex flex-col text-center">
                         <h1 className="text-2xl mb-8">Crear nueva contraseña</h1>

@@ -2,87 +2,72 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { logout } from '../services/auth'
 import { API } from '../services/api'
-import { date_now } from '../services/dateCreate'
-import { Navbar } from '../components/Navbar'
 import { ListCard } from '../components/ListCard'
-import { ListFixedCost } from '../components/ListFixedCost'
-import { ListTransactions } from '../components/ListTransactions'
-import { SidebarInfoUser } from '../components/SidebarInfoUser'
+import { TableListTransaction } from '../components/TableListTransaction'
 
+import { toast } from 'react-toastify'
+import { SideBar } from '../components/SideBar'
 
 export function Dashboard() {
+	const [isLoading, setIsLoading] = useState<string>('')
+	const [fixedTransactions, setFixedTransactions] = useState<any[]>([])
+	const [relativeTransactions, setRelativeTransactions] = useState<any[]>([])
+	const navigate = useNavigate()
+
+	document.title = 'Allfinanz | Dashboard'
 
 	useEffect(() => {
-		loadTransaction()
+		loadTransactions()
 	}, [])
 
-	document.title = 'Allfinanz - Dashboard'
-	let [listCostMonth, setListCostMonth] = useState([])
-	let [listCostFixed, setListCostFixed] = useState([])
-	let [isLoading, setIsLoading] = useState('')
-	let navigate = useNavigate()
-	let date = date_now()
+	async function loadTransactions() {
+		const userId = localStorage.getItem('iden')
 
-	async function loadTransaction() {
-		const ID_USER = localStorage.getItem('iden')
+		try {
+			setIsLoading('blur-sm animate-pulse transition')
+			const res = await API.get(`/transaction/list?user_id=${userId}`)
+			const data = res.data.transactions
 
-		setIsLoading('blur-sm animate-pulse transition');
-		await API.get(`/operation/all-transaction/user/${ID_USER}`)
-		.then(res => {
-				let items = res.data.transactions
-				let listAA: any = []
-				let listBB: any = []
-				items.map((trans: any) => {
-					if (trans.category === 'GastoFijo') {
-						listAA.push(trans)
-					} else if (trans.date.month === date.month && trans.date.year === date.year) {
-						listBB.push(trans)
-					}
-				})
-				setListCostFixed(listAA)
-				setListCostMonth(listBB)
-			})
-			.catch(() => {
-				logout();
-				navigate('/');
-			})
-		setIsLoading('');
+			// Asegurarse de que data.fixed es un array
+			if (data.fixed && Array.isArray(data.fixed)) {
+				setFixedTransactions(data.fixed)
+				setRelativeTransactions(data.relatives)
+			} else {
+				setFixedTransactions([])
+				setRelativeTransactions([])
+			}
+
+		} catch (error: any) {
+
+			if(error.response.status == 401){
+				toast.error('Usuario não autenticado.');
+				logout()
+				navigate('/')
+			}else{
+				toast.error('Erro ao carregar transações.');
+				setFixedTransactions([])
+				setRelativeTransactions([])
+			}
+
+		} finally {
+			setIsLoading('')
+		}
 	}
 
 	return (
-		<>
-			<Navbar location='Dashboard' />
-				<div className={`w-full h-96 text-white lg:flex md:block ` + isLoading}>
-					<div className="md:w-[90%] lg:w-4/5 m-auto p-4">
-
-						<div className="my-4">
-							<span className="text-2xl">Tarjetas</span>
-							<ListCard
-								listCostFixed={listCostFixed}
-								listCostMonth={listCostMonth}
-								date={date}
-							/>
-						</div>
-
-						<div className="lg:my-4 md:my-0">
-							<span className="text-2xl">Transaciones del mes</span>
-							<div className="lg:flex md:block">
-								<ListTransactions list={listCostMonth} reload={() => loadTransaction()} />
-								<SidebarInfoUser
-										listCostFixed={listCostFixed}
-										listCostMonth={listCostMonth}
-								/>
-							</div>
-
-						</div>
-
-						<div className="my-4 mb-16">
-							<span className="text-2xl">Gastos Fijos</span>
-							<ListFixedCost list={listCostFixed} reload={() => loadTransaction()} />
-						</div>
-
-					</div>
+		<section className='flex w-5/6 mx-auto my-5'>
+			<section className='w-1/4 mr-6'>
+				<SideBar />
+			</section>
+			<section className='w-full mb-4 h-screen overflow-y-auto pr-4 scrollbar-thin scrollbar-thumb-brand-200 scrollbar-track-brand-600 hover:scrollbar-thumb-brand-100'>
+				<div className={isLoading + " mx-8"}>
+					<TableListTransaction title="Gastos Fixos" list={fixedTransactions} reload={loadTransactions} />
 				</div>
-		</>
+
+				<div className={isLoading + " mx-8 my-4"}>
+					<TableListTransaction title={"Gastos do mês"} list={relativeTransactions} reload={loadTransactions} />
+				</div>
+			</section>
+		</section>
 	)
 }

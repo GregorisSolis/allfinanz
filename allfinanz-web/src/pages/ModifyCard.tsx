@@ -1,9 +1,7 @@
 import { FormEvent, useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { Navbar } from '../components/Navbar'
 import { Card } from '../components/Card'
 import { API } from '../services/api'
-import { MessageComponent } from '../components/MessageComponent'
 import { date_now } from '../services/dateCreate'
 
 export function ModifyCard() {
@@ -71,16 +69,6 @@ export function ModifyCard() {
 
 	return (
 		<>
-			<Navbar location='' />
-			{isMessage ? 
-				<MessageComponent 
-					text={textMessage} 
-					action={() => setIsMessage(false)} 
-					type={typeMessage} 
-					link_title={linkMessage} 
-					link={() => navigate('/dashboard')} 
-				/> : null}
-
 			<div className="w-full min:h-96 text-white lg:flex md:block justify-center items-center my-16">
 
 				<div className="w-1/8">

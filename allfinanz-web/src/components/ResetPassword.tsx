@@ -1,6 +1,6 @@
 import { FormEvent, useState } from 'react'
 import { API } from '../services/api'
-import { MessageComponent } from './MessageComponent'
+
 
 interface ResetPasswordProps {
 	reload: () => void,
@@ -25,7 +25,7 @@ export function ResetPassword(props: ResetPasswordProps) {
 			setTextMessage("Contraseña muy debil.")
 			setIsMessage(true)
 		} else {
-			await API.put(`/auth/edit_password/${ID_USER}`, { password })
+			await API.put(`/user/edit_password/${ID_USER}`, { password })
 				.then(() => {
 					props.reload()
 					props.closeComponent()
@@ -35,14 +35,6 @@ export function ResetPassword(props: ResetPasswordProps) {
 
 	return (
 		<div className="m-0 fixed bg-brand-100 inset-0 transition flex justify-center items-center">
-			{isMessage ? 
-			<MessageComponent 
-				text={textMessage} 
-				action={() => setIsMessage(false)} 
-				type={'null'} 
-				link_title={'null'} 
-				link={() => null} 
-			/> : null}
 
 			<form className="text-white bg-moon-500 flex flex-col p-4 rounded text-center w-[35%] large-content" onSubmit={setUpdatePassword}>
 				<h1 className="text-2xl">Crear nueva contraseña</h1>

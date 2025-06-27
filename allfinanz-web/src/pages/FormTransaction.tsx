@@ -1,41 +1,44 @@
-import { useState, useEffect, FormEvent } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useState, useEffect, FormEvent } 	from 'react'
+import { useNavigate, useParams } 						from 'react-router-dom'
 
-import { Navbar } from '../components/Navbar'
-import { SelectComponent } from '../components/SelectComponent'
-import { MessageComponent } from '../components/MessageComponent'
 
-import { typePayOptions } from '../services/typePayOptions'
-import { categoryOptions } from '../services/categoryOptions'
-import { date_now } from '../services/dateCreate'
-import { setDividedInTransaction } from '../services/operationDividedIn'
-import { API } from '../services/api'
+import { typePayOptions } 			from '../services/typePayOptions'
+import { categoryOptions } 			from '../services/categoryOptions'
+import { date_now } 				from '../services/dateCreate'
+import { setDividedInTransaction }  from '../services/operationDividedIn'
+import { API } 						from '../services/api'
+import { toast } from 'react-toastify'
+import Dialog from '../components/Dialog'
+import { formatToBRL, formatToNumber } from '../services/amountFormat'
+import { SideBar } from '../components/SideBar'
 
 export function FormTransaction() {
 
+	const { id } = useParams();
+
 	useEffect(() => {
-		loadCards()
+		loadCards();
+
+		if(id){
+			getTransaction();
+		}
+
 	}, [])
 
 	const navigate = useNavigate();
-	let [cards, setCards] = useState([])
-	let [value, setValue] = useState('')
+	const [showDialog, setShowDialog] = useState(false);
+	let [cards, setCards] = useState<any[]>([])
+	const [amount, setAmount] = useState(0);
+	const [inputValue, setInputValue] = useState('');
 	let [type, setType] = useState('')
+	let [source, setSource] = useState('')
 	let [description, setDescription] = useState('')
 	let [category, setCategory] = useState('')
 	let [card, setCard] = useState('')
 	let [dividedIn, setDividedIn] = useState(0)
 	let [isDivided, setIsDivided] = useState(false)
 
-	let [isMessage, setIsMessage] = useState(false)
-	let [textMessage, setTextMessage] = useState('')
-	let [typeMessage, setTypeMessage] = useState('')
-	let [linkMessage, setLinkMessage] = useState('0')
 	const ID_USER = localStorage.getItem('iden')
-
-	if (value.includes(',')) {
-		setValue(value.replace(',', '.'))
-	}
 
 	//cargas las tarjetas
 	async function loadCards() {
@@ -45,164 +48,333 @@ export function FormTransaction() {
 			})
 	}
 
-	//agregar una neva transaccion
-	async function setNewTransaction(event: FormEvent) {
-		event.preventDefault()
+	async function getTransaction() {
+		await API.get(`/transaction/${id}`, { params: { user_id: ID_USER } })
+			.then(resp => {
+				const data = resp.data.transaction;
+				setAmount(data.amount);
+				setInputValue(formatToBRL(data.amount));
+				setType(data.type);
+				setSource(data.source);
+				setDescription(data.description);
+				setCategory(data.category);
+				setCard(data.card || '');
+				setDividedIn(data.dividedIn || 0);
+				setIsDivided(data.isDivided || false);
+			})
+			.catch(() => {
+				toast.error('Não foi possível carregar a transação.');
+			});
+	}
 
+	// Função auxiliar para validação e preparação dos dados da transação
+	function validateAndPrepareTransaction({
+		amount,
+		type,
+		description,
+		category,
+		source,
+		dividedIn
+	}: {
+		amount: number,
+		type: string,
+		description: string,
+		category: string,
+		source: string,
+		dividedIn: number
+	}) {
+		if (!amount || !type || !description || !category || !source) {
+			toast.error('Os campos não podem ser enviados vazios.')
+			return false;
+		}
+		if (amount <= 0 || isNaN(amount)) {
+			toast.error('O valor não pode ser adicionado.')
+			return false;
+		}
+		if (dividedIn < 0) {
+			toast.error('O número de parcelas é inválido')
+			return false;
+		}
+		return true;
+	}
+
+	// Função genérica para criar ou atualizar transação
+	async function handleTransaction({
+		event,
+		isUpdate = false
+	}: {
+		event: FormEvent,
+		isUpdate?: boolean
+	}) {
+		event.preventDefault();
 
 		if (card === 'default') {
-			setCard('')
+			setCard('');
 		}
 
-		if (dividedIn <= 0) {
-			setIsDivided(false)
-		} else {
-			setIsDivided(true)
+		setIsDivided(dividedIn > 0);
+
+		let date = date_now();
+		let fixed = false;
+		if (category === '1') {
+			fixed = true;
 		}
 
-		let date = date_now()
+		if (!validateAndPrepareTransaction({ amount, type, description, category, source, dividedIn })) {
+			return;
+		}
 
-		if (!value || !type || !description || !category) {
-			setDividedInTransaction(value, description, category, type, card, dividedIn, isDivided);
-			setTextMessage('Los campos no pueden ser enviados vacios.')
-			setTypeMessage('error');
-			setIsMessage(true)
-		} else if (parseFloat(value) <= 0 || isNaN(parseInt(value))) {
-			setTextMessage('El valor no se puede agregar.')
-			setTypeMessage('error');
-			setIsMessage(true)
-		} else if (dividedIn < 0) {
-			setTextMessage('El numero de cuotas es invalido')
-			setTypeMessage('error');
-			setIsMessage(true)
-		} else {
-
-			(parseFloat(value)).toFixed(2)
-
-			if (dividedIn >= 2) {
-				if (dividedIn >= 24) {
-					setTextMessage(`Como las cuotas superan los dos años, Te recomendamos agregarlo como una categoria: 'Gasto fijo' y las cuotas en '0'.`)
-					setIsMessage(true)
-				} else {
-					setDividedInTransaction(value, description, category, type, card, dividedIn, isDivided)
-					setTextMessage(`La transacción fue divida en ${dividedIn} partes, el monto a pagar los proximos ${dividedIn} meses es: $ ${(parseFloat(value)/dividedIn).toFixed(2)}`)
-					setTypeMessage('info');
-					setLinkMessage('Ir a Dashboard')
-					setIsMessage(true)
-					setValue('')
-					setDescription('')
-					setDividedIn(0)
-				}
+		if (dividedIn >= 2) {
+			if (dividedIn >= 120) {
+				toast.info(`Como as parcelas excedem dois anos, recomendamos que você o adicione como uma categoria: 'Custo fixo' e as parcelas em '0'.`)
 			} else {
-				await API.post('/operation/new-transaction',
-					{ value, description, category, type, date, card, dividedIn, isDivided })
-					.then(() => {
-						setTextMessage('Transacción agregada con exito.');
-						setTypeMessage('success');
-						setLinkMessage('Ir a Dashboard')
-						setIsMessage(true);
-						setDividedIn(0)
-						setValue('')
-						setDescription('')
+				setDividedInTransaction(amount, description, category, type, card, dividedIn, true, fixed)
+				toast.info(`A transação foi dividida em ${dividedIn} parcelas, o valor a ser pago nos próximos ${dividedIn} meses é: R$ ${formatToBRL(amount / dividedIn)}`)
+				setAmount(0)
+				setDescription('')
+				setDividedIn(0)
+				setShowDialog(true)
+			}
+			return;
+		}
+
+		try {
+			if (isUpdate) {
+				await API.patch(`/transaction/${id}`,
+					{
+						source,
+						amount,
+						description,
+						category,
+						type,
+						date,
+						card,
+						dividedIn,
+						isDivided: dividedIn > 0,
+						fixed
 					})
-					.catch(() => {
-						setTextMessage('No se pudo agregar la transacción.')
-						setTypeMessage('error');
-						setIsMessage(true)
+			} else {
+				await API.post('/transaction/',
+					{
+						source,
+						amount,
+						description,
+						category,
+						type,
+						date,
+						card,
+						dividedIn,
+						isDivided: dividedIn > 0,
+						fixed
 					})
 			}
-
+			if(!id){
+				setAmount(0)
+				setDescription('')
+				setDividedIn(0)
+				setShowDialog(true)
+			}else{
+				toast.success('Transação editada com sucesso.');
+			}
+		} catch (error) {
+			toast.error('Não foi possível adicionar a transação.')
 		}
 	}
 
-	function clearAlertMessage(){
-		setLinkMessage('0');
-		setIsMessage(false);
+	//agregar uma neva transaccion
+	function setNewTransaction(event: FormEvent) {
+		handleTransaction({ event, isUpdate: false });
 	}
 
-	//ESTE CODIGO SE ENCARGA DE FORMATAR EL PRECIO
-	if(value.length > 2){
-		value = value.replace(/\./g, '');
-		value = value.replace(/^0+(?=[1-9])/, '');
-		
-		
-		let before = value.slice(0, -2);
-		let after = value.slice(-2);
-		value = before + "." +after;
+	function setUpdateTransaction(event: FormEvent) {
+		handleTransaction({ event, isUpdate: true });
 	}
-	value = value.replace(/^\./, '');
-	value = value.replace(/^[a-zA-Z]+/, '');
-	value = value.replace(/^[^a-zA-Z0-9]+/, '');
-	value = value.trim();
+
+	function handleGoToDashboard() {
+		navigate('/dashboard');
+	}
+
+	function handleAddAnother() {
+		// Limpar todos os campos do formulário
+		setAmount(0);
+		setInputValue('');
+		setType('');
+		setSource('');
+		setDescription('');
+		setCategory('');
+		setCard('');
+		setDividedIn(0);
+		setIsDivided(false);
+		setShowDialog(false);
+	}
+
+	function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+		const raw = e.target.value.replace(/\D/g, ''); // Solo números
+	  
+		const numeric = Number(raw);
+		setAmount(numeric);
+	  
+		const formatted = formatToBRL(numeric);
+		setInputValue(formatted);
+	}
 
 	return (
-		<>
-			<Navbar location='' />
-			<div className="m-0 w-full">
-				<form className="text-white flex flex-col p-4 rounded text-center lg:w-11/12 md:w-[90%] my-4 m-auto" onSubmit={setNewTransaction}>
-					<h1 className="text-4xl mb-4 text-white-500">Nueva Transacción</h1>
+		<section className='flex w-5/6 mx-auto my-5'>
+			<section className='w-1/4 mr-6'>
+				<SideBar />
+			</section>
+		
+			<div className="my-0 bg-slate-900 text-white p-6 rounded-xl shadow-lg w-full mx-auto">
 
-					<div className="lg:flex md:grid justify-around large-content w-9/12 my-4 m-auto">
+				<form
+					className="space-y-6"
+					onSubmit={id ? setUpdateTransaction : setNewTransaction}
+					noValidate
+				>
+					<h2 className="text-2xl font-thin">{ id ? "Editar" : "Nova" } Transação</h2>
+
+					{/* Formulario principal */}
+					<div className='grid grid-cols-[1fr_4fr] items-center gap-x-4 max-w-3xl m-auto'>
+						<label className='text-right' htmlFor="description">Descrição</label>
 						<input
-							className="rounded lg:w-5/12 md:w-full m-auto my-6 px-1 text-xl bg-brand-200 h-12 border-b-2 focus:border-sky-500 outline-none"
-							onChange={e => setValue(e.target.value)}
-							placeholder="0.00"
-							value={value}
-						/>
-						<input
-							className="rounded lg:w-5/12 md:w-full m-auto my-6 px-1 text-xl bg-brand-200 h-12 border-b-2 focus:border-sky-500 outline-none"
+							type="text"
+							id="description"
+							placeholder="Exemplo: Mercado do mês..."
+							className="rounded bg-transparent px-4 py-3 outline-none text-xl w-full border border-slate-700 border-2"
 							onChange={e => setDescription(e.target.value)}
-							placeholder="Descripción"
 							value={description}
+							autoComplete="off"
 						/>
 					</div>
-
-					<div className="lg:flex md:grid justify-around w-9/12 m-auto">
-						<SelectComponent
-							list={typePayOptions}
-							change={(e: any) => setType(e.target.value)}
-							default='Tipo de pago'
-						/>
-
-						<SelectComponent
-							list={categoryOptions}
-							change={(e: any) => setCategory(e.target.value)}
-							default='Categoria'
-						/>
-					</div>
-
-					<div className="lg:flex md:block justify-around w-9/12 m-auto">
-						<SelectComponent
-							list={cards}
-							change={(e: any) => setCard(e.target.value)}
-							default='Tarjeta'
-						/>
-
+					
+					<div className='grid grid-cols-[1fr_4fr] items-center gap-x-4 max-w-3xl m-auto'>
+						<label className='text-right' htmlFor="amount">
+							Valor <small className='text-muted'>(R$)</small>
+						</label>
 						<input
-							className="rounded lg:w-5/12 md:w-100 my-6 px-1 text-xl bg-brand-200 h-12 border-b-2 focus:border-sky-500 outline-none"
-							onChange={(e: any) => setDividedIn(e.target.value)}
-							placeholder="Numero de cuotas"
-							type="number"
-							min="0"
-							value={dividedIn}
+							type="text"
+							id="amount"
+							placeholder="Valor"
+							className="rounded bg-transparent px-4 py-3 outline-none text-xl w-full border border-slate-700 border-2"
+							onChange={handleChange}
+							value={inputValue}
+							autoComplete="off"
 						/>
 					</div>
-			
-					{isMessage ? 
-						<MessageComponent 
-							text={textMessage} 
-							type={typeMessage} 
-							link_title={linkMessage} 
-							link={() => navigate('/dashboard')} 
-							action={() => clearAlertMessage()} 
-						/> 
-					: null}
 
-					<div className="flex justify-between w-1/4 m-auto mb-4">
-						<button type="submit" className=" my-8 bg-sky-600 w-36 py-2 hover:bg-sky-500 rounded m-auto">Agregar</button>
+					<div className="grid grid-cols-[1fr_4fr] items-center gap-x-4 max-w-3xl m-auto">
+						<label className="text-right" htmlFor='category'>Categoria</label>
+						<select
+							id="category"
+							value={category}
+							onChange={e => setCategory(e.target.value)}
+							className="rounded bg-slate-900 px-4 py-3 outline-none text-xl w-full border border-slate-700 border-2"
+						>
+							{categoryOptions.map(option => (
+								<option key={option.value} value={option._id}>
+									{option.name}
+								</option>
+							))}
+						</select>
+					</div>
+
+					<div className="grid grid-cols-[1fr_4fr] items-center gap-x-4 max-w-3xl m-auto">
+						<label className="text-right" htmlFor='source'>Descontar</label>
+						<select
+							id="source"
+							value={source}
+							onChange={e => setSource(e.target.value)}
+							className="rounded bg-slate-900 px-4 py-3 outline-none text-xl w-full border border-slate-700 border-2"
+						>
+							<option value="">Selecione</option>
+							<option value="salary">Descontar do salário</option>
+							<option value="carryover">Descontar do lazer</option>
+							<option value="savings">Descontar da poupança</option>
+
+						</select>
+					</div>
+					
+					<div className='grid grid-cols-[1fr_4fr] items-center gap-x-4 max-w-3xl m-auto'>
+						<label className='text-right' htmlFor="dividedIn">N° Parcelas</label>
+						<input
+							type="number"
+							id="dividedIn"
+							min="0"
+							placeholder="N° de parcelas"
+							className="rounded bg-transparent px-4 py-3 outline-none text-xl w-full border border-slate-700 border-2"
+							onChange={(e) => setDividedIn(Number(e.target.value))}
+							value={dividedIn}
+							autoComplete="off"
+							disabled={category === '1'}
+						/>
+					</div> 
+
+					<div className="grid grid-cols-[1fr_4fr] items-center gap-x-4 max-w-3xl m-auto">
+						<label className="text-right" htmlFor='type'>Tipo de Pagamento</label>
+						<select
+							id="type"
+							value={type}
+							onChange={e => setType(e.target.value)}
+							className="rounded bg-slate-900 px-4 py-3 outline-none text-xl w-full border border-slate-700 border-2"
+						>
+							{typePayOptions.map(option => (
+								<option key={option.value} value={option._id}>
+									{option.name}
+								</option>
+							))}
+						</select>
+					</div>
+					
+
+					{(type === 'credit' || type === 'debit') && (
+						<div className="grid grid-cols-[1fr_4fr] items-center gap-x-4 max-w-3xl">
+							<label className="text-right" htmlFor='card'>Cartões</label>
+							<select
+								id="card"
+								value={card}
+								onChange={e => setCard(e.target.value)}
+								className="rounded bg-slate-900 px-4 py-3 outline-none text-xl w-full border border-slate-700 border-2"
+								disabled={cards.length === 0}
+							>
+								{cards.length > 0 ? (
+									<>
+										<option value="">Selecione um cartão</option>
+										{cards.map(option => (
+											<option key={option._id} value={option._id}>
+												{option.name}
+											</option>
+										))}
+									</>
+								) : (
+									<option value="">Nenhum cartão cadastrado</option>
+								)}
+							</select>
+						</div>
+					)}
+		
+					{/* Botón */}
+					<div className="flex justify-center">
+						<button
+							type="submit"
+							className="bg-sky-600 hover:bg-sky-500 py-3 px-10 rounded text-lg font-semibold transition"
+						>
+							{id ? "Editar" : "Adicionar"}
+						</button>
 					</div>
 				</form>
+
+				<Dialog
+					open={showDialog}
+					onOpenChange={setShowDialog}
+					title="Transação Adicionada com Sucesso!"
+					description="O que você deseja fazer agora?"
+					onConfirm={handleGoToDashboard}
+					onCancel={handleAddAnother}
+					confirmText="Ir para o Dashboard"
+					cancelText={id ? "Continuar Aditando" : "Adicionar Outra"}
+					confirmVariant="default"
+				/>
 			</div>
-		</>
-	)
+		</section>
+	);
 }

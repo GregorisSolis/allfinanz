@@ -2,14 +2,14 @@ import { API } from './api'
 import { date_now } from './dateCreate'
 
 
-export const setDividedInTransaction = (value: string,description:string ,category: string,type: string,card: string,dividedIn: number,isDivided: boolean) => {
+export const setDividedInTransaction = (value: number, description:string ,category: string,type: string,card: string,dividedIn: number,isDivided: boolean, fixed: boolean) => {
 
 	let month = date_now().month
 	let year = date_now().year
 	let date = {}
 	let valueDivided: number
 
-	valueDivided = parseFloat(value) / dividedIn
+	valueDivided = value / dividedIn
 
 	for(let running = 0; running < dividedIn; running++){
 		if(month === 13){

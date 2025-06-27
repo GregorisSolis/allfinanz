@@ -1,11 +1,8 @@
-//CREAR LA DATA ACTUAL
-
-export function date_now(){
-	let now = new Date()
-
-	return {
-		year: now.getFullYear(), 
-		month: now.getMonth()+1, 
-		day: now.getDate()
-	}
-}
+export function date_now() {
+	const date = new Date().toLocaleDateString('sv-SE', {
+	  timeZone: 'America/Sao_Paulo',
+	});
+	// Formato 'YYYY-MM-DD' garantizado por 'sv-SE'
+	return date;
+  }
+  
