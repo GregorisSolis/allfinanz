@@ -81,9 +81,7 @@ router.get('/list', async (req, res) => {
 
         return res.status(200).json({ 
             success: true,
-            data: {
-                transactions: { relatives, fixed }
-            }
+            transactions: { relatives, fixed }
         });
 
     } catch (err) {
@@ -128,6 +126,27 @@ router.get('/search', async (req, res) => {
 
 
 //EDITAR UNA TRANSACTION
+router.get('/:transaction_id', async (req, res) => {
+    const { user_id } = req.query;
+
+    if (!user_id) {
+        return res.status(400).send({ message: 'user_id é obrigatório nos parâmetros' });
+    }
+
+    try {
+        const transaction = await Transaction.findOne({ _id: req.params.transaction_id, user: user_id });
+
+        if (!transaction) {
+            return res.status(404).send({ message: 'Transação não encontrada para este usuário.' });
+        }
+
+        return res.send({ transaction });
+    } catch (err) {
+        return res.status(400).send({ message: 'Erro ao buscar transação.' });
+    }
+})
+
+//EDITAR UNA TRANSACTION
 router.patch('/:transaction_id', async (req, res) => {
 
 	try {
@@ -151,7 +170,7 @@ router.delete('/:transaction_id', async (req, res) => {
 
 		await Transaction.findByIdAndDelete(req.params.transaction_id)
 
-		return res.send()
+		return res.send({ success: true })
 
 	} catch (err) {
 		return res.status(400).send({ message: 'Error deleting transaction.'})

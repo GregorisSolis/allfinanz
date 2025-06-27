@@ -142,8 +142,7 @@ router.get('/:user_id', async (req, res) => {
 
         // Enviar relatório
         res.status(200).send({
-            success: true,
-            data: {
+                success: true,
                 period: {
                     first_day_of_period: period.first_day_of_period.toISOString().split('T')[0],
                     last_day_of_period: period.last_day_of_period.toISOString().split('T')[0],
@@ -164,7 +163,6 @@ router.get('/:user_id', async (req, res) => {
                 savings: {
                     spent: expenses.savings_spent
                 }
-            }
         });
 
     } catch (err) {
