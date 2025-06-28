@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import { isAuthenticated } from '../services/auth'
 import { logout } from '../services/auth'
-import { FiMenu, FiSearch, FiUser, FiX } from 'react-icons/fi'
+import { FiMenu , FiUser, FiX } from 'react-icons/fi'
 import { useState } from 'react';
 
 export function Navbar(){
