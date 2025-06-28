@@ -24,6 +24,8 @@ export const categoryOptions = [
 	},
 	{ _id: 12, value: 'restaurants', name: 'Restaurantes', description: 'Alimentação fora de casa: restaurantes, bares, lanchonetes e cafés.'
 	},
-	{ _id: 13, value: 'others', name: 'Outros', description: 'Despesas que não se encaixam nas categorias anteriores.'
+	{ _id: 13, value: 'education', name: 'Educação', description: 'Mensalidades escolares, cursos, livros, material escolar e investimentos em formação.'
+	},
+	{ _id: 14, value: 'others', name: 'Outros', description: 'Despesas que não se encaixam nas categorias anteriores.'
 	},
 ];
