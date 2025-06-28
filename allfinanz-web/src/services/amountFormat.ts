@@ -7,6 +7,15 @@ export function formatToBRL(value: number) {
 	  minimumFractionDigits: 2,
 	});
   }
+
+// Para el report
+export function formatToBRL_report(value: number) {
+	return value.toLocaleString('pt-BR', {
+	  style: 'currency',
+	  currency: 'BRL',
+	  minimumFractionDigits: 2,
+	});
+  }
   
   
 // Convert BRL currency string to number (in cents)
