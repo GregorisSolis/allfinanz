@@ -7,17 +7,20 @@ import { TableListTransaction } from '../components/TableListTransaction'
 
 import { toast } from 'react-toastify'
 import { SideBar } from '../components/SideBar'
+import { ChartReport, ChartReportProps } from '../components/ChartReport'
 
 export function Dashboard() {
 	const [isLoading, setIsLoading] = useState<string>('')
 	const [fixedTransactions, setFixedTransactions] = useState<any[]>([])
 	const [relativeTransactions, setRelativeTransactions] = useState<any[]>([])
+	const [report, setReport] = useState<ChartReportProps['list'] | null>(null)
 	const navigate = useNavigate()
 
 	document.title = 'Allfinanz | Dashboard'
 
 	useEffect(() => {
-		loadTransactions()
+		loadTransactions();
+		loadReport();
 	}, [])
 
 	async function loadTransactions() {
@@ -54,18 +57,53 @@ export function Dashboard() {
 		}
 	}
 
+	async function loadReport() {
+		const userId = localStorage.getItem('iden')
+
+		try {
+			setIsLoading('blur-sm animate-pulse transition')
+			const res = await API.get(`/report/${userId}`);
+			const data = res.data;
+
+			setReport(data);
+			console.log(report)
+
+		} catch (error: any) {
+
+			if(error.response.status == 401){
+				toast.error('Usuario não autenticado.');
+				logout()
+				navigate('/')
+			}else{
+				toast.error('Erro ao carregar o report.');
+			}
+
+		} finally {
+			setIsLoading('')
+		}
+	}
+
+	function updateView(){
+		loadTransactions();
+		loadReport();
+	}
+
 	return (
-		<section className='flex w-5/6 mx-auto my-5'>
+		<section className='flex w-5/6 mx-auto mt-0'>
 			<section className='w-1/4 mr-6'>
 				<SideBar />
 			</section>
-			<section className='w-full mb-4 h-screen overflow-y-auto pr-4 scrollbar-thin scrollbar-thumb-brand-200 scrollbar-track-brand-600 hover:scrollbar-thumb-brand-100'>
+			<section className='w-full pb-28 h-screen overflow-y-auto pr-4 scrollbar-thin scrollbar-thumb-brand-200 scrollbar-track-brand-600 hover:scrollbar-thumb-brand-100'>
 				<div className={isLoading + " mx-8"}>
-					<TableListTransaction title="Gastos Fixos" list={fixedTransactions} reload={loadTransactions} />
+					{report && <ChartReport list={report} />}
+				</div>
+				
+				<div className={isLoading + " mx-8"}>
+					<TableListTransaction title="Gastos Fixos" list={fixedTransactions} reload={updateView} />
 				</div>
 
 				<div className={isLoading + " mx-8 my-4"}>
-					<TableListTransaction title={"Gastos do mês"} list={relativeTransactions} reload={loadTransactions} />
+					<TableListTransaction title={"Gastos do mês"} list={relativeTransactions} reload={updateView} />
 				</div>
 			</section>
 		</section>
