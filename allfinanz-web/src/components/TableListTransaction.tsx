@@ -6,7 +6,6 @@
 	import { API } from '../services/api'
 	import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
-import { SideBar } from "./SideBar";
 
 	interface FixedCostItem {
 		_id: string
@@ -24,9 +23,9 @@ import { SideBar } from "./SideBar";
 
 	export function TableListTransaction(props: ListFixedCostProps) {
 		
-		const { list, reload, title } = props
-		const [selected, setSelected] = useState<string[]>([])
-		const [openMenuId, setOpenMenuId] = useState<string | null>(null)
+		const { list, reload, title } = props;
+		const [selected, setSelected] = useState<string[]>([]);
+		const [openMenuId, setOpenMenuId] = useState<string | null>(null);
 
 		const toggleSelect = (id: string) => {
 			setSelected((prev) =>
