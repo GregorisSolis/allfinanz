@@ -1,17 +1,25 @@
-import { FormEvent, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { FormEvent, useEffect, useState } from 'react'
 import { API } from '../services/api'
-import { login } from '../services/auth'
 import { toast } from 'react-toastify'
 import { FiEye, FiEyeOff, FiLock, FiMail } from 'react-icons/fi'
+import { isAuthenticated } from '../services/auth'
 
 export function Login() {
 
+	useEffect(() => {
+		checkAuth();
+	}, []);
+
 	document.title = 'Allfinanz | Login'
-	const navigate = useNavigate()
 	const [email, setEmail] = useState('')
 	const [password, setPassword] = useState('')
 	const [showPassword, setShowPassword] = useState(false)
+
+	const checkAuth = async () => {
+		if (await isAuthenticated()) {
+			window.location.href = "/dashboard";
+		}
+	};
 
 	async function setLogin(event: FormEvent) {
 		event.preventDefault()
@@ -19,18 +27,16 @@ export function Login() {
 		if (!password || !email) {
 			toast.warning('Você deve preencher todos os campos.')
 		} else {
-
-			await API.post('/user/authenticate', { email, password })
+			await API.post('/user/authenticate', { email, password }, { withCredentials: true })
 				.then(resp => {
-					login(resp.data.token)
-					localStorage.setItem('iden', resp.data.user._id)
-					navigate('/dashboard')
+					if(resp){
+						window.location.href = "/dashboard";
+					}
 				})
 				.catch(() => {
 					toast.warning('Ops... algo está errado, verifique seu e-mail ou senha.')
 				})
 		}
-
 	}
 
 	return (

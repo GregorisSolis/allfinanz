@@ -1,7 +1,6 @@
 import { FormEvent, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { API } from '../services/api'
-import { login } from '../services/auth'
 import { toast } from 'react-toastify'
 import { FiEye, FiEyeOff, FiLock, FiMail, FiUser } from 'react-icons/fi'
 
@@ -28,10 +27,8 @@ export function Register() {
 		} else if (!email.includes("@") || !email.includes(".com")) {
 			toast.warning('E-mail inválido, tente outro.')
 		} else {
-			await API.post('/user/register', { email, password, name })
-				.then(resp => {
-					login(resp.data.token)
-					localStorage.setItem('iden', resp.data.user._id)
+			await API.post('/user/register', { email, password, name }, { withCredentials: true })
+				.then(() => {
 					navigate(`/perfil/completar/`)
 				})
 				.catch(() => {

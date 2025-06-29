@@ -1,5 +1,6 @@
 import { FormEvent, useState } from 'react'
 import { API } from '../services/api'
+import { toast } from 'react-toastify'
 
 
 interface ResetPasswordProps {
@@ -9,24 +10,20 @@ interface ResetPasswordProps {
 
 export function ResetPassword(props: ResetPasswordProps) {
 
-	const ID_USER = localStorage.getItem('iden')
 	let [password, setPassword] = useState('')
-	let [isMessage, setIsMessage] = useState(false)
-	let [textMessage, setTextMessage] = useState('')
 
 
 	async function setUpdatePassword(event: FormEvent) {
 		event.preventDefault()
 
 		if (!password) {
-			setTextMessage("Escribe una contraseña.")
-			setIsMessage(true)
+			toast.error('Por favor, digite uma nova senha.')
 		} else if (password.length < 7) {
-			setTextMessage("Contraseña muy debil.")
-			setIsMessage(true)
+			toast.warning('A senha deve ter pelo menos 7 caracteres.')
 		} else {
-			await API.put(`/user/edit_password/${ID_USER}`, { password })
+			await API.put('/user/edit_password', { password }, { withCredentials: true })
 				.then(() => {
+					toast.success('Senha atualizada com sucesso!')
 					props.reload()
 					props.closeComponent()
 				})
@@ -34,16 +31,23 @@ export function ResetPassword(props: ResetPasswordProps) {
 	}
 
 	return (
-		<div className="m-0 fixed bg-brand-100 inset-0 transition flex justify-center items-center">
-
-			<form className="text-white bg-moon-500 flex flex-col p-4 rounded text-center w-[35%] large-content" onSubmit={setUpdatePassword}>
-				<h1 className="text-2xl">Crear nueva contraseña</h1>
-				<input className="m-4 bg-transparent border-b-2 outline-none focus:border-sky-500 hover:border-sky-500" placeholder="nueva contraseña" onChange={e => setPassword(e.target.value)} />
-				<div className="m-4">
-					<button className="mx-4 bg-sky-600 rounded p-2" type="submit">Confirmar</button>
-					<button className="mx-4 bg-red-600 rounded p-2" onClick={() => props.closeComponent()}>Cerrar</button>
-				</div>
-			</form>
-		</div>
+		<>
+			<div className="bg-black/50 backdrop-blur-sm fixed inset-0 animate-fadeIn z-40" />
+			<div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-slate-700 rounded-xl p-6 w-[90vw] max-w-sm shadow-lg z-50">
+				<form className="flex flex-col text-center" onSubmit={setUpdatePassword}>
+					<h1 className="text-lg font-semibold mb-4 text-white">Criar nova senha</h1>
+					<input
+						type="password"
+						className="mb-6 bg-transparent border-b-2 outline-none focus:border-sky-500 hover:border-sky-500 text-white placeholder-white"
+						placeholder="Nova senha"
+						onChange={e => setPassword(e.target.value)}
+					/>
+					<div className="flex justify-end gap-4 mt-2">
+						<button className="px-4 py-2 rounded border border-gray-300 hover:bg-gray-100 text-gray-800 bg-white" type="button" onClick={() => props.closeComponent()}>Cancelar</button>
+						<button className="px-4 py-2 rounded text-white bg-sky-600 hover:bg-sky-700" type="submit">Confirmar</button>
+					</div>
+				</form>
+			</div>
+		</>
 	)
 }

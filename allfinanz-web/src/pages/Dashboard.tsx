@@ -2,12 +2,12 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { logout } from '../services/auth'
 import { API } from '../services/api'
-import { ListCard } from '../components/ListCard'
 import { TableListTransaction } from '../components/TableListTransaction'
 
 import { toast } from 'react-toastify'
 import { SideBar } from '../components/SideBar'
 import { ChartReport, ChartReportProps } from '../components/ChartReport'
+import { formatToBRL, formatToBRL_report } from '../services/amountFormat'
 
 export function Dashboard() {
 	const [isLoading, setIsLoading] = useState<string>('')
@@ -24,11 +24,10 @@ export function Dashboard() {
 	}, [])
 
 	async function loadTransactions() {
-		const userId = localStorage.getItem('iden')
 
 		try {
 			setIsLoading('blur-sm animate-pulse transition')
-			const res = await API.get(`/transaction/list?user_id=${userId}`)
+			const res = await API.get('/transaction/list', { withCredentials: true })
 			const data = res.data.transactions
 
 			// Asegurarse de que data.fixed es un array
@@ -62,11 +61,10 @@ export function Dashboard() {
 
 		try {
 			setIsLoading('blur-sm animate-pulse transition')
-			const res = await API.get(`/report/${userId}`);
+			const res = await API.get('/report', { withCredentials: true });
 			const data = res.data;
 
 			setReport(data);
-			console.log(report)
 
 		} catch (error: any) {
 
@@ -94,6 +92,7 @@ export function Dashboard() {
 				<SideBar />
 			</section>
 			<section className='w-full pb-28 h-screen overflow-y-auto pr-4 scrollbar-thin scrollbar-thumb-brand-200 scrollbar-track-brand-600 hover:scrollbar-thumb-brand-100'>
+
 				<div className={isLoading + " mx-8"}>
 					{report && <ChartReport list={report} />}
 				</div>

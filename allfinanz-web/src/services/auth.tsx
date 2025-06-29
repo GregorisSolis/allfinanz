@@ -1,16 +1,17 @@
-export const TOKEN_KEY = "@allfinanz-Token"
+import { API } from "./api"
 
-export const isAuthenticated = () => localStorage.getItem(TOKEN_KEY) !== null
-
-export const getToken = () => localStorage.getItem(TOKEN_KEY)
-
-//OBTENER EL TOKEN PARA HACER LOGIN
-export const login = (token: any) => {
-	localStorage.setItem(TOKEN_KEY, token)
+// Checa se o usuário está autenticado
+export const isAuthenticated = async () => {
+	try {
+		const resp = await API.get('/user/auth-check', { withCredentials: true })
+		return resp.data.success;
+	} catch (err) {
+		return false
+	}
 }
 
-//REMOVER EL TOKEN PARA EL LOGOUT
-export const logout = () => {
-	localStorage.removeItem(TOKEN_KEY)
-	localStorage.removeItem('iden')
+
+// Logout: chama o endpoint de logout do backend para limpar o cookie
+export const logout = async () => {
+	await API.post('/user/logout', {}, { withCredentials: true });
 }

@@ -1,8 +1,5 @@
 import { FormEvent, useEffect, useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ListCard } from '../components/ListCard'
-import { SidebarInfoUser } from '../components/SidebarInfoUser'
-import { Navbar } from '../components/Navbar'
 import { API } from '../services/api'
 
 
@@ -83,21 +80,11 @@ export function Extract() {
 
 					<div className="my-4">
 						<span className="text-2xl">Gastos del mes</span>
-						<div className="lg:flex md:block">
-							<SidebarInfoUser
-								listCostFixed={listCostFixed}
-								listCostMonth={listCostMonth}
-							/>
-						</div>
+
 					</div>
 
 					<div className="my-4 mb-16">
 						<span className="text-2xl">Tarjetas</span>
-						<ListCard
-							listCostFixed={listCostFixed}
-							listCostMonth={listCostMonth}
-							date={searchDate}
-						/>
 					</div>
 
 				</div>

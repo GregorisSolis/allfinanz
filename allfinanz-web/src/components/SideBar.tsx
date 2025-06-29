@@ -46,34 +46,28 @@ export function SideBar() {
 
           <li className="flex items-center gap-3 px-4 py-2 hover:bg-blue-600 rounded cursor-pointer">
             <FiHome className="w-6 h-6" />
-            <Link to="/dashboard" className="text-sm">DASHBOARD</Link>
+            <Link to="/dashboard" className="text-sm">Dashboard</Link>
           </li>
 
           <li className="flex items-center gap-3 px-4 py-2 hover:bg-blue-600 rounded cursor-pointer">
             <FiFileText className="w-6 h-6" />
-            <span className="text-sm">Extrato</span>
+            <Link to="/extrato" className="text-sm">Extrato</Link>
           </li>
 
           <li className="flex items-center gap-3 px-4 py-2 hover:bg-blue-600 rounded cursor-pointer">
             <FiBarChart2 className="w-6 h-6" />
-            <span className="text-sm">Relatórios</span>
+            <Link to="/relatorios" className="text-sm">Relatórios</Link>
           </li>
 
           <li className="flex items-center gap-3 px-4 py-2 hover:bg-blue-600 rounded cursor-pointer">
             <FiCreditCard className="w-6 h-6" />
-            <span className="text-sm">Cartões</span>
+            <Link to="/cartoes" className="text-sm">Cartões</Link>
           </li>
 
           {/* Profile */}
           <li className="flex items-center gap-3 px-4 py-2 hover:bg-blue-600 rounded cursor-pointer">
             <FiUser className="w-6 h-6" />
-            <span className="text-sm">Perfil</span>
-          </li>
-
-          {/* Config */}
-          <li className="flex items-center gap-3 px-4 py-2 hover:bg-blue-600 rounded cursor-pointer">
-            <FiSettings className="w-6 h-6" />
-            <span className="text-sm">Configurações</span>
+            <Link to="/perfil" className="text-sm">Perfil</Link>
           </li>
 
           

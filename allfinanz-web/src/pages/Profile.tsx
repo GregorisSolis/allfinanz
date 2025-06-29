@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Navbar } from "../components/Navbar"
-import { UpdateUser } from "../components/UpdateUser"
 import { ResetPassword } from "../components/ResetPassword"
 import { UpdatePhoto } from "../components/UpdatePhoto"
 import { API } from '../services/api'
+import { toast } from 'react-toastify'
 
 import imgNotFound from '../assets/imgNotFound.jpg'
+import { SideBar } from '../components/SideBar'
+import { formatToBRL, formatToNumber } from '../services/amountFormat'
 
 
 export function Profile() {
@@ -15,52 +16,87 @@ export function Profile() {
 		loadUser()
 	}, [])
 
-	document.title = 'Allfinanz - Perfil'
-	const ID_USER = localStorage.getItem('iden')
+	document.title = 'Allfinanz | Perfil'
 	const navigate = useNavigate()
 	let [name, setName] = useState('')
-	let [savings, setSavings] = useState('')
-	let [monthlyIconme, setMonthlyIconme] = useState('')
+	let [savings, setSavings] = useState(0)
+	let [salary, setSalary] = useState(0)
 	let [email, setEmail] = useState('')
 	let [isUpdateUser, setIsUpdateUser] = useState(false)
 	let [isUpdateFoto, setIsUpdateFoto] = useState(false)
 	let [isUpdatePass, setIsUpdatePass] = useState(false)
 	let [imageUrl, setImageUrl] = useState(imgNotFound)
 	let [imageID, setImageID] = useState('')
+	let [isEditIncomeSavings, setIsEditIncomeSavings] = useState(false)
+	let [editSalary, setEditSalary] = useState(formatToBRL(salary))
+	let [editSavings, setEditSavings] = useState(formatToBRL(savings))
+	let [isLoadingEdit, setIsLoadingEdit] = useState(false)
+	let [salaryDay, setSalaryDay] = useState('');
 
 	async function loadUser() {
-
-		await API.get(`/user/info-user/${ID_USER}`)
+		await API.get('/user/info-user', { withCredentials: true })
 			.then(resp => {
-				setSavings(resp.data.user.savings)
-				setName(resp.data.user.name)
-				setSavings(resp.data.user.savings.$numberDecimal)
-				setMonthlyIconme(resp.data.user.monthlyIconme.$numberDecimal)
-				setEmail(resp.data.user.email)
-				if (resp.data.user.imageUrl !== undefined) {
-					setImageUrl(resp.data.user.imageUrl)
-					setImageID(resp.data.user.imageID)
+				if (resp.data && resp.data.user) {
+					const user = resp.data.user;
+					setName(user.name || '');
+					setEmail(user.email || '');
+					setSavings(user.savings);
+					setSalary(user.salary);
+					setSalaryDay(user.salary_day || '');
+					if (user.imageUrl) setImageUrl(user.imageUrl);
+					if (user.imageID) setImageID(user.imageID);
 				}
 			})
-			.catch(() => {
-				navigate('/login')
+			.catch((err) => {
+				toast.error("Erro ao carregar informações do usuário. Tente novamente mais tarde.");
 			})
+	}
+
+	// Funções para formatar os campos como BRL enquanto o usuário digita
+	function handleChangeSalary(e: React.ChangeEvent<HTMLInputElement>) {
+		const raw = e.target.value.replace(/\D/g, ''); // Solo números
+		const numeric = Number(raw);
+		setEditSalary(formatToBRL(numeric));
+	}
+
+	function handleChangeSavings(e: React.ChangeEvent<HTMLInputElement>) {
+		const raw = e.target.value.replace(/\D/g, ''); // Solo números
+		const numeric = Number(raw);
+		setEditSavings(formatToBRL(numeric));
+	}
+
+	async function handleEditIncomeSavings() {
+		if (!isEditIncomeSavings) {
+			setIsEditIncomeSavings(true)
+			setEditSalary(formatToBRL(salary))
+			setEditSavings(formatToBRL(savings))
+			return;
+		}
+		setIsLoadingEdit(true)
+		try {
+			await API.put("/user/edit", {
+				salary: formatToNumber(editSalary),
+				savings: formatToNumber(editSavings),
+				salary_day: salaryDay
+			}, { withCredentials: true })
+			toast.success("Usuário atualizado com sucesso!")
+			setSalary(formatToNumber(editSalary));
+			setSavings(formatToNumber(editSavings));
+			await loadUser()
+			setIsEditIncomeSavings(false)
+		} catch (error: any) {
+			if (error.response && error.response.status === 401) {
+				toast.error("Usuário não autenticado.")
+			} else {
+				toast.error("Erro ao atualizar usuário.")
+			}
+		} finally {
+			setIsLoadingEdit(false)
+		}
 	}
 
 	return (
 		<>
-			<Navbar location='profile'/>
-
-			{isUpdateUser ?
-				<UpdateUser
-					closeComponent={() => setIsUpdateUser(false)}
-					email={email}
-					name={name}
-					monthlyIconme={monthlyIconme}
-					savings={savings}
-					reload={() => loadUser()}
-				/>
-				: null}
 
 			{isUpdateFoto ?
 				<UpdatePhoto
@@ -77,46 +113,70 @@ export function Profile() {
 				/>
 				: null}
 
-
-			<div className="w-full lg:h-[86vh] md:h-screen mb-12 text-white lg:flex md:block justify-center items-center">
-				<div className="lg:w-8/12 md:w-[90%] lg:h-5/6 md:w-full bg-brand-800 rounded-lg shadow-2xl lg:flex md:grid">
-					<div className='gradient lg:w-2/6 md:w-full w-full lg:rounded-l-lg md:rounded-none flex flex-col p-5'>
-						<div onClick={() => setIsUpdateFoto(true)} className='overflow-hidden rounded-full w-56 h-56 m-auto border-4 border-white transition hover:opacity-80'>
-							<img className='object-cover w-full h-full' src={imageUrl} alt="foto de perfil" />
+			<div className="flex w-4/5 min-h-screen m-auto">
+				<section className="w-1/4 mr-6">
+					<SideBar />
+				</section>
+				<section className="m-auto w-full pb-28 h-screen overflow-hidden pr-4 scrollbar-thin scrollbar-thumb-brand-200 scrollbar-track-brand-600 hover:scrollbar-thumb-brand-100">
+					<div className="w-full max-w-xl bg-slate-800 rounded-xl shadow-2xl p-8 m-auto">
+						<h2 className="text-2xl font-semibold mb-6 text-slate-100 text-center">{name}</h2>
+						<div className="flex flex-col items-center mb-6">
+							<div onClick={() => setIsUpdateFoto(true)} className="overflow-hidden rounded-full w-32 h-32 border-4 border-slate-200 transition hover:opacity-80 mb-4 cursor-pointer">
+								<img className="object-cover w-full h-full" src={imageUrl} alt="foto de perfil" />
+							</div>
+	
 						</div>
-						<div className='capitalize m-auto text-center'>
-							<h1 className='text-4xl my-4'>{name}</h1>
+						<form className="flex flex-col gap-4">
+							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+								<div>
+									<label className="block text-slate-300 mb-1">Email</label>
+									<input type="text" value={email} disabled className="w-full px-4 py-3 rounded-lg bg-transparent text-slate-200 border border-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-500" />
+								</div>
+								<div>
+									<label className="block text-slate-300 mb-1">Renda Mensal</label>
+									<input
+										type="text"
+										value={isEditIncomeSavings ? editSalary : formatToBRL(salary)}
+										disabled={!isEditIncomeSavings}
+										onChange={handleChangeSalary}
+										className="w-full px-4 py-3 rounded-lg bg-transparent text-slate-200 border border-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-500" />
+								</div>
+								<div>
+									<label className="block text-slate-300 mb-1">Dia do Salário</label>
+									<input
+										type="number"
+										min="1"
+										max="31"
+										value={salaryDay}
+										disabled={!isEditIncomeSavings}
+										onChange={e => setSalaryDay(e.target.value)}
+										className="w-full px-4 py-3 rounded-lg bg-transparent text-slate-200 border border-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-500" />
+								</div>
+								<div>
+									<label className="block text-slate-300 mb-1">Ahorros</label>
+									<input
+										type="text"
+										value={isEditIncomeSavings ? editSavings : formatToBRL(savings)}
+										disabled={!isEditIncomeSavings}
+										onChange={handleChangeSavings}
+										className="w-full px-4 py-3 rounded-lg bg-transparent text-slate-200 border border-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-500" />
+								</div>
+							</div>
+							<div className="flex gap-4 mt-4">
+								<button
+									type="button"
+									disabled={isLoadingEdit}
+									onClick={handleEditIncomeSavings}
+									className="w-full py-3 rounded-lg font-semibold text-white bg-cyan-700 hover:bg-cyan-800 transition">
+									{isEditIncomeSavings ? 'Confirmar' : 'Liberar campos'}
+								</button>
+							</div>
+						</form>
+						<div className="flex gap-4 mt-8">
+							<button onClick={() => setIsUpdatePass(true)} className="w-full py-3 rounded-lg font-semibold text-white bg-gradient-to-r from-cyan-500 to-cyan-700 shadow-lg hover:from-cyan-600 hover:to-cyan-800 transition">Alterar Senha</button>
 						</div>
 					</div>
-					<div className='py-4 px-12 lg:w-[70%] md:w-full'>
-						<div className='w-full border-b-2 py-1 border-gray-800'>
-							<h2 className='text-2xl capitalize'>información</h2>
-						</div>
-						<div className='my-8 px-8 lg:flex md:grid justify-between items-center'>
-							<div>
-								<h2 className='my-2 text-2xl capitalize'>renda mensual</h2>
-								<h2 className='my-2 text-lg text-gray-500'>$ {monthlyIconme}</h2>
-							</div>
-							<div>
-								<h2 className='my-1 text-2xl capitalize'>Ahorros</h2>
-								<h2 className='my-1 text-lg text-gray-500'>$ {savings}</h2>
-							</div>
-						</div>
-						<div className='my-8 px-8 flex  justify-between items-center'>
-							<div>
-								<h2 className='my-1 text-2xl capitalize'>Email</h2>
-								<h2 className='my-1 text-lg text-gray-500'>{email}</h2>
-							</div>
-						</div>
-						<div className='w-full border-b-2 py-1 border-gray-800'>
-							<h2 className='text-2xl capitalize'>Modificar</h2>
-						</div>
-						<div className='my-8 px-8 flex justify-between items-center'>
-							<button onClick={() => setIsUpdatePass(true)} className='bg-sky-800 rounded p-2 shadow-xl hover:bg-sky-500 mx-1'>Contraseña</button>
-							<button onClick={() => setIsUpdateUser(true)} className='bg-sky-800 rounded p-2 shadow-xl hover:bg-sky-500 mx-1'>Información</button>
-						</div>
-					</div>
-				</div>
+				</section>
 			</div>
 		</>
 	)

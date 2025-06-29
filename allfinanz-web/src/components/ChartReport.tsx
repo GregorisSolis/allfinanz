@@ -46,7 +46,7 @@ export function ChartReport(props: ChartReportProps) {
     icon: React.ReactNode;
     children: React.ReactNode;
   }) => (
-    <div className="my-4 bg-slate-800 text-white p-6 rounded-2xl shadow-lg w-80 space-y-4">
+    <div className="mb-4 bg-slate-800 text-white p-6 rounded-2xl shadow-lg w-80 space-y-4 no-select">
       <div className="flex items-center space-x-2 text-gray-300">
         {icon}
         <h4 className="text-sm font-semibold">{title}</h4>

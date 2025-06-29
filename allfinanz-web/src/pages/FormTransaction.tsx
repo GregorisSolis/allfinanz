@@ -38,18 +38,16 @@ export function FormTransaction() {
 	let [dividedIn, setDividedIn] = useState(0)
 	let [isDivided, setIsDivided] = useState(false)
 
-	const ID_USER = localStorage.getItem('iden')
-
 	//cargas las tarjetas
 	async function loadCards() {
-		await API.get(`/card/all-card/user/${ID_USER}`)
+		await API.get('/card/all-card/user', { withCredentials: true })
 			.then(resp => {
 				setCards(resp.data.card)
 			})
 	}
 
 	async function getTransaction() {
-		await API.get(`/transaction/${id}`, { params: { user_id: ID_USER } })
+		await API.get(`/transaction/${id}`, { withCredentials: true })
 			.then(resp => {
 				const data = resp.data.transaction;
 				setAmount(data.amount);
@@ -152,7 +150,9 @@ export function FormTransaction() {
 						dividedIn,
 						isDivided: dividedIn > 0,
 						fixed
-					})
+					},
+					{ withCredentials: true }
+				)
 			} else {
 				await API.post('/transaction/',
 					{
@@ -166,7 +166,9 @@ export function FormTransaction() {
 						dividedIn,
 						isDivided: dividedIn > 0,
 						fixed
-					})
+					},
+					{ withCredentials: true }
+				)
 			}
 			if(!id){
 				setAmount(0)
@@ -326,9 +328,10 @@ export function FormTransaction() {
 					</div>
 					
 
-					{(type === 'credit' || type === 'debit') && (
-						<div className="grid grid-cols-[1fr_4fr] items-center gap-x-4 max-w-3xl">
-							<label className="text-right" htmlFor='card'>Cartões</label>
+					{/* Mostrar select de cartões apenas se o tipo for crédito */}
+					{type === '1' && (
+						<div className="grid grid-cols-[1fr_4fr] items-center gap-x-4 max-w-3xl m-auto">
+							<label className="text-right" htmlFor='card'>Cartão</label>
 							<select
 								id="card"
 								value={card}
