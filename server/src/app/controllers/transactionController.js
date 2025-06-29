@@ -47,18 +47,14 @@ router.post('/', async (req, res) => {
 });
 
 
-//OBTENER LAS TRANSACCIONES ESPESIFICADA POR USUARIO
+//OBTENER LAS TRANSACCIONES DEL USUARIO AUTENTICADO
 router.get('/list', async (req, res) => {
     try {
-        const { user_id, date_init, date_end } = req.query;
-
-        // Validación de parámetros requeridos
-        if (!user_id) {
-            return res.status(400).json({ 
-                success: false,
-                message: "user_id is required in the parameters" 
-            });
-        }
+        const { date_init, date_end } = req.query;
+        const user_id = req.userId;
+        const now = new Date();
+        const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
 
         // Construcción de query base
         const baseQuery = { user: user_id };
@@ -126,14 +122,9 @@ router.get('/search', async (req, res) => {
 
 
 //EDITAR UNA TRANSACTION
-router.get('/:transaction_id', async (req, res) => {
-    const { user_id } = req.query;
-
-    if (!user_id) {
-        return res.status(400).send({ message: 'user_id é obrigatório nos parâmetros' });
-    }
-
+router.get('/:transaction_id', authMiddleware, async (req, res) => {
     try {
+        const user_id = req.userId;
         const transaction = await Transaction.findOne({ _id: req.params.transaction_id, user: user_id });
 
         if (!transaction) {
@@ -144,7 +135,7 @@ router.get('/:transaction_id', async (req, res) => {
     } catch (err) {
         return res.status(400).send({ message: 'Erro ao buscar transação.' });
     }
-})
+});
 
 //EDITAR UNA TRANSACTION
 router.patch('/:transaction_id', async (req, res) => {

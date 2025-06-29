@@ -102,13 +102,9 @@ const calculateCarryover = (transactions, daily_limit, today_day) => {
     };
 };
 
-router.get('/:user_id', async (req, res) => {
+router.get('/', authMiddleware, async (req, res) => {
     try {
-        const { user_id } = req.params;
-
-        if (!user_id) {
-            return res.status(400).send({ message: 'User ID is required.' });
-        }
+        const user_id = req.userId;
 
         // Buscar e validar usuário
         const user = await User.findById(user_id);
@@ -164,14 +160,9 @@ router.get('/:user_id', async (req, res) => {
                     spent: expenses.savings_spent
                 }
         });
-
     } catch (err) {
-        return res.status(400).send({
-            message: 'Error fetching report.',
-            error: err.message
-        });
+        return res.status(500).send({ message: 'Internal server error.' });
     }
 });
-
 
 module.exports = app => app.use('/report', router);
