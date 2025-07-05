@@ -1,23 +1,14 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import {
-  FiPieChart,
-  FiImage,
-  FiGrid,
-  FiClipboard,
-  FiLayers,
-  FiMap,
-  FiTool,
-  FiChevronDown,
-  FiChevronUp,
   FiHome,
   FiFileText,
   FiBarChart2,
   FiCreditCard,
   FiUser,
-  FiSettings,
   FiDollarSign,
 } from "react-icons/fi";
 import { Link } from "react-router-dom";
+import { useUser } from "../contexts/UserContext";
 
 export function SideBar() {
   const [open, setOpen] = useState({
@@ -28,16 +19,14 @@ export function SideBar() {
     maps: false,
   });
 
-  const handleToggle = (key: string) => {
-    setOpen((prev) => ({ ...prev, [key]: !prev[key as keyof typeof prev] }));
-  };
+  const { user } = useUser();
 
   return (
     <div className="h-4/5 w-xs bg-gradient-to-b from-blue-500 to-blue-700 shadow-lg flex flex-col text-white rounded-xl overflow-y-auto">
       {/* Top logo e título */}
       <div className="flex items-center gap-3 px-6 py-6">
         <FiDollarSign className="w-10 h-10 text-white" />
-        <span className="font-bold text-lg tracking-wide">Olá, Usuario</span>
+        <span className="font-bold text-md tracking-wide">Olá, {user?.name}</span>
       </div>
       <hr className="border-blue-300 mx-4 mb-2" />
       {/* Menu */}

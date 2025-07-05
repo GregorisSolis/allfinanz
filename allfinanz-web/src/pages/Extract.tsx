@@ -1,6 +1,11 @@
 import { FormEvent, useEffect, useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { API } from '../services/api'
+import { TableListTransaction } from '../components/TableListTransaction'
+import { toast } from 'react-toastify'
+import { categoryOptions } from '../services/categoryOptions'
+import { typePayOptions } from '../services/typePayOptions'
+import { FiSearch } from 'react-icons/fi'
 
 
 export function Extract() {
@@ -9,36 +14,22 @@ export function Extract() {
 		loadTransaction()
 	}, [])
 
-	document.title = 'Allfinanz - Extracto'
-	let [listCostMonth, setListCostMonth] = useState([])
-	let [listCostFixed, setListCostFixed] = useState([])
+	document.title = 'Allfinanz | Extracto'
 	let navigate = useNavigate()
+	let [transactions, setTransaction] = useState<any[]>([])
 	let [month, setMonth] = useState('')
 	let [year, setYear] = useState('')
-	let searchDate = { month: parseInt(month), year: parseInt(year), day: 1 }
-	let [isMessage, setIsMessage] = useState(false)
-	let [textMessage, setTextMessage] = useState('')
-	const inputMonth = useRef<HTMLInputElement>(null)
-	const inputYear = useRef<HTMLInputElement>(null)
+	let [startDate, setStartDate] = useState('')
+	let [endDate, setEndDate] = useState('')
+	let [category, setCategory] = useState('')
+	let [typePay, setTypePay] = useState('')
+	let [description, setDescription] = useState('')
 
 	async function loadTransaction() {
 
-		const ID_USER = localStorage.getItem('iden')
-
-		await API.get(`/operation/all-transaction/user/${ID_USER}`)
+		await API.get(`/transaction/list`, {withCredentials: true})
 			.then(res => {
-				let items = res.data.transactions
-				let listAA: any = []
-				let listBB: any = []
-				items.map((trans: any) => {
-					if (trans.category === 'GastoFijo') {
-						listAA.push(trans)
-					} else if (trans.date.month === parseInt(month) && trans.date.year === parseInt(year)) {
-						listBB.push(trans)
-					}
-				})
-				setListCostFixed(listAA)
-				setListCostMonth(listBB)
+				setTransaction(res.data.transactions.relatives);
 			})
 			.catch(() => {
 				navigate('/login')
@@ -48,44 +39,75 @@ export function Extract() {
 	function setSearch(event: FormEvent) {
 		event.preventDefault()
 		if (parseInt(month) <= 0 || parseInt(month) > 12 || parseInt(year) < 0 || !month || !year) {
-			setTextMessage('Fecha invalida.')
-			setIsMessage(true)
+			toast.warning('Fecha invalida.')
+
 		} else if (isNaN(parseInt(month)) || isNaN(parseInt(year)) || month.includes(',') || year.includes(',')) {
-			setTextMessage('La fecha tiene que ser en numeros.')
-			setIsMessage(true)
+			toast.warning('La fecha tiene que ser en numeros.')
+
 		} else {
+			// Aqui você pode passar os filtros para a requisição, se necessário
 			loadTransaction()
 		}
 	}
 
-	const handleNextInput = (event: FormEvent<HTMLInputElement>) => {
-		if (event.currentTarget.value.length === 2 && inputYear.current) {
-			inputYear.current.focus();
-		  }
-	  };
 
 	return (
 		<>
-			<div className="w-full text-white lg:flex md:block">
+			<div className="w-full pb-28 h-screen overflow-y-auto pr-4 scrollbar-thin scrollbar-thumb-brand-200 scrollbar-track-brand-600 hover:scrollbar-thumb-brand-100">
 
 				<div className="lg:w-4/5 md:w-[90%] m-auto p-4">
 
-					<form onSubmit={setSearch} className="lg:w-[63%] md:w-full flex justify-around items-center bg-brand-200 m-4 p-2 rounded">
-						<input ref={inputMonth} maxLength={2} onInput={handleNextInput} className="w-[25%] m-1 text-center h-11 border-b-2 border-white bg-transparent hover:border-sky-500 focus:border-sky-500 outline-none" onChange={e => setMonth(e.target.value)} placeholder="Mes" />
-						<input ref={inputYear} maxLength={4} className="w-[25%] m-1 text-center h-11 border-b-2 border-white bg-transparent hover:border-sky-500 focus:border-sky-500 outline-none" onChange={e => setYear(e.target.value)} placeholder="Año" />
-						<div className="">
-							<button type='submit' className="bg-sky-600 hover:bg-sky-500 rounded px-4 py-2 text-xl">Buscar</button>
+					<form onSubmit={setSearch} className="w-full bg-slate-800 m-2 rounded-xl p-6 shadow-lg flex flex-col gap-6">
+						<div className="w-full flex flex-col md:flex-row gap-4">
+							<div className="flex-1 flex flex-col">
+								<label className="text-lg text-gray-200 font-medium" htmlFor="startDate">Data Início</label>
+								<input id="startDate" type="date" className="rounded bg-transparent px-4 py-3 outline-none text-xl w-full border border-slate-700 border-2 text-gray-200 focus:border-sky-500 transition" onChange={e => setStartDate(e.target.value)} value={startDate} />
+							</div>
+							<div className="flex-1 flex flex-col">
+								<label className="text-lg text-gray-200 font-medium" htmlFor="endDate">Data Fim</label>
+								<input id="endDate" type="date" className="rounded bg-transparent px-4 py-3 outline-none text-xl w-full border border-slate-700 border-2 text-gray-200 focus:border-sky-500 transition" onChange={e => setEndDate(e.target.value)} value={endDate} />
+							</div>
+							<div className="flex-1 flex flex-col">
+								<label className="text-lg text-gray-200 font-medium" htmlFor="description">Descrição</label>
+								<input id="description" type="text" placeholder="Exemplo: Mercado do mês..." className="rounded bg-transparent px-4 py-3 outline-none text-xl w-full border border-slate-700 border-2 text-gray-200 focus:border-sky-500 transition" onChange={e => setDescription(e.target.value)} value={description} autoComplete="off" />
+							</div>
+						</div>
+						<div className="w-full flex flex-col md:flex-row gap-4">
+							<div className="flex-1 flex flex-col">
+								<label className="text-lg text-gray-200 font-medium" htmlFor="category">Categoria</label>
+								<select id="category" className="rounded bg-slate-900 px-4 py-3 outline-none text-xl w-full border border-slate-700 border-2 text-gray-200 focus:border-sky-500 transition" onChange={e => setCategory(e.target.value)} value={category}>
+									<option value="">Selecione</option>
+									{categoryOptions.map(option => (
+										<option key={option._id} value={option._id}>{option.name}</option>
+									))}
+								</select>
+							</div>
+							<div className="flex-1 flex flex-col">
+								<label className="text-lg text-gray-200 font-medium" htmlFor="typePay">Tipo de Pagamento</label>
+								<select id="typePay" className="rounded bg-slate-900 px-4 py-3 outline-none text-xl w-full border border-slate-700 border-2 text-gray-200 focus:border-sky-500 transition" onChange={e => setTypePay(e.target.value)} value={typePay}>
+									<option value="">Selecione</option>
+									{typePayOptions.map(option => (
+										<option key={option._id} value={option._id}>{option.name}</option>
+									))}
+								</select>
+							</div>
+						</div>
+						<div className="flex justify-center mt-2">
+							<button 
+								type='submit' 
+								className="inline-flex text-white items-center gap-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 transform hover:scale-105 shadow-lg"
+							>
+								<FiSearch />
+								Buscar
+							</button>
 						</div>
 					</form>
 
-					<div className="my-4">
-						<span className="text-2xl">Gastos del mes</span>
-
-					</div>
-
-					<div className="my-4 mb-16">
-						<span className="text-2xl">Tarjetas</span>
-					</div>
+					<TableListTransaction
+						list={transactions}
+						title='Extrato'
+						reload={loadTransaction}
+					/>
 
 				</div>
 			</div>

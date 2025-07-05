@@ -1,11 +1,12 @@
-	import { useState } from "react";
+	import { useState, useEffect } from "react";
 	import { formatToBRL } from "../services/amountFormat";
 	import { typePayOptions } from "../services/typePayOptions";
 	import { categoryOptions } from "../services/categoryOptions";
-	import { FiEdit, FiTrash2, FiMoreVertical, FiPlus } from "react-icons/fi";
+	import { FiEdit, FiTrash2, FiMoreVertical } from "react-icons/fi";
 	import { API } from '../services/api'
 	import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
+import { useTransaction } from "../contexts/TransactionContext";
 
 	interface FixedCostItem {
 		_id: string
@@ -26,12 +27,32 @@ import { toast } from "react-toastify";
 		const { list, reload, title } = props;
 		const [selected, setSelected] = useState<string[]>([]);
 		const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+		const { updateFixedTotal, updateRelativeTotal, updateSelectedFixedTotal, updateSelectedRelativeTotal } = useTransaction();
 
 		const toggleSelect = (id: string) => {
 			setSelected((prev) =>
 				prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
 			)
 		}
+
+		// Atualizar totais no contexto quando a lista ou seleção mudar
+		useEffect(() => {
+			if (!Array.isArray(list)) return;
+			
+			const total = list.reduce((sum, item) => sum + (item.amount || 0), 0);
+			const selectedTotal = selected.length > 0 
+				? list.filter(item => selected.includes(item._id)).reduce((sum, item) => sum + (item.amount || 0), 0)
+				: 0;
+			
+			// Determinar se é uma lista de gastos fixos ou relativos baseado no título
+			if (title.toLowerCase().includes('fixo')) {
+				updateFixedTotal(total);
+				updateSelectedFixedTotal(selectedTotal);
+			} else {
+				updateRelativeTotal(total);
+				updateSelectedRelativeTotal(selectedTotal);
+			}
+		}, [list, selected, title, updateFixedTotal, updateRelativeTotal, updateSelectedFixedTotal, updateSelectedRelativeTotal]);
 
 		// Calcular total de los items seleccionados o todos si no hay selección
 		const calculateTotal = () => {
@@ -53,13 +74,6 @@ import { toast } from "react-toastify";
 					<h2 className="text-xl mb-4 font-thin">{title}</h2>
 					<div className="text-center py-8">
 						<p className="text-gray-400 mb-4">Nenhuma transação encontrada</p>
-						<Link
-							to="/gasto"
-							className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 px-6 py-3 rounded-lg text-sm font-medium transition-all duration-200 transform hover:scale-105 shadow-lg"
-						>
-							<FiPlus className="w-4 h-4" />
-							Nova Transação
-						</Link>
 					</div>
 				</div>
 			)
@@ -67,7 +81,7 @@ import { toast } from "react-toastify";
 
 		const removeTransaction = async (id: string) => {
 			try {
-				await API.delete(`/transaction/${id}`)
+				await API.delete(`/transaction/${id}`, {withCredentials: true})
 				toast.success("Transação removida com sucesso.")
 				reload()
 			} catch (error) {
@@ -80,13 +94,6 @@ import { toast } from "react-toastify";
 
 				<div className="flex justify-between items-center mb-4">
 					<h2 className="text-xl font-thin">{title}</h2>
-					<Link
-						to="/gasto"
-						className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 transform hover:scale-105 shadow-lg"
-					>
-						<FiPlus className="w-4 h-4" />
-						Nova Transação
-					</Link>
 				</div>
 				<div className="overflow-x-auto">
 					<table className="table-auto w-full border-collapse">

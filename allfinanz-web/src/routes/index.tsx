@@ -32,7 +32,6 @@ const PrivateRoute = ({ children, redirectTo }: { children: React.ReactNode, red
   }, []);
 
   if (auth === null) {
-    // Puedes mostrar un spinner o null mientras verifica
     return <Loading />;
   }
 
@@ -70,7 +69,8 @@ export const Routers = () => (
 			
 			<Route path="/cartoes" element={ <PrivateRoute redirectTo="/login"> <ListCards /> </PrivateRoute>}/>
 			
-			<Route path="/extracto/" element={ <PrivateRoute redirectTo="/login"> <Extract /> </PrivateRoute>}/>
+			<Route path="/extrato" element={ <PrivateRoute redirectTo="/login"> <Extract /> </PrivateRoute>}/>
+
 			<Route path="/recuperar-cuenta" element={<ForgotPassword />}/>
 			<Route path="/reset-password/:token/:email" element={<CreateResetPassword />}/>
 			<Route path="/*" element={<PageNotFound />}/>

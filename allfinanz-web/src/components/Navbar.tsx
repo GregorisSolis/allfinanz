@@ -2,9 +2,10 @@ import { Link } from 'react-router-dom'
 import { isAuthenticated, logout } from '../services/auth'
 import { FiUser } from 'react-icons/fi'
 import { useEffect, useState } from 'react';
+import { useUser } from '../contexts/UserContext';
 
 export function Navbar(){
-
+	const { user, clearUser } = useUser();
 	const [toggleMenu, setToggleMenu] = useState(false);
 	const [auth, setAuth] = useState(false);
 
@@ -19,6 +20,7 @@ export function Navbar(){
 
 	async function actionLogout(){
 		await logout();
+		clearUser(); // Limpar o estado global do usuário
 		setAuth(false);
 		setToggleMenu(false);
 	}
@@ -37,9 +39,22 @@ export function Navbar(){
 					<div className="relative">
 						<button
 							onClick={() => setToggleMenu(!toggleMenu)}
-							className="px-3 py-2 rounded hover:bg-slate-700"
+							className="px-3 py-2 rounded hover:bg-slate-700 flex items-center gap-2"
 							>
-							<FiUser className="bg-slate-800 p-1 rounded-full w-10 h-10" />
+							{user?.avatar && (
+								<span className="text-sm text-slate-300">
+									{user.name}
+								</span>
+							)}
+							{user?.avatar ? (
+								<img 
+									src={user.avatar} 
+									alt={user.name}
+									className="w-10 h-10 rounded-full object-cover"
+								/>
+							) : (
+								<FiUser className="bg-slate-800 p-1 rounded-full w-10 h-10" />
+							)}
 						</button>
 
 						{toggleMenu && (

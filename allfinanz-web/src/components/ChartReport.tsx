@@ -9,6 +9,7 @@ export interface ChartReportProps {
       first_day_of_period: string;
       last_day_of_period: string;
       days_in_period: number;
+      total_days_in_period: number;
       today_day: number;
     };
     salary: {
@@ -23,8 +24,6 @@ export interface ChartReportProps {
     };
     carryover: {
       spent: number;
-      balance: number;
-      user_balance: number;
       total_available: number;
     };
     savings: {

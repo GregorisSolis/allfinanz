@@ -1,10 +1,14 @@
 import { FormEvent, useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { API } from '../services/api'
 import { toast } from 'react-toastify'
 import { FiEye, FiEyeOff, FiLock, FiMail } from 'react-icons/fi'
 import { isAuthenticated } from '../services/auth'
+import { useUser } from '../contexts/UserContext'
 
 export function Login() {
+	const { setUser } = useUser();
+	const navigate = useNavigate();
 
 	useEffect(() => {
 		checkAuth();
@@ -17,7 +21,7 @@ export function Login() {
 
 	const checkAuth = async () => {
 		if (await isAuthenticated()) {
-			window.location.href = "/dashboard";
+			navigate("/dashboard");
 		}
 	};
 
@@ -30,7 +34,13 @@ export function Login() {
 			await API.post('/user/authenticate', { email, password }, { withCredentials: true })
 				.then(resp => {
 					if(resp){
-						window.location.href = "/dashboard";
+						// Salvar dados do usuário no estado global
+						setUser({
+							name: resp.data.user.name,
+							email: resp.data.user.email,
+							avatar: resp.data.user.imageUrl
+						});
+						navigate("/dashboard");
 					}
 				})
 				.catch(() => {

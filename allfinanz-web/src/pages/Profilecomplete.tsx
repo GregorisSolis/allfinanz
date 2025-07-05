@@ -6,10 +6,9 @@ import { FiDollarSign, FiTrendingUp } from 'react-icons/fi'
 import { formatToBRL, formatToNumber } from '../services/amountFormat'
 
 export function ProfileComplete() {
-	document.title = 'Allfinanz - Completar Perfil'
+	document.title = 'Allfinanz | Completar Perfil'
 	const [savings, setSavings] = useState('')
 	const [salary, setSalary] = useState('')
-	const ID_USER = localStorage.getItem('iden')
 	const navigate = useNavigate()
 
 	function handleSavingsChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -37,7 +36,7 @@ export function ProfileComplete() {
 		) {
 			toast.warning('Preencha corretamente todos os campos.')
 		} else {
-			await API.put(`/user/edit/${ID_USER}`, { savings: savingsNumber, salary: salaryNumber })
+			await API.put(`/user/edit`, { savings: savingsNumber, salary: salaryNumber }, { withCredentials: true })
 				.then(() => {
 					navigate('/login')
 				})
