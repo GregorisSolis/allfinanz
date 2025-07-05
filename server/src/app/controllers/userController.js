@@ -33,13 +33,17 @@ router.post('/register', async (req, res) => {
 		}
 
 		const user = await User.create(req.body)
-
 		user.password = undefined
 
-		return res.send({
-			user,
-			token: generateToken({ id: "Registration Failed." })
-		})
+		const token = generateToken({ id: user.id })
+
+		res.cookie('token', token, {
+			httpOnly: true,
+			sameSite: 'lax',
+			maxAge: 8 * 60 * 60 * 1000 // 8 horas
+		});
+
+		return res.send({ user })
 	}
 	catch (err) {
 		return res.status(400).send({ message: "Registration Failed." + err })

@@ -1,6 +1,7 @@
 const express = require('express')
 const authMiddleware = require('../middlewares/auth')
 const Card = require('../models/card')
+const User = require('../models/user')
 
 const router = express.Router()
 
@@ -11,17 +12,20 @@ router.use(authMiddleware)
 //CREAR UNA TARJETA
 router.post('/new-card', async (req, res) => {
 	try {
-
-		if (await Card.findOne({ name: req.body.name, user: req.userId })) {
-			return res.send({ message: 'Card already exists.' })
+		if (!req.body.name || req.body.name.trim() === "") {
+			return res.status(400).send({ message: 'Invalid card name.' });
 		}
 
-		const card = await Card.create({ ...req.body, user: req.userId })
+		if (await Card.findOne({ name: req.body.name, user: req.userId })) {
+			return res.status(400).send({ message: 'Card already exists.' });
+		}
 
-		return res.send({ card })
+		const card = await Card.create({ ...req.body, user: req.userId });
+
+		return res.status(201).send({ card });
 	}
 	catch (err) {
-		return res.status(400).send({ message: 'Card failed.' })
+		return res.status(500).send({ message: 'Card creation failed.' });
 	}
 })
 
@@ -30,10 +34,10 @@ router.post('/new-card', async (req, res) => {
 router.get('/all-card/user', authMiddleware, async (req, res) => {
 	try {
 		const user_id = req.userId;
-		const card = await Card.find({ user: user_id }).populate('user');
-		return res.send({ card });
+		const cards = await Card.find({ user: user_id }).populate('user');
+		return res.status(200).send({ cards });
 	} catch (err) {
-		return res.status(400).send({ message: "Error loading card." });
+		return res.status(500).send({ message: "Error loading cards." });
 	}
 })
 
@@ -41,26 +45,26 @@ router.get('/all-card/user', authMiddleware, async (req, res) => {
 router.get('/card-data/:nameCard/user', authMiddleware, async (req, res) => {
 	try {
 		const user_id = req.userId;
-		const card = await Card.find({ user: user_id, name: req.params.nameCard }).populate('user');
-		return res.send({ card });
+		const cards = await Card.find({ user: user_id, name: req.params.nameCard }).populate('user');
+		return res.status(200).send({ cards });
 	} catch (err) {
-		return res.status(400).send({ message: "Error loading card." });
+		return res.status(500).send({ message: "Error loading card." });
 	}
 })
 
 //EDITAR UNA TARJETA
 router.patch('/edit-card/:id', async (req, res) => {
-
 	try {
-
 		const card = await Card.findByIdAndUpdate(req.params.id,
-			{ ...req.body, user: req.userId }, { new: true })
+			{ ...req.body, user: req.userId }, { new: true });
 
-		return res.send({ card })
+		if (!card) {
+			return res.status(404).send({ message: 'Card not found.' });
+		}
 
+		return res.status(200).send({ card });
 	} catch (err) {
-
-		return res.status(400).send({ message: "Error updating card." + err })
+		return res.status(500).send({ message: "Error updating card." });
 	}
 })
 
@@ -72,32 +76,72 @@ router.delete('/remove-card/:id', async (req, res) => {
 		if (!card) {
 			return res.status(404).send({ message: 'Card not found.' });
 		}
-		return res.send({ message: 'Card deleted successfully.' });
+		return res.status(200).send({ message: 'Card deleted successfully.' });
 	} catch (err) {
-		return res.status(400).send({ message: 'Error deleting card.' });
+		return res.status(500).send({ message: 'Error deleting card.' });
 	}
 })
 
-// NOVO ENDPOINT: Retorna todas as cartas do usuário com totalCost do mês atual
+// NOVO ENDPOINT: Retorna todas as cartas do usuário com totalCost do período do salário
 router.get('/all-card/user/with-total', authMiddleware, async (req, res) => {
 	try {
 		const user_id = req.userId;
+		
+		// Buscar usuário para obter o dia do salário
+		const user = await User.findById(user_id);
+		if (!user) {
+			return res.status(404).send({ message: 'User not found.' });
+		}
+
+		// Validar se o usuário tem salário e dia do salário configurados
+		if (!user.salary || user.salary <= 0) {
+			return res.status(400).send({ message: 'Invalid salary value.' });
+		}
+		if (!user.salary_day || user.salary_day < 1 || user.salary_day > 31) {
+			return res.status(400).send({ message: 'Invalid salary day value.' });
+		}
+
 		const cards = await Card.find({ user: user_id });
 		if (!cards.length) return res.send({ cards: [] });
 
-		// Datas do mês atual
+		// Calcular período baseado no dia do salário (lógica consistente com reportController)
+		const salary_day = user.salary_day;
 		const now = new Date();
-		const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-		const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+		const year = now.getFullYear();
+		const month = now.getMonth();
+		const today = now.getDate();
 
-		// Buscar todas as transações do usuário no mês atual e fixas sem data
+		let firstDayOfPeriod, lastDayOfPeriod;
+
+		// Se hoje é antes do dia do salário, estamos no período anterior
+		// Se hoje é no dia do salário ou depois, estamos no período atual
+		if (today < salary_day) {
+			// Período anterior: do dia do salário do mês anterior até o dia anterior ao salário deste mês
+			const previousMonth = month === 0 ? 11 : month - 1;
+			const previousYear = month === 0 ? year - 1 : year;
+			
+			firstDayOfPeriod = new Date(previousYear, previousMonth, salary_day);
+			lastDayOfPeriod = new Date(year, month, salary_day - 1, 23, 59, 59, 999);
+		} else {
+			// Período atual: do dia do salário deste mês até o dia anterior ao salário do próximo mês
+			firstDayOfPeriod = new Date(year, month, salary_day);
+			lastDayOfPeriod = new Date(year, month + 1, salary_day - 1, 23, 59, 59, 999);
+		}
+
+		if (isNaN(firstDayOfPeriod.getTime()) || isNaN(lastDayOfPeriod.getTime())) {
+			return res.status(400).send({ message: 'Invalid date range.' });
+		}
+
+		// Buscar todas as transações do usuário separadas em relatives e fixed
 		const Transaction = require('../models/transaction');
-		const allTransactions = await Transaction.find({
+		const relatives = await Transaction.find({
 			user: user_id,
-			$or: [
-				{ date: { $gte: firstDayOfMonth, $lte: lastDayOfMonth } },
-				{ fixed: true, date: { $exists: false } }
-			]
+			fixed: false,
+			date: { $gte: firstDayOfPeriod, $lte: lastDayOfPeriod }
+		});
+		const fixed = await Transaction.find({
+			user: user_id,
+			fixed: true
 		});
 
 		// Agrupar por cartão
@@ -105,10 +149,9 @@ router.get('/all-card/user/with-total', authMiddleware, async (req, res) => {
 		for (const card of cards) {
 			cardTotals[card._id.toString()] = 0;
 		}
-		for (const tx of allTransactions) {
+		for (const tx of [...relatives, ...fixed]) {
 			// Só soma se a transação tem cartão associado
 			if (tx.card) {
-				// Procurar cartão pelo ID (como está no schema Transaction)
 				const cardId = tx.card.toString();
 				if (cardTotals.hasOwnProperty(cardId)) {
 					cardTotals[cardId] += tx.amount;
@@ -122,9 +165,18 @@ router.get('/all-card/user/with-total', authMiddleware, async (req, res) => {
 			totalCost: cardTotals[card._id.toString()] || 0
 		}));
 
-		return res.send({ cards: cardsWithTotal });
+		return res.send({ 
+			cards: cardsWithTotal, 
+			transactions: { relatives, fixed },
+			period: {
+				start: firstDayOfPeriod,
+				end: lastDayOfPeriod,
+				salary_day: salary_day,
+				today_day: today
+			}
+		});
 	} catch (err) {
-		return res.status(400).send({ message: "Erro ao calcular totalCost das cartas.", error: err.message });
+		return res.status(500).send({ message: "Erro ao calcular totalCost das cartas.", error: err.message });
 	}
 });
 

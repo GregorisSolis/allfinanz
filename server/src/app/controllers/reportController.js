@@ -26,9 +26,24 @@ const calculatePaymentPeriod = (salary_day) => {
     const now = new Date();
     const year = now.getFullYear();
     const month = now.getMonth();
+    const today = now.getDate();
 
-    const first_day_of_period = new Date(year, month, salary_day);
-    const last_day_of_period = new Date(year, month + 1, salary_day - 1);
+    let first_day_of_period, last_day_of_period;
+
+    // Se hoje é antes do dia do salário, estamos no período anterior
+    // Se hoje é no dia do salário ou depois, estamos no período atual
+    if (today < salary_day) {
+        // Período anterior: do dia do salário do mês anterior até o dia anterior ao salário deste mês
+        const previousMonth = month === 0 ? 11 : month - 1;
+        const previousYear = month === 0 ? year - 1 : year;
+        
+        first_day_of_period = new Date(previousYear, previousMonth, salary_day);
+        last_day_of_period = new Date(year, month, salary_day - 1);
+    } else {
+        // Período atual: do dia do salário deste mês até o dia anterior ao salário do próximo mês
+        first_day_of_period = new Date(year, month, salary_day);
+        last_day_of_period = new Date(year, month + 1, salary_day - 1);
+    }
 
     if (isNaN(first_day_of_period.getTime()) || isNaN(last_day_of_period.getTime())) {
         throw new Error('Intervalo de datas inválido');
@@ -37,8 +52,9 @@ const calculatePaymentPeriod = (salary_day) => {
     return {
         first_day_of_period,
         last_day_of_period,
-        days_in_period: Math.ceil((last_day_of_period - first_day_of_period) / (1000 * 60 * 60 * 24)),
-        today_day: now.getDate()
+        days_in_period: Math.round((last_day_of_period - first_day_of_period) / (1000 * 60 * 60 * 24)) + 1,
+        total_days_in_period: Math.floor((last_day_of_period - first_day_of_period) / (1000 * 60 * 60 * 24)) + 1,
+        today_day: today
     };
 };
 
@@ -78,26 +94,21 @@ const calculateExpenses = (transactions) => {
  * @param {Array} transactions - Lista de transações
  * @param {number} daily_limit - Limite diário
  * @param {number} today_day - Dia atual
+ * @param {number} days_in_period - Total de dias no período
  * @returns {Object} Objeto com informações do carryover
  */
-const calculateCarryover = (transactions, daily_limit, today_day) => {
-    const accumulated_daily_limit = formatToTwoDecimals(daily_limit * today_day);
-    const carryover_spent_until_today = transactions
-        .filter(t => t.date.getDate() <= today_day && t.source === SOURCES.CARRYOVER)
+const calculateCarryover = (transactions, daily_limit, today_day, days_in_period) => {
+    const total_available_for_period = formatToTwoDecimals(daily_limit * days_in_period);
+    const carryover_spent_total = transactions
+        .filter(t => t.source === SOURCES.CARRYOVER)
         .reduce((acc, t) => acc + toDecimalFormat(t.amount), 0);
 
     const carryover_available = formatToTwoDecimals(
-        accumulated_daily_limit - carryover_spent_until_today
+        total_available_for_period - carryover_spent_total
     );
 
     return {
-        spent: formatToTwoDecimals(
-            transactions
-                .filter(t => t.source === SOURCES.CARRYOVER)
-                .reduce((acc, t) => acc + toDecimalFormat(t.amount), 0)
-        ),
-        balance: carryover_available,
-        user_balance: carryover_available,
+        spent: formatToTwoDecimals(carryover_spent_total),
         total_available: carryover_available
     };
 };
@@ -121,20 +132,30 @@ router.get('/', authMiddleware, async (req, res) => {
         // Calcular período
         const period = calculatePaymentPeriod(user.salary_day);
         
-        // Buscar transações
-        const transactions = await Transaction.find({
+        // Buscar transações fixas (de qualquer data)
+        const fixedTransactions = await Transaction.find({
             user: user_id,
+            fixed: true
+        });
+
+        // Buscar transações não fixas dentro do período
+        const nonFixedTransactions = await Transaction.find({
+            user: user_id,
+            fixed: false,
             date: {
                 $gte: period.first_day_of_period,
                 $lte: period.last_day_of_period
             }
         });
 
+        // Unir as duas listas
+        const transactions = [...fixedTransactions, ...nonFixedTransactions];
+
         const salary = toDecimalFormat(user.salary);
         const expenses = calculateExpenses(transactions);
         const salary_balance = formatToTwoDecimals(salary - expenses.total);
         const daily_limit = formatToTwoDecimals(salary_balance / period.days_in_period);
-        const carryover = calculateCarryover(transactions, daily_limit, period.today_day);
+        const carryover = calculateCarryover(transactions, daily_limit, period.today_day, period.days_in_period);
 
         // Enviar relatório
         res.status(200).send({
@@ -143,6 +164,7 @@ router.get('/', authMiddleware, async (req, res) => {
                     first_day_of_period: period.first_day_of_period.toISOString().split('T')[0],
                     last_day_of_period: period.last_day_of_period.toISOString().split('T')[0],
                     days_in_period: period.days_in_period,
+                    total_days_in_period: period.total_days_in_period,
                     today_day: period.today_day
                 },
                 salary: {

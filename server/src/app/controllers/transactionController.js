@@ -1,6 +1,7 @@
 const express = require('express')
 const authMiddleware = require('../middlewares/auth')
 const Transaction = require('../models/transaction')
+const User = require('../models/user')
 
 const { buildDateFilter } = require('../../core/utils');
 
@@ -51,18 +52,62 @@ router.post('/', async (req, res) => {
 router.get('/list', async (req, res) => {
     try {
         const { date_init, date_end } = req.query;
+        
         const user_id = req.userId;
-        const now = new Date();
-        const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-        const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+        
+        // Buscar usuário para obter o dia do salário
+        const user = await User.findById(user_id);
 
-        // Construcción de query base
+        if (!user) {
+            return res.status(404).send({ message: 'User not found.' });
+        }
+        
+        let dateFilter;
+        
+        if(date_init && date_end){
+            // Usar as datas fornecidas nos parâmetros
+            dateFilter = buildDateFilter(date_init, date_end);
+        } else {
+            // Calcular período baseado no dia do salário (padrão)
+            const salary_day = user.salary_day || 1;
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = now.getMonth();
+    
+            // Se hoje é antes do dia do salário, o período é do mês anterior
+            // Se hoje é no dia do salário ou depois, o período é do mês atual
+            let periodMonth, periodYear;
+            
+            if (now.getDate() < salary_day) {
+                // Estamos antes do dia do salário, período é do mês anterior
+                periodMonth = month - 1;
+                periodYear = year;
+                
+                // Ajustar para dezembro do ano anterior se necessário
+                if (periodMonth < 0) {
+                    periodMonth = 11;
+                    periodYear = year - 1;
+                }
+            } else {
+                // Estamos no dia do salário ou depois, período é do mês atual
+                periodMonth = month;
+                periodYear = year;
+            }
+    
+            // Primeiro dia do período: dia do salário do mês do período
+            const firstDayOfPeriod = new Date(periodYear, periodMonth, salary_day);
+            
+            // Último dia do período: dia anterior ao dia do salário do mês seguinte
+            const lastDayOfPeriod = new Date(periodYear, periodMonth + 1, salary_day - 1, 23, 59, 59, 999);
+    
+            // Construção de filtro de fechas baseado no período do salário
+            dateFilter = buildDateFilter(firstDayOfPeriod, lastDayOfPeriod);
+        }
+
+        // Construção de query base
         const baseQuery = { user: user_id };
 
-        // Construcción de filtro de fechas si se proporcionan
-        const dateFilter = buildDateFilter(date_init, date_end);
-        
-        // Consultas paralelas para mejor rendimiento
+        // Consultas paralelas para melhor rendimento
         const [relatives, fixed] = await Promise.all([
             Transaction.find({ 
                 ...baseQuery, 
