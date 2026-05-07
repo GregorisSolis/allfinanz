@@ -37,12 +37,13 @@ export function FormTransaction() {
 	let [card, setCard] = useState('')
 	let [dividedIn, setDividedIn] = useState(0)
 	let [isDivided, setIsDivided] = useState(false)
+	let [fixed, setFixed] = useState(false)
 
 	//cargas las tarjetas
 	async function loadCards() {
 		await API.get('/card/all-card/user', { withCredentials: true })
 			.then(resp => {
-				setCards(resp.data.card)
+				setCards(resp.data.cards)
 			})
 	}
 
@@ -59,6 +60,7 @@ export function FormTransaction() {
 				setCard(data.card || '');
 				setDividedIn(data.dividedIn || 0);
 				setIsDivided(data.isDivided || false);
+				setFixed(data.fixed || false);
 			})
 			.catch(() => {
 				toast.error('Não foi possível carregar a transação.');
@@ -113,10 +115,6 @@ export function FormTransaction() {
 		setIsDivided(dividedIn > 0);
 
 		let date = date_now();
-		let fixed = false;
-		if (category === '1') {
-			fixed = true;
-		}
 
 		if (!validateAndPrepareTransaction({ amount, type, description, category, source, dividedIn })) {
 			return;
@@ -207,6 +205,7 @@ export function FormTransaction() {
 		setCard('');
 		setDividedIn(0);
 		setIsDivided(false);
+		setFixed(false);
 		setShowDialog(false);
 	}
 
@@ -307,9 +306,29 @@ export function FormTransaction() {
 							onChange={(e) => setDividedIn(Number(e.target.value))}
 							value={dividedIn}
 							autoComplete="off"
-							disabled={category === '1'}
+							disabled={fixed}
 						/>
 					</div> 
+					
+					<div className="grid grid-cols-[1fr_4fr] items-center gap-x-4 max-w-3xl m-auto">
+						<label className="text-right" htmlFor="fixed">Gasto fixo</label>
+						<div className="flex items-center gap-2">
+							<input
+								type="checkbox"
+								id="fixed"
+								checked={fixed}
+								onChange={(e) => {
+									const checked = e.target.checked;
+									setFixed(checked);
+									if (checked) {
+										setDividedIn(0);
+										setIsDivided(false);
+									}
+								}}
+							/>
+							<span className="text-sm text-slate-300">Transação recorrente mensal</span>
+						</div>
+					</div>
 
 					<div className="grid grid-cols-[1fr_4fr] items-center gap-x-4 max-w-3xl m-auto">
 						<label className="text-right" htmlFor='type'>Tipo de Pagamento</label>
@@ -337,7 +356,7 @@ export function FormTransaction() {
 								value={card}
 								onChange={e => setCard(e.target.value)}
 								className="rounded bg-slate-900 px-4 py-3 outline-none text-xl w-full border border-slate-700 border-2"
-								disabled={cards.length === 0}
+								disabled={cards?.length === 0}
 							>
 								{cards.length > 0 ? (
 									<>

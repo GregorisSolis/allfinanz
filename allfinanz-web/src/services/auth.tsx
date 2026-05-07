@@ -15,3 +15,8 @@ export const isAuthenticated = async () => {
 export const logout = async () => {
 	await API.post('/user/logout', {}, { withCredentials: true });
 }
+
+export const login = async (email: string, password: string) => {
+	// TODO: Implement login logic if needed
+	console.log("Login function called");
+};

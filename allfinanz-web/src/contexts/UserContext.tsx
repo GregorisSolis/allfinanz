@@ -8,12 +8,16 @@ interface User {
   salary_day?: number;
 }
 
+import { isAuthenticated as checkAuthentication } from '../services/auth';
+
 interface UserContextType {
   user: User | null;
   setUser: (user: User | null) => void;
   updateUserName: (name: string) => void;
   updateSalaryDay: (salary_day: number) => void;
   clearUser: () => void;
+  isAuthenticated: boolean;
+  setIsAuthenticated: (status: boolean) => void;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -24,26 +28,33 @@ interface UserProviderProps {
 
 export function UserProvider({ children }: UserProviderProps) {
   const [user, setUser] = useState<User | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
 
-  // Carregar dados do usuário quando o contexto é inicializado
   useEffect(() => {
-    const loadUserData = async () => {
+    const loadUserDataAndAuth = async () => {
       try {
-        const response = await API.get('/user/info-user', { withCredentials: true });
-        if (response.data.user) {
-          setUser({
-            name: response.data.user.name,
-            email: response.data.user.email,
-            avatar: response.data.user.imageUrl,
-            salary_day: response.data.user.salary_day
-          });
+        const authStatus = await checkAuthentication();
+        setIsAuthenticated(authStatus);
+
+        if (authStatus) {
+          const response = await API.get('/user/info-user', { withCredentials: true });
+          if (response.data.user) {
+            setUser({
+              name: response.data.user.name,
+              email: response.data.user.email,
+              avatar: response.data.user.imageUrl,
+              salary_day: response.data.user.salary_day
+            });
+          }
         }
       } catch (error) {
-        console.log('Usuário não autenticado ou erro ao carregar dados');
+        console.log('Erro ao carregar dados do usuário ou verificar autenticação:', error);
+        setIsAuthenticated(false);
+        setUser(null);
       }
     };
 
-    loadUserData();
+    loadUserDataAndAuth();
   }, []);
 
   const updateUserName = (name: string) => {
@@ -63,7 +74,9 @@ export function UserProvider({ children }: UserProviderProps) {
     setUser,
     updateUserName,
     updateSalaryDay,
-    clearUser
+    clearUser,
+    isAuthenticated,
+    setIsAuthenticated
   };
 
   return (

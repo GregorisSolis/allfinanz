@@ -1,33 +1,27 @@
 import { Link } from 'react-router-dom'
-import { isAuthenticated, logout } from '../services/auth'
+import { logout } from '../services/auth'
 import { FiUser } from 'react-icons/fi'
 import { useEffect, useState } from 'react';
 import { useUser } from '../contexts/UserContext';
 
 export function Navbar(){
-	const { user, clearUser } = useUser();
+		const { user, clearUser, isAuthenticated, setIsAuthenticated } = useUser();
 	const [toggleMenu, setToggleMenu] = useState(false);
-	const [auth, setAuth] = useState(false);
 
 	useEffect(() => {
-		// Checa autenticação ao montar o componente
-		const checkAuth = async () => {
-			const result = await isAuthenticated();
-			setAuth(result);
-		};
-		checkAuth();
-	}, []);
+		setIsAuthenticated(isAuthenticated);
+	}, [isAuthenticated]);
 
 	async function actionLogout(){
 		await logout();
-		clearUser(); // Limpar o estado global do usuário
-		setAuth(false);
+		clearUser();
+		setIsAuthenticated(false);
 		setToggleMenu(false);
 	}
 
 	return(
 		<nav className="h-20 text-white bg-transparent">
-			{auth ? (
+			{isAuthenticated ? (
 			<div className="flex justify-between items-center h-full lg:w-[95%] md:w-full m-auto">
 
 					<div className="text-4xl uppercase title mx-4">
@@ -84,7 +78,7 @@ export function Navbar(){
 				<div className="flex justify-between items-center h-full lg:w-[95%] md:w-full m-auto">
 
 					<div className="text-4xl uppercase title mx-4">
-						<Link className="link text-2xl font-thin p-2 mx-2" to={auth ? '/dashboard' : '/'}>
+						<Link className="link text-2xl font-thin p-2 mx-2" to={isAuthenticated ? '/dashboard' : '/'}>
 							Allfinanz
 						</Link>
 					</div>

@@ -4,8 +4,11 @@ import { date_now } from './dateCreate'
 
 export const setDividedInTransaction = (value: number, description:string ,category: string,type: string,card: string,dividedIn: number,isDivided: boolean, fixed: boolean) => {
 
-	let month = date_now().month
-	let year = date_now().year
+	let dateString = date_now() // format YYYY-MM-DD
+	let parts = dateString.split('-');
+	let year = parseInt(parts[0]);
+	let month = parseInt(parts[1]);
+	
 	let date = {}
 	let valueDivided: number
 

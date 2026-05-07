@@ -1,4 +1,5 @@
 import { FormEvent } from "react";
+import React from "react";
 
 interface SelectComponentProps {
 	list: any[],
@@ -7,7 +8,7 @@ interface SelectComponentProps {
 
 }
 
-export function SelectComponent(props: SelectComponentProps): JSX.Element{
+export function SelectComponent(props: SelectComponentProps): React.ReactNode{
 
 	let list = props.list
 

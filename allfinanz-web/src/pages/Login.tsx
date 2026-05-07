@@ -7,7 +7,7 @@ import { isAuthenticated } from '../services/auth'
 import { useUser } from '../contexts/UserContext'
 
 export function Login() {
-	const { setUser } = useUser();
+	const { setUser, setIsAuthenticated } = useUser();
 	const navigate = useNavigate();
 
 	useEffect(() => {
@@ -40,6 +40,7 @@ export function Login() {
 							email: resp.data.user.email,
 							avatar: resp.data.user.imageUrl
 						});
+						setIsAuthenticated(true);
 						navigate("/dashboard");
 					}
 				})
