@@ -10,6 +10,41 @@ const router = express.Router()
 //CODIGO ENCARGADO DE QUE LAS Transaction SE HAGAN CON AUTH
 router.use(authMiddleware)
 
+function normalizeInstallments(payload, existing = {}) {
+    const merged = { ...existing, ...payload };
+
+    let dividedIn = merged.dividedIn;
+    if (dividedIn === undefined || dividedIn === null || dividedIn === '') {
+        dividedIn = 0;
+    }
+    dividedIn = Number(dividedIn);
+
+    if (!Number.isFinite(dividedIn) || !Number.isInteger(dividedIn) || dividedIn < 0) {
+        return { ok: false, error: 'Invalid dividedIn.' };
+    }
+
+    if (dividedIn === 1) {
+        return { ok: false, error: 'Invalid dividedIn. Use 0 or >= 2.' };
+    }
+
+    const fixed = Boolean(merged.fixed);
+    const isDivided = dividedIn >= 2;
+
+    if (fixed && dividedIn > 0) {
+        return { ok: false, error: 'Fixed transactions cannot have installments.' };
+    }
+
+    return {
+        ok: true,
+        normalized: {
+            ...payload,
+            fixed,
+            dividedIn,
+            isDivided
+        }
+    };
+}
+
 
 //CREAR UNA TRANSACCIÓN
 router.post('/', async (req, res) => {
@@ -28,6 +63,12 @@ router.post('/', async (req, res) => {
     if (!req.body.description || req.body.description.trim() === "") {
         return res.status(400).send({ message: 'Invalid description.' });
     }
+
+    const installments = normalizeInstallments(req.body);
+    if (!installments.ok) {
+        return res.status(400).send({ message: installments.error });
+    }
+    req.body = installments.normalized;
 
     // Ajustar fecha a hora de Brasilia (UTC-3)
     if (date) {
@@ -116,7 +157,7 @@ router.get('/list', async (req, res) => {
             }),
             Transaction.find({ 
                 ...baseQuery, 
-                fixed: true 
+                fixed: true
             })
         ]);
 
@@ -138,25 +179,32 @@ router.get('/list', async (req, res) => {
 //BUSCAR TRANSACCIONES POR TIPO, CATEGORIA OU CARTÃO
 router.get('/search', async (req, res) => {
     try {
-        const { type, category, card, user_id } = req.query;
+        const { type, category, card, description, date_init, date_end, user_id } = req.query;
 
-        if (!user_id) {
+        if (!type && !category && !card && !description && !date_init && !date_end) {
+            return res.status(400).send({ 
+                message: "É necessário pelo menos um filtro" 
+            });
+        }
+
+        const queryUser = user_id || req.userId;
+        if (!queryUser) {
             return res.status(400).send({ 
                 message: "user_id é obrigatório nos parâmetros" 
             });
         }
 
-        if (!type && !category && !card) {
-            return res.status(400).send({ 
-                message: "É necessário pelo menos um filtro: type, category ou card" 
-            });
-        }
-
-        let query = { user: user_id };
+        let query = { user: queryUser };
 
         if (type) query.type = type;
         if (category) query.category = category;
         if (card) query.card = card;
+        if (description) {
+            query.description = { $regex: String(description).trim(), $options: 'i' };
+        }
+        if (date_init || date_end) {
+            query = { ...query, ...buildDateFilter(date_init, date_end) };
+        }
 
         const transactions = await Transaction.find(query);
         return res.send({ transactions });
@@ -187,8 +235,21 @@ router.patch('/:transaction_id', async (req, res) => {
 
 	try {
 
-		const transaction = await Transaction.findByIdAndUpdate(req.params.transaction_id,
-			{ ...req.body, user: req.userId }, { new: true })
+        const existing = await Transaction.findOne({ _id: req.params.transaction_id, user: req.userId });
+        if (!existing) {
+            return res.status(404).send({ message: 'Transação não encontrada para este usuário.' });
+        }
+
+        const installments = normalizeInstallments(req.body, existing.toObject());
+        if (!installments.ok) {
+            return res.status(400).send({ message: installments.error });
+        }
+
+		const transaction = await Transaction.findOneAndUpdate(
+            { _id: req.params.transaction_id, user: req.userId },
+			{ ...installments.normalized, user: req.userId },
+            { new: true }
+        )
 
 		return res.send({ transaction })
 

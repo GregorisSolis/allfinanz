@@ -43,6 +43,9 @@ function buildDateFilter(dateInit, dateEnd) {
       if (isNaN(initDate.getTime())) {
           throw new Error('Invalid date_init format');
       }
+      if (typeof dateInit === 'string' && dateInit.length <= 10) {
+          initDate.setHours(0, 0, 0, 0);
+      }
       dateFilter.date.$gte = initDate;
   }
   
@@ -50,6 +53,9 @@ function buildDateFilter(dateInit, dateEnd) {
       const endDate = new Date(dateEnd);
       if (isNaN(endDate.getTime())) {
           throw new Error('Invalid date_end format');
+      }
+      if (typeof dateEnd === 'string' && dateEnd.length <= 10) {
+          endDate.setHours(23, 59, 59, 999);
       }
       dateFilter.date.$lte = endDate;
   }

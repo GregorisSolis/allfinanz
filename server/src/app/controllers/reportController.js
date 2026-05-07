@@ -8,6 +8,8 @@ const router = express.Router();
 
 router.use(authMiddleware);
 
+const MS_PER_DAY = 1000 * 60 * 60 * 24;
+
 // Constantes
 const MIN_SALARY_DAY = 1;
 const MAX_SALARY_DAY = 31;
@@ -54,7 +56,58 @@ const calculatePaymentPeriod = (salary_day) => {
         last_day_of_period,
         days_in_period: Math.round((last_day_of_period - first_day_of_period) / (1000 * 60 * 60 * 24)) + 1,
         total_days_in_period: Math.floor((last_day_of_period - first_day_of_period) / (1000 * 60 * 60 * 24)) + 1,
-        today_day: today
+        today_day: today - first_day_of_period.getDate()
+    };
+};
+
+/**
+ * Calcula período baseado em um intervalo de datas explícito (inclusive)
+ * @param {string} date_init
+ * @param {string} date_end
+ * @returns {Object|null} Objeto com datas do período
+ */
+const calculatePeriodFromRange = (date_init, date_end) => {
+    if (!date_init && !date_end) return null;
+    if (!date_init || !date_end) {
+        throw new Error('Both date_init and date_end are required');
+    }
+
+    const start = new Date(date_init);
+    const end = new Date(date_end);
+
+    if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+        throw new Error('Invalid date range');
+    }
+
+    if (typeof date_init === 'string' && date_init.length <= 10) {
+        start.setHours(0, 0, 0, 0);
+    }
+    if (typeof date_end === 'string' && date_end.length <= 10) {
+        end.setHours(23, 59, 59, 999);
+    }
+
+    if (end < start) {
+        throw new Error('date_end cannot be before date_init');
+    }
+
+    const total_days_in_period = Math.floor((end - start) / MS_PER_DAY) + 1;
+    const now = new Date();
+
+    let today_day;
+    if (now < start) {
+        today_day = 0;
+    } else if (now > end) {
+        today_day = total_days_in_period;
+    } else {
+        today_day = Math.floor((now - start) / MS_PER_DAY) + 1;
+    }
+
+    return {
+        first_day_of_period: start,
+        last_day_of_period: end,
+        days_in_period: total_days_in_period,
+        total_days_in_period,
+        today_day
     };
 };
 
@@ -116,6 +169,7 @@ const calculateCarryover = (transactions, daily_limit, today_day, days_in_period
 router.get('/', authMiddleware, async (req, res) => {
     try {
         const user_id = req.userId;
+        const { date_init, date_end } = req.query;
 
         // Buscar e validar usuário
         const user = await User.findById(user_id);
@@ -130,15 +184,21 @@ router.get('/', authMiddleware, async (req, res) => {
         }
 
         // Calcular período
-        const period = calculatePaymentPeriod(user.salary_day);
-        
-        // Buscar transações fixas (de qualquer data)
+        let rangePeriod;
+        try {
+            rangePeriod = calculatePeriodFromRange(date_init, date_end);
+        } catch (err) {
+            return res.status(400).send({ message: err.message || 'Invalid date range.' });
+        }
+        const period = rangePeriod || calculatePaymentPeriod(user.salary_day);
+
+        // Os fixed sempre entram no relatório, independentemente da data.
         const fixedTransactions = await Transaction.find({
             user: user_id,
             fixed: true
         });
 
-        // Buscar transações não fixas dentro do período
+        // Apenas transações não fixas respeitam o período consultado.
         const nonFixedTransactions = await Transaction.find({
             user: user_id,
             fixed: false,
@@ -148,7 +208,6 @@ router.get('/', authMiddleware, async (req, res) => {
             }
         });
 
-        // Unir as duas listas
         const transactions = [...fixedTransactions, ...nonFixedTransactions];
 
         const salary = toDecimalFormat(user.salary);
