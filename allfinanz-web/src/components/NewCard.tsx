@@ -61,46 +61,82 @@ export function NewCard(props: NewCardProps) {
 	return (
 		<>
 			<div className="bg-black/60 backdrop-blur-sm fixed inset-0 animate-fadeIn z-40 transition-opacity duration-300" />
-			<div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-8 w-[90vw] max-w-md shadow-2xl z-50 border border-slate-700 transition-all duration-300">
-				<form className="flex flex-col text-center gap-4" onSubmit={handleSubmit}>
-					<h1 className="text-2xl font-bold mb-2 text-white tracking-wide">{isEdit ? 'Editar cartão' : 'Adicionar novo cartão'}</h1>
-					<input
-						type="text"
-						className="rounded-xl px-4 py-3 bg-slate-700/80 border-2 border-slate-700 focus:border-sky-500 outline-none text-white placeholder-gray-400 transition-all duration-200 shadow-sm"
-						placeholder="Nome do cartão"
-						value={name}
-						onChange={e => setName(e.target.value)}
-					/>
-					<input
-						type="number"
-						className="rounded-xl px-4 py-3 bg-slate-700/80 border-2 border-slate-700 focus:border-sky-500 outline-none text-white placeholder-gray-400 transition-all duration-200 shadow-sm"
-						placeholder="Dia de fechamento (1-31)"
-						value={cardCloseDay}
-						onChange={e => setCardCloseDay(Number(e.target.value))}
-					/>
-					<div className="flex justify-between gap-4 mb-2">
-						<div className="flex flex-col items-center flex-1">
-							<label className="text-xs text-gray-300 mb-1">Cor do fundo</label>
+			<div className="fixed inset-x-4 top-1/2 z-50 max-w-md -translate-y-1/2 rounded-lg border border-white/10 bg-[#0d1117] p-6 text-slate-200 shadow-[0_20px_60px_-38px_rgba(0,0,0,0.9)] transition-all duration-300 sm:left-1/2 sm:right-auto sm:w-full sm:-translate-x-1/2">
+				<form className="flex flex-col gap-4" onSubmit={handleSubmit}>
+					<div>
+						<h1 className="text-xl font-semibold text-white">{isEdit ? 'Editar cartão' : 'Adicionar novo cartão'}</h1>
+						<p className="mt-1 text-sm text-slate-400">Informe os dados do cartão para acompanhar seus gastos.</p>
+					</div>
+
+					<div className="flex flex-col gap-2">
+						<label className="text-xs uppercase tracking-[0.2em] text-slate-300" htmlFor="cardName">Nome</label>
+						<input
+							id="cardName"
+							type="text"
+							className="w-full rounded-lg bg-transparent px-4 py-2.5 text-sm text-slate-200 border border-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-500 transition placeholder:text-slate-500"
+							placeholder="Nome do cartão"
+							value={name}
+							onChange={e => setName(e.target.value)}
+						/>
+					</div>
+
+					<div className="flex flex-col gap-2">
+						<label className="text-xs uppercase tracking-[0.2em] text-slate-300" htmlFor="cardCloseDay">Fechamento</label>
+						<input
+							id="cardCloseDay"
+							type="number"
+							className="w-full rounded-lg bg-transparent px-4 py-2.5 text-sm text-slate-200 border border-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-500 transition placeholder:text-slate-500"
+							placeholder="Dia de fechamento (1-31)"
+							value={cardCloseDay}
+							onChange={e => setCardCloseDay(Number(e.target.value))}
+						/>
+					</div>
+
+					<div className="grid grid-cols-2 gap-4">
+						<div className="rounded-lg border border-white/10 bg-white/[0.04] p-3">
+							<label className="text-xs uppercase text-slate-500">Cor do fundo</label>
 							<input
 								type="color"
 								value={color}
 								onChange={e => setColor(e.target.value)}
-								className="w-12 h-12 rounded-full border-2 border-slate-600 shadow-md cursor-pointer bg-transparent"
+								className="mt-2 h-10 w-full cursor-pointer rounded-lg border border-white/10 bg-transparent"
 							/>
 						</div>
-						<div className="flex flex-col items-center flex-1">
-							<label className="text-xs text-gray-300 mb-1">Cor da fonte</label>
+						<div className="rounded-lg border border-white/10 bg-white/[0.04] p-3">
+							<label className="text-xs uppercase text-slate-500">Cor da fonte</label>
 							<input
 								type="color"
 								value={colorFont}
 								onChange={e => setColorFont(e.target.value)}
-								className="w-12 h-12 rounded-full border-2 border-slate-600 shadow-md cursor-pointer bg-transparent"
+								className="mt-2 h-10 w-full cursor-pointer rounded-lg border border-white/10 bg-transparent"
 							/>
 						</div>
 					</div>
-					<div className="flex justify-end gap-4 mt-4">
-						<button className="px-5 py-2 rounded-xl border border-gray-400 hover:bg-gray-100 text-gray-800 bg-white/90 font-semibold transition-all duration-200" type="button" onClick={() => props.closeComponent()} disabled={isLoading}>Cancelar</button>
-						<button className="px-5 py-2 rounded-xl text-white font-semibold bg-gradient-to-r from-fuchsia-500 to-sky-500 hover:from-fuchsia-600 hover:to-sky-600 shadow-lg transition-all duration-200" type="submit" disabled={isLoading}>{isLoading ? 'Enviando...' : (isEdit ? 'Salvar' : 'Confirmar')}</button>
+
+					<div
+						className="rounded-lg border border-white/10 p-4"
+						style={{ background: color, color: colorFont }}
+					>
+						<p className="text-xs font-semibold uppercase tracking-[0.2em]">Preview</p>
+						<p className="mt-3 truncate text-lg font-semibold">{name || 'Nome do cartão'}</p>
+					</div>
+
+					<div className="flex flex-col justify-end gap-3 pt-2 sm:flex-row">
+						<button
+							className="rounded-lg border border-white/10 bg-transparent px-4 py-2.5 text-sm font-semibold text-slate-200 transition hover:bg-white/[0.06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0d1117] disabled:cursor-not-allowed disabled:opacity-60"
+							type="button"
+							onClick={() => props.closeComponent()}
+							disabled={isLoading}
+						>
+							Cancelar
+						</button>
+						<button
+							className="rounded-lg border border-emerald-300/30 bg-emerald-300 px-4 py-2.5 text-sm font-semibold text-slate-950 transition hover:bg-emerald-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0d1117] disabled:cursor-not-allowed disabled:opacity-60"
+							type="submit"
+							disabled={isLoading}
+						>
+							{isLoading ? 'Enviando...' : (isEdit ? 'Salvar' : 'Confirmar')}
+						</button>
 					</div>
 				</form>
 			</div>

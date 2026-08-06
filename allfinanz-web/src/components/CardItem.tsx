@@ -1,12 +1,10 @@
 import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
-import { Pen, Trash } from 'phosphor-react'
+import { Cpu, Pen, Trash } from 'phosphor-react'
 import { API } from '../services/api'
-import { date_now } from '../services/dateCreate'
 import { toast } from 'react-toastify'
 import Dialog from './Dialog'
 import { NewCard } from './NewCard'
-import { formatToBRL, formatToBRL_report } from '../services/amountFormat'
+import { formatToBRL } from '../services/amountFormat'
 
 interface CardProps {
 	backgroundValue: String,
@@ -23,13 +21,12 @@ export function CardItem(props: CardProps) {
 
 	useEffect(() => {
 		loadTotalMonth()
-	})
+	}, [props.totalCost])
 
 	let IDCard = props.IDCard
 	let colorFont = props.colorFont
 	let backgroundValue = props.backgroundValue
 	let [totalCost, setTotalCost] = useState(0)
-	let date = props.date
 	let [showDialog, setShowDialog] = useState(false)
 	let [showEdit, setShowEdit] = useState(false)
 
@@ -49,11 +46,6 @@ export function CardItem(props: CardProps) {
 			})
 	}
 
-	let displayValue = 'block';
-	if(!window.location.pathname.includes('modificar')){
-		// displayValue = totalCost < 1 ? 'none' : 'block';
-	}
-
 	return (
 		<>
 			{showEdit && (
@@ -69,15 +61,25 @@ export function CardItem(props: CardProps) {
 					}}
 				/>
 			)}
-			<div
-				className="min-w-[320px] max-w-[350px] h-[210px] shadow-xl rounded-2xl m-4 p-0 flex flex-col justify-between relative overflow-hidden transition-transform duration-200 hover:scale-105 hover:opacity-90"
-				style={{ background: backgroundValue as string, color: colorFont as string, display: displayValue }}
-			>
-				{/* Chip e ícones */}
-				<div className="flex items-center justify-between px-6 pt-5">
-					<div className="w-10 h-7 bg-yellow-400 rounded-md shadow-inner mr-2" title="chip" />
-					<div className="flex gap-2">
-						<p className="hover:text-red-500 cursor-pointer">
+			<div className="relative flex h-96 w-full flex-col overflow-hidden rounded-lg border border-white/10 bg-[#0d1117] p-5 text-slate-200 shadow-[0_20px_60px_-38px_rgba(0,0,0,0.9)] transition hover:bg-white/[0.03]">
+				<div
+					className="absolute inset-x-0 top-0 h-1"
+					style={{ background: backgroundValue as string }}
+				/>
+
+				<div className="flex items-start justify-between gap-4">
+					<div className="w-full">
+						<p className="text-xs uppercase tracking-[0.2em] text-slate-500">Cartão</p>
+						<h2 className="mt-1 truncate text-xl font-semibold text-white">{props.nameCard}</h2>
+					</div>
+
+					<div className="flex gap-2 text-slate-400">
+						<button
+							type="button"
+							aria-label={`Remover cartão ${props.nameCard}`}
+							title="Remover cartão"
+							className="rounded p-1 transition hover:text-red-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300"
+						>
 							<Dialog
 								title="Remover cartão?"
 								description={`Tem certeza que deseja remover o cartão '${props.nameCard}'? Essa ação não pode ser desfeita.`}
@@ -93,31 +95,40 @@ export function CardItem(props: CardProps) {
 									<Trash size={20} />
 								</span>
 							</Dialog>
-						</p>
-						<Link to="#" className="hover:text-sky-500" onClick={e => { e.preventDefault(); setShowEdit(true); }}><Pen size={20} /></Link>
+						</button>
+						<button
+							type="button"
+							aria-label={`Editar cartão ${props.nameCard}`}
+							title="Editar cartão"
+							className="rounded p-1 transition hover:text-emerald-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300"
+							onClick={() => setShowEdit(true)}
+						>
+							<Pen size={20} />
+						</button>
 					</div>
 				</div>
 
-				{/* Nome do banco */}
-				<div className="px-6 mt-2">
-					<h1 className="text-2xl font-bold tracking-widest uppercase drop-shadow-sm">{props.nameCard}</h1>
-				</div>
-
-				{/* Número fictício */}
-				<div className="px-6 mt-4">
-					<p className="text-lg tracking-widest font-mono select-none">**** **** **** 1234</p>
-				</div>
-
-				{/* Valor */}
-				<div className="px-6 mt-2 flex flex-col items-end">
-					<span className="text-xs">Uso do mês</span>
-					<p className="text-2xl font-bold">$ {formatToBRL(totalCost)}</p>
-				</div>
-
-				{/* Fechamento */}
-				<div className="absolute bottom-3 left-6 flex flex-col">
-					<span className="text-xs">Cierre de factura</span>
-					<span className="text-base font-semibold">dia {props.cardCloseDay}</span>
+				<div
+					className="relative mt-5 flex h-64 w-full flex-col justify-between overflow-hidden rounded-lg p-6 shadow-[0_20px_60px_-24px_rgba(0,0,0,0.8)]"
+					style={{ background: backgroundValue as string, color: colorFont as string }}
+				>
+						<div className="flex items-center justify-between gap-3">
+							<span className="flex h-8 w-10 items-center justify-center rounded-md bg-white/25 shadow-inner">
+								<Cpu size={24} weight="duotone" />
+							</span>
+							<span className="flex-1 truncate text-right text-xs font-semibold uppercase tracking-[0.2em]">{props.nameCard}</span>
+						</div>
+						<p className="font-mono text-sm tracking-[0.25em]">**** **** **** 1234</p>
+						<div className="grid grid-cols-2 gap-3 pt-3 text-xs">
+							<div>
+								<p className="uppercase opacity-70">Uso do mês</p>
+								<p className="mt-1 text-sm font-semibold">{formatToBRL(totalCost)}</p>
+							</div>
+							<div className="text-right">
+								<p className="uppercase opacity-70">Fechamento</p>
+								<p className="mt-1 text-sm font-semibold">Dia {props.cardCloseDay}</p>
+							</div>
+						</div>
 				</div>
 			</div>
 		</>
