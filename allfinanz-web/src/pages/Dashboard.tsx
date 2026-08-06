@@ -2,15 +2,14 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { logout } from '../services/auth'
 import { API } from '../services/api'
-import { TableListTransaction } from '../components/TableListTransaction'
-import { FiCalendar } from 'react-icons/fi'
+import { FiCalendar, FiRefreshCw } from 'react-icons/fi'
 
 import { toast } from 'react-toastify'
-import { SideBar } from '../components/SideBar'
 import { ChartReport, ChartReportProps } from '../components/ChartReport'
+import { DashboardCharts } from '../components/DashboardCharts'
+import { ChartTransaction } from '../services/chartData'
 import { ButtonAddTransaction } from '../components/ButtonAddTransaction'
 import { useUser } from '../contexts/UserContext'
-import { TransactionTotals } from '../components/TransactionTotals'
 
 function DateField({
 	id,
@@ -44,15 +43,41 @@ function DateField({
 	);
 }
 
+function formatDateInput(date: Date) {
+	const year = date.getFullYear();
+	const month = String(date.getMonth() + 1).padStart(2, '0');
+	const day = String(date.getDate()).padStart(2, '0');
+
+	return `${year}-${month}-${day}`;
+}
+
+function getSalaryCycleRange(offset: number, salaryDay: number) {
+	const now = new Date();
+	const currentCycleStartsThisMonth = now.getDate() >= salaryDay;
+	const cycleStartMonthOffset = currentCycleStartsThisMonth ? 0 : -1;
+	const startAnchor = new Date(now.getFullYear(), now.getMonth() + cycleStartMonthOffset + offset, salaryDay);
+	const endAnchor = new Date(now.getFullYear(), now.getMonth() + cycleStartMonthOffset + offset + 1, salaryDay - 1);
+
+	return {
+		date_init: formatDateInput(startAnchor),
+		date_end: formatDateInput(endAnchor),
+	};
+}
+
+// O backend armazena os valores em centavos; os gráficos trabalham em reais
+function toReais(item: ChartTransaction): ChartTransaction {
+	return { ...item, amount: (Number(item.amount) || 0) / 100 };
+}
+
 export function Dashboard() {
-	const [isLoadingTransactions, setIsLoadingTransactions] = useState<boolean>(false)
 	const [isLoadingReport, setIsLoadingReport] = useState<boolean>(false)
-	const [fixedTransactions, setFixedTransactions] = useState<any[]>([])
-	const [relativeTransactions, setRelativeTransactions] = useState<any[]>([])
 	const [report, setReport] = useState<ChartReportProps['list'] | null>(null)
+	const [fixedTransactions, setFixedTransactions] = useState<ChartTransaction[]>([])
+	const [variableTransactions, setVariableTransactions] = useState<ChartTransaction[]>([])
 	const [dateInit, setDateInit] = useState('')
 	const [dateEnd, setDateEnd] = useState('')
 	const [activeRange, setActiveRange] = useState<{ date_init: string; date_end: string } | null>(null)
+	const [activeShortcut, setActiveShortcut] = useState<'previous' | 'current' | 'next' | null>(null)
 	const navigate = useNavigate()
 
 	const { user } = useUser();
@@ -60,72 +85,45 @@ export function Dashboard() {
 	document.title = 'Allfinanz | Dashboard'
 
 	useEffect(() => {
-		loadTransactions();
 		loadReport();
 	}, [])
 
 	useEffect(() => {
 		if (!report?.period) return;
 		if (activeRange) return;
-		setDateInit(report.period.first_day_of_period || '');
-		setDateEnd(report.period.last_day_of_period || '');
+		setDateInit(report.period.start || '');
+		setDateEnd(report.period.end || '');
 	}, [report, activeRange])
-
-	async function loadTransactions(range?: { date_init: string; date_end: string }) {
-
-		try {
-			setIsLoadingTransactions(true)
-			const res = await API.get('/transaction/list', { 
-				withCredentials: true,
-				params: range
-			})
-			const data = res.data.transactions
-
-			// Validar que data.fixed e data.relatives são arrays
-			if (data.fixed && Array.isArray(data.fixed)) {
-				setFixedTransactions(data.fixed)
-			} else {
-				setFixedTransactions([])
-			}
-
-			if (data.relatives && Array.isArray(data.relatives)) {
-				setRelativeTransactions(data.relatives)
-			} else {
-				setRelativeTransactions([])
-			}
-
-		} catch (error: any) {
-
-			if(error.response.status == 401){
-				toast.error('Usuario não autenticado.');
-				logout()
-				navigate('/')
-			}else{
-				toast.error('Erro ao carregar transações.');
-				setFixedTransactions([])
-				setRelativeTransactions([])
-			}
-
-		} finally {
-			setIsLoadingTransactions(false)
-		}
-	}
 
 	async function loadReport(range?: { date_init: string; date_end: string }) {
 
 		try {
 			setIsLoadingReport(true)
-			const res = await API.get('/report', { 
-				withCredentials: true,
-				params: range
-			});
-			const data = res.data;
+			const [summaryRes, statementRes] = await Promise.all([
+				API.get('/report/summary', {
+					withCredentials: true,
+					params: range
+				}),
+				API.get('/transaction/list', {
+					withCredentials: true,
+					params: range
+				}),
+			]);
 
-			setReport(data);
+			setReport(summaryRes.data);
+
+			const statement = statementRes.data.statement;
+			if (statement) {
+				setFixedTransactions((statement.fixedExpenses?.items || []).map(toReais));
+				setVariableTransactions((statement.variableExpenses?.items || []).map(toReais));
+			} else {
+				setFixedTransactions((statementRes.data.transactions?.fixed || []).map(toReais));
+				setVariableTransactions((statementRes.data.transactions?.relatives || []).map(toReais));
+			}
 
 		} catch (error: any) {
 
-			if(error.response.status == 401){
+			if(error.response?.status == 401){
 				toast.error('Usuario não autenticado.');
 				logout()
 				navigate('/')
@@ -140,7 +138,6 @@ export function Dashboard() {
 
 	function updateView(range?: { date_init: string; date_end: string }){
 		const effectiveRange = range ?? activeRange ?? undefined;
-		loadTransactions(effectiveRange);
 		loadReport(effectiveRange);
 	}
 
@@ -155,6 +152,7 @@ export function Dashboard() {
 		}
 		const range = { date_init: dateInit, date_end: dateEnd };
 		setActiveRange(range);
+		setActiveShortcut(null);
 		updateView(range);
 	}
 
@@ -162,81 +160,171 @@ export function Dashboard() {
 		setDateInit('');
 		setDateEnd('');
 		setActiveRange(null);
-		updateView();
+		setActiveShortcut(null);
+		loadReport();
 	}
 
-	const isLoading = isLoadingTransactions || isLoadingReport
+	function handleMonthShortcut(offset: number) {
+		if (!user?.salary_day) {
+			toast.error('Dia do salário não configurado.');
+			return;
+		}
+		const range = getSalaryCycleRange(offset, user.salary_day);
+		const shortcut = offset === -1 ? 'previous' : offset === 0 ? 'current' : 'next';
+		setDateInit(range.date_init);
+		setDateEnd(range.date_end);
+		setActiveRange(range);
+		setActiveShortcut(shortcut);
+		updateView(range);
+	}
+
+	const isLoading = isLoadingReport
+	const shortcutButtonClassName = "rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2 text-xs font-semibold text-slate-200 transition hover:bg-white/[0.08] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0d1117] disabled:cursor-not-allowed disabled:opacity-60"
+	const shortcutSelectedClassName = "border-emerald-300/50 text-emerald-200"
+	const activeShortcutLabel = activeShortcut === 'previous'
+		? 'Mês passado'
+		: activeShortcut === 'current'
+			? 'Mês atual'
+			: activeShortcut === 'next'
+				? 'Próximo mês'
+				: 'Nenhum'
 
 	return (
-		<section className='flex w-5/6 mx-auto mt-0'>
-
+		<section className='text-slate-100 pb-24'>
 			<ButtonAddTransaction />
 
-			<section className='w-1/4 mr-6'>
-				<SideBar />
-			</section>
-			<section className='w-full pb-28 h-screen overflow-y-auto pr-4 scrollbar-thin scrollbar-thumb-brand-200 scrollbar-track-brand-600 hover:scrollbar-thumb-brand-100'>
-
-				<div className={isLoading ? "blur-sm animate-pulse transition" : "" + " mx-8"}>
-					{report && <ChartReport list={report} />}
+			<div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+				<div>
+					<p className="text-sm font-medium text-slate-400">Dashboard</p>
+					<h1 className="mt-1 text-2xl font-semibold text-white">Controle financeiro</h1>
+					<p className="mt-2 text-sm text-slate-400">
+						Acompanhe o dinheiro disponível, gastos do período e limite diário.
+					</p>
 				</div>
 
-				<section className={isLoading ? "blur-sm animate-pulse transition" : "" + " mx-8"}>
-					<div className="flex flex-wrap gap-4 justify-between items-start mx-2 w-full">
-						<span className="no-select p-3 bg-gray-200/10 w-full rounded-xl text-white mb-4 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
-							<FiCalendar className="inline mr-1" />
-							<span><strong>Período do relatório:</strong> {report?.period.first_day_of_period} até {report?.period.last_day_of_period}</span>
-							<span className="text-gray-300">•</span>
-							<span><strong>Dia do salário:</strong> {user?.salary_day}º</span>
-							<span className="text-gray-300">•</span>
-							<span><strong>Dias decorridos:</strong> {report?.period.today_day}</span>
-							<span className="text-gray-300">•</span>
-							<span><strong>Total de dias:</strong> {report?.period.total_days_in_period}</span>
-						</span>
-					</div>
+				<button
+					type="button"
+					className="inline-flex w-fit items-center gap-2 rounded-lg border border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm font-semibold text-slate-200 transition hover:bg-white/[0.08] disabled:cursor-not-allowed disabled:opacity-60"
+					onClick={() => updateView()}
+					disabled={isLoading}
+				>
+					<FiRefreshCw className={isLoading ? "animate-spin" : ""} />
+					Atualizar
+				</button>
+			</div>
 
-					<div className="mx-2 mb-4 rounded-2xl border border-slate-700/60 bg-gradient-to-br from-slate-900/80 via-slate-900/40 to-slate-800/60 p-4 shadow-[0_10px_30px_-18px_rgba(0,0,0,0.6)]">
-						<div className="flex flex-wrap items-end gap-3">
-							<DateField
-								id="dateInit"
-								label="Data inicial"
-								value={dateInit}
-								onChange={setDateInit}
-							/>
-							<DateField
-								id="dateEnd"
-								label="Data final"
-								value={dateEnd}
-								onChange={setDateEnd}
-							/>
-							<div className="flex items-center gap-2">
-								<button
-									type="button"
-									className="rounded-xl bg-sky-500/90 hover:bg-sky-400 text-slate-900 px-4 py-2 text-sm font-semibold transition shadow-[0_8px_20px_-12px_rgba(56,189,248,0.7)]"
-									onClick={handleApplyDateRange}
-								>
-									Aplicar
-								</button>
-								<button
-									type="button"
-									className="rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-200 px-4 py-2 text-sm font-semibold transition border border-slate-700/80"
-									onClick={handleClearDateRange}
-								>
-									Limpar
-								</button>
-							</div>
+			<div className={isLoading ? "animate-pulse transition" : ""}>
+				{report && (
+					<>
+						<ChartReport list={report} />
+						<DashboardCharts
+							period={{ ...report.period, totalDays: report.period.totalDays || 1 }}
+							money={report.money}
+							fixedTransactions={fixedTransactions}
+							variableTransactions={variableTransactions}
+						/>
+					</>
+				)}
+				{!report && (
+					<div className="rounded-lg border border-white/10 bg-[#0d1117] p-8 text-center text-slate-400">
+						{isLoading ? 'Carregando relatório...' : 'Nenhum relatório disponível.'}
+					</div>
+				)}
+			</div>
+
+			<section className={(isLoading ? "animate-pulse transition " : "") + "mt-4 space-y-4"}>
+				<div className="rounded-lg border border-white/10 bg-white/[0.04] p-4 text-slate-200">
+					<div className="flex items-center gap-2 text-sm font-semibold text-white">
+						<FiCalendar className="text-slate-400" />
+						Período do relatório
+					</div>
+					<div className="mt-4 grid gap-3 text-sm sm:grid-cols-2 xl:grid-cols-4">
+						<div>
+							<p className="text-xs uppercase text-slate-500">Intervalo</p>
+							<p className="mt-1 font-medium">{report?.period.start || '--'} até {report?.period.end || '--'}</p>
+						</div>
+						<div>
+							<p className="text-xs uppercase text-slate-500">Dia do salário</p>
+							<p className="mt-1 font-medium">{user?.salary_day ? `${user.salary_day}º` : '--'}</p>
+						</div>
+						<div>
+							<p className="text-xs uppercase text-slate-500">Dias decorridos</p>
+							<p className="mt-1 font-medium">{report?.period.currentDay ?? '--'}</p>
+						</div>
+						<div>
+							<p className="text-xs uppercase text-slate-500">Total de dias</p>
+							<p className="mt-1 font-medium">{report?.period.totalDays ?? '--'}</p>
 						</div>
 					</div>
-					
-					<TransactionTotals />
-				</section>
-				
-				<div className={isLoading ? "blur-sm animate-pulse transition" : "" + " mx-8"}>
-					<TableListTransaction title="Gastos Fixos" list={fixedTransactions} reload={updateView} />
 				</div>
 
-				<div className={isLoading ? "blur-sm animate-pulse transition" : "" + " mx-8 my-4"}>
-					<TableListTransaction title={"Gastos do mês"} list={relativeTransactions} reload={updateView} />
+				<div className="rounded-lg border border-white/10 bg-[#0d1117] p-4 shadow-[0_20px_60px_-38px_rgba(0,0,0,0.9)]">
+					<div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+						<div>
+							<p className="text-sm font-semibold text-white">Filtrar relatório</p>
+							<p className="mt-1 text-sm text-slate-400">Escolha um intervalo fechado para recalcular os indicadores.</p>
+							<p className="mt-2 text-xs uppercase tracking-[0.2em] text-slate-500">Selecionado: {activeShortcutLabel}</p>
+						</div>
+					</div>
+					<div className="flex flex-wrap items-end gap-3">
+						<DateField
+							id="dateInit"
+							label="Data inicial"
+							value={dateInit}
+							onChange={setDateInit}
+						/>
+						<DateField
+							id="dateEnd"
+							label="Data final"
+							value={dateEnd}
+							onChange={setDateEnd}
+						/>
+						<div className="flex flex-wrap items-center gap-2">
+							<button
+								type="button"
+								aria-pressed={activeShortcut === 'previous'}
+								className={`${shortcutButtonClassName} ${activeShortcut === 'previous' ? shortcutSelectedClassName : ''}`}
+								onClick={() => handleMonthShortcut(-1)}
+								disabled={isLoading}
+							>
+								Mês passado
+							</button>
+							<button
+								type="button"
+								aria-pressed={activeShortcut === 'current'}
+								className={`${shortcutButtonClassName} ${activeShortcut === 'current' ? shortcutSelectedClassName : ''}`}
+								onClick={() => handleMonthShortcut(0)}
+								disabled={isLoading}
+							>
+								Mês atual
+							</button>
+							<button
+								type="button"
+								aria-pressed={activeShortcut === 'next'}
+								className={`${shortcutButtonClassName} ${activeShortcut === 'next' ? shortcutSelectedClassName : ''}`}
+								onClick={() => handleMonthShortcut(1)}
+								disabled={isLoading}
+							>
+								Próximo mês
+							</button>
+							<button
+								type="button"
+								className="rounded-lg border border-emerald-300/30 bg-emerald-300 px-4 py-2.5 text-sm font-semibold text-slate-950 transition hover:bg-emerald-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0d1117] disabled:cursor-not-allowed disabled:opacity-60"
+								onClick={handleApplyDateRange}
+								disabled={isLoading}
+							>
+								Aplicar
+							</button>
+							<button
+								type="button"
+								className="rounded-lg border border-white/10 bg-transparent px-4 py-2.5 text-sm font-semibold text-slate-200 transition hover:bg-white/[0.06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0d1117] disabled:cursor-not-allowed disabled:opacity-60"
+								onClick={handleClearDateRange}
+								disabled={isLoading}
+							>
+								Limpar
+							</button>
+						</div>
+					</div>
 				</div>
 			</section>
 		</section>

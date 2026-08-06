@@ -1,4 +1,3 @@
-import { FiBarChart2, FiCreditCard, FiDollarSign } from "react-icons/fi";
 import { formatToBRL_report } from "../services/amountFormat";
 
 
@@ -6,28 +5,21 @@ export interface ChartReportProps {
   list: {
     success: boolean;
     period: {
-      first_day_of_period: string;
-      last_day_of_period: string;
-      days_in_period: number;
-      total_days_in_period: number;
-      today_day: number;
+      start: string;
+      end: string;
+      currentDay: number;
+      totalDays: number;
     };
-    salary: {
-      base: string;
-      balance: number;
-      daily_limit: number;
-    };
-    expenses: {
-      fixed: number;
-      relative: number;
-      total: number;
-    };
-    carryover: {
-      spent: number;
-      total_available: number;
-    };
-    savings: {
-      spent: number;
+    money: {
+      salary: number;
+      fixedExpenses: number;
+      variableExpenses: number;
+      totalExpenses: number;
+      available: number;
+      dailyLimit: number;
+      leisureSpent: number;
+      leisureAvailable: number;
+      savingsSpent: number;
     };
   };
 }
@@ -35,72 +27,108 @@ export interface ChartReportProps {
 
 export function ChartReport(props: ChartReportProps) {
   const { list } = props;
+  const progress = Math.min(
+    100,
+    Math.max(0, Math.round((list.period.currentDay / list.period.totalDays) * 100))
+  );
+  const availableTone = list.money.available < 0 ? "danger" : "good";
 
-  const Card = ({
-    title,
-    icon,
-    children,
+  const Metric = ({
+    label,
+    value,
+    tone = "default",
+    size = "default",
+    helper,
   }: {
-    title: string;
-    icon: React.ReactNode;
-    children: React.ReactNode;
+    label: string;
+    value: number;
+    tone?: "default" | "good" | "warn" | "danger";
+    size?: "default" | "large";
+    helper?: string;
   }) => (
-    <div className="mb-4 bg-slate-800 text-white p-6 rounded-2xl shadow-lg w-80 space-y-4 no-select">
-      <div className="flex items-center space-x-2 text-gray-300">
-        {icon}
-        <h4 className="text-sm font-semibold">{title}</h4>
-      </div>
-      <ul className="space-y-2 text-sm">{children}</ul>
+    <div className={[
+      "rounded-lg border border-white/10 bg-white/[0.04] p-5 no-select",
+      size === "large" ? "flex min-h-[240px] flex-col justify-center bg-[#0d1117] shadow-[0_20px_60px_-32px_rgba(0,0,0,0.8)]" : "",
+    ].join(" ")}>
+      <p className={[
+        "font-medium uppercase text-slate-400",
+        size === "large" ? "text-sm" : "text-xs",
+      ].join(" ")}>
+        {label}
+      </p>
+      <p className={[
+        "mt-3 break-words font-semibold tracking-normal",
+        size === "large" ? "text-4xl sm:text-5xl" : "text-2xl",
+        tone === "good" ? "text-emerald-300" : "",
+        tone === "warn" ? "text-amber-300" : "",
+        tone === "danger" ? "text-rose-300" : "",
+        tone === "default" ? "text-slate-50" : "",
+      ].join(" ")}>
+        {formatToBRL_report(value)}
+      </p>
+      {helper && <p className="mt-3 text-sm text-slate-400">{helper}</p>}
     </div>
   );
 
   return (
-    <section className="flex flex-wrap gap-4 justify-between items-start mx-2 w-full">
-      <Card title="Resumo de Despesas" icon={<FiBarChart2 className="text-gray-400" />}>
-        <li className="flex justify-between">
-          <p>Despesas Fixas</p>
-          <p>{formatToBRL_report(list.expenses.fixed)}</p>
-        </li>
-        <li className="flex justify-between">
-          <p>Despesas Variáveis</p>
-          <p>{formatToBRL_report(list.expenses.relative)}</p>
-        </li>
-        <hr className="border-gray-600" />
-        <li className="flex justify-between font-semibold">
-          <p>Total de Despesas</p>
-          <p>{formatToBRL_report(list.expenses.total)}</p>
-        </li>
-      </Card>
+    <section className="w-full text-white">
+      <div className="grid gap-4 xl:grid-cols-[1.2fr_0.8fr]">
+        <div>
+          <Metric
+            label="Disponível para gastar"
+            value={list.money.available}
+            size="large"
+            tone={availableTone}
+            helper={`Limite diário sugerido: ${formatToBRL_report(list.money.dailyLimit)}`}
+          />
+          <div className="mt-4 grid gap-3 sm:grid-cols-3">
+            <Metric label="Entrada mensal" value={list.money.salary} tone="good" />
+            <Metric label="Despesas totais" value={list.money.totalExpenses} tone="warn" />
+            <Metric label="Limite diário" value={list.money.dailyLimit} />
+          </div>
+        </div>
 
-      <Card title="Controle de Limites" icon={<FiCreditCard className="text-gray-400" />}>
-        <li className="flex justify-between">
-          <p>Limite Utilizado</p>
-          <p>{formatToBRL_report(list.carryover.spent)}</p>
-        </li>
-        <li className="flex justify-between">
-          <p>Limite Disponível</p>
-          <p>{formatToBRL_report(list.carryover.total_available)}</p>
-        </li>
-        <li className="flex justify-between">
-          <p>Limite Diário</p>
-          <p>{formatToBRL_report(list.salary.daily_limit)}</p>
-        </li>
-      </Card>
+        <div className="rounded-lg border border-white/10 bg-[#0d1117] p-5 shadow-[0_20px_60px_-38px_rgba(0,0,0,0.9)]">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <p className="text-xs font-medium uppercase text-slate-400">Avanço do período</p>
+              <p className="mt-2 text-3xl font-semibold text-white">{progress}%</p>
+            </div>
+            <p className="rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2 text-sm text-slate-300">
+              {list.period.currentDay}/{list.period.totalDays} dias
+            </p>
+          </div>
 
-      <Card title="Análise do Salário" icon={<FiDollarSign className="text-gray-400" />}>
-        <li className="flex justify-between">
-          <p>Salário Base</p>
-          <p>{formatToBRL_report(parseFloat(list.salary.base))}</p>
-        </li>
-        <li className="flex justify-between">
-          <p>Total de Despesas</p>
-          <p>{formatToBRL_report(list.expenses.total)}</p>
-        </li>
-        <li className="flex justify-between font-semibold text-emerald-400">
-          <p>Disponível para Lazer</p>
-          <p>{formatToBRL_report(list.salary.balance)}</p>
-        </li>
-      </Card>
+          <div className="mt-5 h-3 overflow-hidden rounded-full bg-white/[0.07]">
+            <div
+              className="h-full rounded-full bg-emerald-300 transition-[width]"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+
+          <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
+            <Metric label="Gastos fixos" value={list.money.fixedExpenses} tone="warn" />
+            <Metric label="Gastos variáveis" value={list.money.variableExpenses} />
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-4 grid gap-3 md:grid-cols-3">
+        <Metric
+          label="Lazer usado"
+          value={list.money.leisureSpent}
+          tone="warn"
+        />
+        <Metric
+          label="Lazer disponível"
+          value={list.money.leisureAvailable}
+          tone={list.money.leisureAvailable < 0 ? "danger" : "good"}
+        />
+        <Metric
+          label="Economias usadas"
+          value={list.money.savingsSpent}
+        />
+      </div>
     </section>
   );
 }
