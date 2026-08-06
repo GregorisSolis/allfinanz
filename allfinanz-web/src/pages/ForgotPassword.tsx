@@ -1,5 +1,4 @@
 import { FormEvent, useState } from "react"
-import { Navbar } from "../components/Navbar"
 import { API } from "../services/api"
 
 export function ForgotPassword() {

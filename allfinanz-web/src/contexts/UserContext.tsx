@@ -18,6 +18,8 @@ interface UserContextType {
   clearUser: () => void;
   isAuthenticated: boolean;
   setIsAuthenticated: (status: boolean) => void;
+  isLoadingUser: boolean;
+  reloadUser: () => Promise<void>;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -29,28 +31,38 @@ interface UserProviderProps {
 export function UserProvider({ children }: UserProviderProps) {
   const [user, setUser] = useState<User | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [isLoadingUser, setIsLoadingUser] = useState<boolean>(true);
+
+  const reloadUser = async () => {
+    const response = await API.get('/user/info-user', { withCredentials: true });
+    if (response.data.user) {
+      setUser({
+        name: response.data.user.name,
+        email: response.data.user.email,
+        avatar: response.data.user.imageUrl,
+        salary_day: response.data.user.salary_day
+      });
+    }
+  };
 
   useEffect(() => {
     const loadUserDataAndAuth = async () => {
+      setIsLoadingUser(true);
       try {
         const authStatus = await checkAuthentication();
         setIsAuthenticated(authStatus);
 
         if (authStatus) {
-          const response = await API.get('/user/info-user', { withCredentials: true });
-          if (response.data.user) {
-            setUser({
-              name: response.data.user.name,
-              email: response.data.user.email,
-              avatar: response.data.user.imageUrl,
-              salary_day: response.data.user.salary_day
-            });
-          }
+          await reloadUser();
+        } else {
+          setUser(null);
         }
       } catch (error) {
         console.log('Erro ao carregar dados do usuário ou verificar autenticação:', error);
         setIsAuthenticated(false);
         setUser(null);
+      } finally {
+        setIsLoadingUser(false);
       }
     };
 
@@ -76,7 +88,9 @@ export function UserProvider({ children }: UserProviderProps) {
     updateSalaryDay,
     clearUser,
     isAuthenticated,
-    setIsAuthenticated
+    setIsAuthenticated,
+    isLoadingUser,
+    reloadUser
   };
 
   return (

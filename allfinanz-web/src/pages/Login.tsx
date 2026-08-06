@@ -38,7 +38,8 @@ export function Login() {
 						setUser({
 							name: resp.data.user.name,
 							email: resp.data.user.email,
-							avatar: resp.data.user.imageUrl
+							avatar: resp.data.user.imageUrl,
+							salary_day: resp.data.user.salary_day
 						});
 						setIsAuthenticated(true);
 						navigate("/dashboard");
@@ -51,63 +52,82 @@ export function Login() {
 	}
 
 	return (
-		<div className="my-4 bg-slate-900 text-white p-6 rounded-xl shadow-lg max-w-md mx-auto ">
+		<div className="flex items-center justify-center min-h-screen px-4">
+		<div className="w-full bg-[#0d1117] text-slate-100 p-6 rounded-lg border border-white/10 shadow-[0_20px_60px_-38px_rgba(0,0,0,0.9)] max-w-md">
 
 			<form className="space-y-6" onSubmit={setLogin} noValidate>
-				
-				<div className="flex justify-center w-full my-12 mx-auto">
-					<h2 className="text-4xl font-thin">Login</h2>
+
+				<div className="flex flex-col items-center w-full my-10 mx-auto">
+					<h2 className="text-2xl font-semibold text-white">Login</h2>
+					<p className="mt-2 text-sm text-slate-400">Acesse sua conta para continuar.</p>
 				</div>
 
-				<div className="flex items-center max-w-3xl border border-slate-700 border-2 rounded bg-transparent px-4 py-3 mb-4">
-					<FiMail className="text-xl text-slate-400 mr-2" />
-					<input
-						type="email"
-						id="email"
-						placeholder="E-mail"
-						className="bg-transparent outline-none text-xl w-full"
-						onChange={e => setEmail(e.target.value)}
-					/>
+				<div className="flex flex-col">
+					<label className="text-xs uppercase tracking-[0.2em] text-slate-300 mb-2" htmlFor="email">E-mail</label>
+					<div className="flex items-center rounded-lg border border-slate-700 bg-transparent px-4 py-2.5 transition focus-within:ring-2 focus-within:ring-slate-500">
+						<FiMail className="text-sm text-slate-400 mr-2 flex-shrink-0" />
+						<input
+							type="email"
+							id="email"
+							placeholder="seu@email.com"
+							className="bg-transparent outline-none text-sm text-slate-200 w-full placeholder:text-slate-500"
+							onChange={e => setEmail(e.target.value)}
+						/>
+					</div>
 				</div>
 
-				<div className="flex items-center max-w-3xl border border-slate-700 border-2 rounded bg-transparent px-4 py-3">
-					<FiLock className="text-xl text-slate-400 mr-2" />
-					<input
-						id="password"
-						type={showPassword ? "text" : "password"}
-						placeholder="Senha"
-						className="bg-transparent outline-none text-xl w-full"
-						onChange={e => setPassword(e.target.value)}
-						autoComplete="off"
-					/>
+				<div className="flex flex-col">
+					<label className="text-xs uppercase tracking-[0.2em] text-slate-300 mb-2" htmlFor="password">Senha</label>
+					<div className="flex items-center rounded-lg border border-slate-700 bg-transparent px-4 py-2.5 transition focus-within:ring-2 focus-within:ring-slate-500">
+						<FiLock className="text-sm text-slate-400 mr-2 flex-shrink-0" />
+						<input
+							id="password"
+							type={showPassword ? "text" : "password"}
+							placeholder="••••••••"
+							className="bg-transparent outline-none text-sm text-slate-200 w-full placeholder:text-slate-500"
+							onChange={e => setPassword(e.target.value)}
+							autoComplete="off"
+						/>
+						<button
+							type="button"
+							onClick={() => setShowPassword(!showPassword)}
+							className="focus:outline-none ml-2 flex-shrink-0"
+							tabIndex={-1}
+						>
+							{showPassword ? (
+								<FiEyeOff className="text-sm text-slate-400 hover:text-slate-200 transition" />
+							) : (
+								<FiEye className="text-sm text-slate-400 hover:text-slate-200 transition" />
+							)}
+						</button>
+					</div>
+				</div>
+
+				<div className="pt-4">
 					<button
-						type="button"
-						onClick={() => setShowPassword(!showPassword)}
-						className="focus:outline-none ml-2"
-						tabIndex={-1}
+						type="submit"
+						className="w-full rounded-lg border border-emerald-300/30 bg-emerald-300 px-4 py-2.5 text-sm font-semibold text-slate-950 transition hover:bg-emerald-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0d1117]"
 					>
-						{showPassword ? (
-						<FiEyeOff className="text-xl text-slate-400" />
-						) : (
-						<FiEye className="text-xl text-slate-400" />
-						)}
-					</button>
-				</div>
-
-				<div className='items-center max-w-3xl mt-10 pt-10'>
-					<button 
-						type="submit" 
-						className="w-full text-lg my-8 bg-sky-600 py-4 hover:bg-sky-500 rounded m-auto"
-					>
-						<b>Entrar</b>
+						Entrar
 					</button>
 				</div>
 			</form>
 
-			<div className='w-full flex justify-between aling-center my-2 py-2'>
-				<a className="hover:text-sky-500 hover:underline transition" href="/registrate">Criar conta</a>
-				<a className="hover:text-sky-500 hover:underline transition" href="/recuperar-cuenta">Esqueci minha senha</a>
+			<div className="w-full flex justify-between items-center mt-6 pt-4 border-t border-white/10">
+				<a
+					className="rounded-lg border border-white/10 bg-transparent px-4 py-2.5 text-sm font-semibold text-slate-200 transition hover:bg-white/[0.06] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300"
+					href="/registrate"
+				>
+					Criar conta
+				</a>
+				<a
+					className="rounded-lg border border-white/10 bg-transparent px-4 py-2.5 text-sm font-semibold text-slate-200 transition hover:bg-white/[0.06] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300"
+					href="/recuperar-cuenta"
+				>
+					Esqueci minha senha
+				</a>
 			</div>
+		</div>
 		</div>
 	)
 }

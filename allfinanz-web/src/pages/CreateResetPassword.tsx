@@ -1,6 +1,5 @@
 import { FormEvent, useState } from "react"
 import { Navigate, useNavigate, useParams } from "react-router-dom"
-import { Navbar } from "../components/Navbar"
 import { API } from "../services/api"
 import { login } from "../services/auth"
 
