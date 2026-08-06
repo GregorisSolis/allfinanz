@@ -3,7 +3,7 @@ const authMiddleware = require('../middlewares/auth')
 const Transaction = require('../models/transaction')
 const User = require('../models/user')
 
-const { buildDateFilter } = require('../../core/utils');
+const { buildDateFilter, toDecimalFormat, formatToTwoDecimals } = require('../../core/utils');
 
 const router = express.Router()
 
@@ -42,6 +42,81 @@ function normalizeInstallments(payload, existing = {}) {
             dividedIn,
             isDivided
         }
+    };
+}
+
+function getSalaryPeriod(salaryDay = 1) {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth();
+
+    let periodMonth = month;
+    let periodYear = year;
+
+    if (now.getDate() < salaryDay) {
+        periodMonth = month - 1;
+
+        if (periodMonth < 0) {
+            periodMonth = 11;
+            periodYear = year - 1;
+        }
+    }
+
+    return {
+        start: new Date(periodYear, periodMonth, salaryDay),
+        end: new Date(periodYear, periodMonth + 1, salaryDay - 1, 23, 59, 59, 999)
+    };
+}
+
+function normalizeDateRange(dateInit, dateEnd, salaryDay) {
+    if (dateInit && dateEnd) {
+        const filter = buildDateFilter(dateInit, dateEnd);
+        return {
+            filter,
+            start: filter.date.$gte,
+            end: filter.date.$lte
+        };
+    }
+
+    const period = getSalaryPeriod(salaryDay);
+
+    return {
+        filter: buildDateFilter(period.start, period.end),
+        start: period.start,
+        end: period.end
+    };
+}
+
+function sortByDateDesc(transactions) {
+    return transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+}
+
+function sumTransactions(transactions) {
+    return formatToTwoDecimals(
+        transactions.reduce((total, transaction) => total + toDecimalFormat(transaction.amount), 0)
+    );
+}
+
+function buildStatement(period, fixed, variable) {
+    const fixedExpenses = fixed.filter(transaction => transaction.source === 'salary');
+    const variableExpenses = variable.filter(transaction => transaction.source === 'salary');
+
+    return {
+        period: {
+            start: period.start.toISOString().split('T')[0],
+            end: period.end.toISOString().split('T')[0]
+        },
+        fixedExpenses: {
+            total: sumTransactions(fixedExpenses),
+            count: fixedExpenses.length,
+            items: sortByDateDesc(fixedExpenses)
+        },
+        variableExpenses: {
+            total: sumTransactions(variableExpenses),
+            count: variableExpenses.length,
+            items: sortByDateDesc(variableExpenses)
+        },
+        totalExpenses: sumTransactions([...fixedExpenses, ...variableExpenses])
     };
 }
 
@@ -103,67 +178,29 @@ router.get('/list', async (req, res) => {
             return res.status(404).send({ message: 'User not found.' });
         }
         
-        let dateFilter;
-        
-        if(date_init && date_end){
-            // Usar as datas fornecidas nos parâmetros
-            dateFilter = buildDateFilter(date_init, date_end);
-        } else {
-            // Calcular período baseado no dia do salário (padrão)
-            const salary_day = user.salary_day || 1;
-            const now = new Date();
-            const year = now.getFullYear();
-            const month = now.getMonth();
-    
-            // Se hoje é antes do dia do salário, o período é do mês anterior
-            // Se hoje é no dia do salário ou depois, o período é do mês atual
-            let periodMonth, periodYear;
-            
-            if (now.getDate() < salary_day) {
-                // Estamos antes do dia do salário, período é do mês anterior
-                periodMonth = month - 1;
-                periodYear = year;
-                
-                // Ajustar para dezembro do ano anterior se necessário
-                if (periodMonth < 0) {
-                    periodMonth = 11;
-                    periodYear = year - 1;
-                }
-            } else {
-                // Estamos no dia do salário ou depois, período é do mês atual
-                periodMonth = month;
-                periodYear = year;
-            }
-    
-            // Primeiro dia do período: dia do salário do mês do período
-            const firstDayOfPeriod = new Date(periodYear, periodMonth, salary_day);
-            
-            // Último dia do período: dia anterior ao dia do salário do mês seguinte
-            const lastDayOfPeriod = new Date(periodYear, periodMonth + 1, salary_day - 1, 23, 59, 59, 999);
-    
-            // Construção de filtro de fechas baseado no período do salário
-            dateFilter = buildDateFilter(firstDayOfPeriod, lastDayOfPeriod);
-        }
+        const salary_day = user.salary_day || 1;
+        const period = normalizeDateRange(date_init, date_end, salary_day);
 
         // Construção de query base
         const baseQuery = { user: user_id };
 
         // Consultas paralelas para melhor rendimento
         const [relatives, fixed] = await Promise.all([
-            Transaction.find({ 
-                ...baseQuery, 
+            Transaction.find({
+                ...baseQuery,
                 fixed: false,
-                ...dateFilter 
-            }),
-            Transaction.find({ 
-                ...baseQuery, 
+                ...period.filter
+            }).sort({ date: -1 }),
+            Transaction.find({
+                ...baseQuery,
                 fixed: true
-            })
+            }).sort({ date: -1 })
         ]);
 
-        return res.status(200).json({ 
+        return res.status(200).json({
             success: true,
-            transactions: { relatives, fixed }
+            transactions: { relatives, fixed },
+            statement: buildStatement(period, fixed, relatives)
         });
 
     } catch (err) {
