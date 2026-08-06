@@ -1,5 +1,6 @@
-import { useState, useEffect, FormEvent } 	from 'react'
+import { useState, useEffect, FormEvent, ChangeEvent } 	from 'react'
 import { useNavigate, useParams } 						from 'react-router-dom'
+import { FiCreditCard, FiDollarSign, FiEdit3, FiRepeat, FiSave, FiTag } from 'react-icons/fi'
 
 
 import { typePayOptions } 			from '../services/typePayOptions'
@@ -9,8 +10,12 @@ import { setDividedInTransaction }  from '../services/operationDividedIn'
 import { API } 						from '../services/api'
 import { toast } from 'react-toastify'
 import Dialog from '../components/Dialog'
-import { formatToBRL, formatToNumber } from '../services/amountFormat'
-import { SideBar } from '../components/SideBar'
+import { formatToBRL } from '../services/amountFormat'
+
+const fieldWrapperClassName = 'flex flex-col gap-2'
+const labelClassName = 'text-xs uppercase tracking-[0.2em] text-slate-300'
+const fieldClassName = 'w-full rounded-lg bg-transparent px-4 py-3 text-sm text-slate-200 border border-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-500 transition placeholder:text-slate-500 disabled:cursor-not-allowed disabled:opacity-60'
+const selectClassName = `${fieldClassName} bg-[#0d1117]`
 
 export function FormTransaction() {
 
@@ -120,16 +125,21 @@ export function FormTransaction() {
 			return;
 		}
 
-		if (dividedIn >= 2) {
+		if (!isUpdate && dividedIn >= 2) {
 			if (dividedIn >= 120) {
 				toast.info(`Como as parcelas excedem dois anos, recomendamos que você o adicione como uma categoria: 'Custo fixo' e as parcelas em '0'.`)
 			} else {
-				setDividedInTransaction(amount, description, category, type, card, dividedIn, true, fixed)
-				toast.info(`A transação foi dividida em ${dividedIn} parcelas, o valor a ser pago nos próximos ${dividedIn} meses é: R$ ${formatToBRL(amount / dividedIn)}`)
-				setAmount(0)
-				setDescription('')
-				setDividedIn(0)
-				setShowDialog(true)
+				try {
+					await setDividedInTransaction(amount, description, category, type, source, card, dividedIn, true, fixed)
+					toast.info(`A transação foi dividida em ${dividedIn} parcelas, o valor a ser pago nos próximos ${dividedIn} meses é: R$ ${formatToBRL(amount / dividedIn)}`)
+					setAmount(0)
+					setInputValue('')
+					setDescription('')
+					setDividedIn(0)
+					setShowDialog(true)
+				} catch (error) {
+					toast.error('Não foi possível adicionar a transação parcelada.')
+				}
 			}
 			return;
 		}
@@ -143,7 +153,6 @@ export function FormTransaction() {
 						description,
 						category,
 						type,
-						date,
 						card,
 						dividedIn,
 						isDivided: dividedIn > 0,
@@ -209,7 +218,7 @@ export function FormTransaction() {
 		setShowDialog(false);
 	}
 
-	function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+	function handleChange(e: ChangeEvent<HTMLInputElement>) {
 		const raw = e.target.value.replace(/\D/g, ''); // Solo números
 	  
 		const numeric = Number(raw);
@@ -219,57 +228,70 @@ export function FormTransaction() {
 		setInputValue(formatted);
 	}
 
-	return (
-		<section className='flex w-5/6 mx-auto my-5'>
-			<section className='w-1/4 mr-6'>
-				<SideBar />
-			</section>
-		
-			<div className="my-0 bg-slate-900 text-white p-6 rounded-xl shadow-lg w-full mx-auto">
+		return (
+			<section className="text-slate-100 pb-24">
+				<div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+					<div>
+						<p className="text-sm font-medium text-slate-400">{id ? 'Editar gasto' : 'Novo gasto'}</p>
+						<h1 className="mt-1 text-2xl font-semibold text-white">{ id ? 'Editar transação' : 'Adicionar transação' }</h1>
+						<p className="mt-2 text-sm text-slate-400">
+							Registre despesas, parcelamentos e recorrências no seu controle financeiro.
+						</p>
+					</div>
+				</div>
+
+				<div className="rounded-lg border border-white/10 bg-[#0d1117] p-4 shadow-[0_20px_60px_-38px_rgba(0,0,0,0.9)] sm:p-6">
+					<div className="mb-6 flex items-center gap-2 text-sm font-semibold text-white">
+						<FiEdit3 className="text-slate-400" />
+						Dados da transação
+					</div>
 
 				<form
 					className="space-y-6"
 					onSubmit={id ? setUpdateTransaction : setNewTransaction}
 					noValidate
 				>
-					<h2 className="text-2xl font-thin">{ id ? "Editar" : "Nova" } Transação</h2>
-
-					{/* Formulario principal */}
-					<div className='grid grid-cols-[1fr_4fr] items-center gap-x-4 max-w-3xl m-auto'>
-						<label className='text-right' htmlFor="description">Descrição</label>
+					<div className="grid gap-4 lg:grid-cols-2">
+					<div className={fieldWrapperClassName}>
+						<label className={labelClassName} htmlFor="description">Descrição</label>
 						<input
 							type="text"
 							id="description"
 							placeholder="Exemplo: Mercado do mês..."
-							className="rounded bg-transparent px-4 py-3 outline-none text-xl w-full border border-slate-700 border-2"
+							className={fieldClassName}
 							onChange={e => setDescription(e.target.value)}
 							value={description}
 							autoComplete="off"
 						/>
 					</div>
 					
-					<div className='grid grid-cols-[1fr_4fr] items-center gap-x-4 max-w-3xl m-auto'>
-						<label className='text-right' htmlFor="amount">
+					<div className={fieldWrapperClassName}>
+						<label className={labelClassName} htmlFor="amount">
 							Valor <small className='text-muted'>(R$)</small>
 						</label>
-						<input
-							type="text"
-							id="amount"
-							placeholder="Valor"
-							className="rounded bg-transparent px-4 py-3 outline-none text-xl w-full border border-slate-700 border-2"
-							onChange={handleChange}
-							value={inputValue}
-							autoComplete="off"
-						/>
+						<div className="relative">
+							<div className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-slate-400">
+								<FiDollarSign size={16} />
+							</div>
+							<input
+								type="text"
+								id="amount"
+								placeholder="0,00"
+								className={`${fieldClassName} pl-10`}
+								onChange={handleChange}
+								value={inputValue}
+								autoComplete="off"
+							/>
+						</div>
 					</div>
 
-					<div className="grid grid-cols-[1fr_4fr] items-center gap-x-4 max-w-3xl m-auto">
-						<label className="text-right" htmlFor='category'>Categoria</label>
+					<div className={fieldWrapperClassName}>
+						<label className={labelClassName} htmlFor='category'>Categoria</label>
 						<select
 							id="category"
 							value={category}
 							onChange={e => setCategory(e.target.value)}
-							className="rounded bg-slate-900 px-4 py-3 outline-none text-xl w-full border border-slate-700 border-2"
+							className={selectClassName}
 						>
 							{categoryOptions.map(option => (
 								<option key={option.value} value={option._id}>
@@ -279,13 +301,13 @@ export function FormTransaction() {
 						</select>
 					</div>
 
-					<div className="grid grid-cols-[1fr_4fr] items-center gap-x-4 max-w-3xl m-auto">
-						<label className="text-right" htmlFor='source'>Descontar</label>
+					<div className={fieldWrapperClassName}>
+						<label className={labelClassName} htmlFor='source'>Descontar</label>
 						<select
 							id="source"
 							value={source}
 							onChange={e => setSource(e.target.value)}
-							className="rounded bg-slate-900 px-4 py-3 outline-none text-xl w-full border border-slate-700 border-2"
+							className={selectClassName}
 						>
 							<option value="">Selecione</option>
 							<option value="salary">Descontar do salário</option>
@@ -295,14 +317,14 @@ export function FormTransaction() {
 						</select>
 					</div>
 					
-					<div className='grid grid-cols-[1fr_4fr] items-center gap-x-4 max-w-3xl m-auto'>
-						<label className='text-right' htmlFor="dividedIn">N° Parcelas</label>
+					<div className={fieldWrapperClassName}>
+						<label className={labelClassName} htmlFor="dividedIn">Parcelas</label>
 						<input
 							type="number"
 							id="dividedIn"
 							min="0"
-							placeholder="N° de parcelas"
-							className="rounded bg-transparent px-4 py-3 outline-none text-xl w-full border border-slate-700 border-2"
+							placeholder="0"
+							className={fieldClassName}
 							onChange={(e) => setDividedIn(Number(e.target.value))}
 							value={dividedIn}
 							autoComplete="off"
@@ -310,12 +332,12 @@ export function FormTransaction() {
 						/>
 					</div> 
 					
-					<div className="grid grid-cols-[1fr_4fr] items-center gap-x-4 max-w-3xl m-auto">
-						<label className="text-right" htmlFor="fixed">Gasto fixo</label>
-						<div className="flex items-center gap-2">
+					<div className="rounded-lg border border-white/10 bg-white/[0.04] p-4">
+						<label className="flex items-start gap-3" htmlFor="fixed">
 							<input
 								type="checkbox"
 								id="fixed"
+								className="mt-1 h-4 w-4 rounded border-slate-600 bg-transparent text-emerald-300 focus:ring-emerald-300"
 								checked={fixed}
 								onChange={(e) => {
 									const checked = e.target.checked;
@@ -326,17 +348,20 @@ export function FormTransaction() {
 									}
 								}}
 							/>
-							<span className="text-sm text-slate-300">Transação recorrente mensal</span>
-						</div>
+							<span>
+								<span className="block text-sm font-semibold text-white">Gasto fixo</span>
+								<span className="mt-1 block text-sm text-slate-400">Transação recorrente mensal, sem parcelamento.</span>
+							</span>
+						</label>
 					</div>
 
-					<div className="grid grid-cols-[1fr_4fr] items-center gap-x-4 max-w-3xl m-auto">
-						<label className="text-right" htmlFor='type'>Tipo de Pagamento</label>
+					<div className={fieldWrapperClassName}>
+						<label className={labelClassName} htmlFor='type'>Tipo de pagamento</label>
 						<select
 							id="type"
 							value={type}
 							onChange={e => setType(e.target.value)}
-							className="rounded bg-slate-900 px-4 py-3 outline-none text-xl w-full border border-slate-700 border-2"
+							className={selectClassName}
 						>
 							{typePayOptions.map(option => (
 								<option key={option.value} value={option._id}>
@@ -345,17 +370,18 @@ export function FormTransaction() {
 							))}
 						</select>
 					</div>
+					</div>
 					
 
 					{/* Mostrar select de cartões apenas se o tipo for crédito */}
 					{type === '1' && (
-						<div className="grid grid-cols-[1fr_4fr] items-center gap-x-4 max-w-3xl m-auto">
-							<label className="text-right" htmlFor='card'>Cartão</label>
+						<div className={fieldWrapperClassName}>
+							<label className={labelClassName} htmlFor='card'>Cartão</label>
 							<select
 								id="card"
 								value={card}
 								onChange={e => setCard(e.target.value)}
-								className="rounded bg-slate-900 px-4 py-3 outline-none text-xl w-full border border-slate-700 border-2"
+								className={selectClassName}
 								disabled={cards?.length === 0}
 							>
 								{cards.length > 0 ? (
@@ -375,15 +401,21 @@ export function FormTransaction() {
 					)}
 		
 					{/* Botón */}
-					<div className="flex justify-center">
+					<div className="flex flex-col gap-3 border-t border-white/10 pt-6 sm:flex-row sm:items-center sm:justify-between">
+						<div className="flex items-center gap-2 text-sm text-slate-400">
+							{fixed ? <FiRepeat className="text-slate-500" /> : type === '1' ? <FiCreditCard className="text-slate-500" /> : <FiTag className="text-slate-500" />}
+							{fixed ? 'Será tratado como gasto mensal recorrente.' : dividedIn > 1 ? `Será dividido em ${dividedIn} parcelas.` : 'Preencha os dados para salvar.'}
+						</div>
 						<button
 							type="submit"
-							className="bg-sky-600 hover:bg-sky-500 py-3 px-10 rounded text-lg font-semibold transition"
+							className="inline-flex items-center justify-center gap-2 rounded-lg border border-emerald-300/30 bg-emerald-300 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-emerald-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0d1117]"
 						>
+							<FiSave />
 							{id ? "Editar" : "Adicionar"}
 						</button>
 					</div>
 				</form>
+				</div>
 
 				<Dialog
 					open={showDialog}
@@ -393,10 +425,9 @@ export function FormTransaction() {
 					onConfirm={handleGoToDashboard}
 					onCancel={handleAddAnother}
 					confirmText="Ir para o Dashboard"
-					cancelText={id ? "Continuar Aditando" : "Adicionar Outra"}
+					cancelText={id ? "Continuar Editando" : "Adicionar Outra"}
 					confirmVariant="default"
 				/>
-			</div>
-		</section>
+			</section>
 	);
 }

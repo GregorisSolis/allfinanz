@@ -28,4 +28,6 @@ export const categoryOptions = [
 	},
 	{ _id: 14, value: 'others', name: 'Outros', description: 'Despesas que não se encaixam nas categorias anteriores.'
 	},
+	{ _id: 15, value: 'debt_payment', name: 'Renegociação', description: 'Parcelas de dívidas renegociadas e acordos de pagamento.'
+	},
 ];

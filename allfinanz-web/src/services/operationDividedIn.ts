@@ -2,27 +2,43 @@ import { API } from './api'
 import { date_now } from './dateCreate'
 
 
-export const setDividedInTransaction = (value: number, description:string ,category: string,type: string,card: string,dividedIn: number,isDivided: boolean, fixed: boolean) => {
+export async function setDividedInTransaction(
+	value: number,
+	description: string,
+	category: string,
+	type: string,
+	source: string,
+	card: string,
+	dividedIn: number,
+	isDivided: boolean,
+	fixed: boolean
+) {
+	const baseDate = new Date(`${date_now()}T12:00:00`);
+	const installmentValue = Math.floor(value / dividedIn);
+	const remainder = value % dividedIn;
 
-	let dateString = date_now() // format YYYY-MM-DD
-	let parts = dateString.split('-');
-	let year = parseInt(parts[0]);
-	let month = parseInt(parts[1]);
-	
-	let date = {}
-	let valueDivided: number
+	const requests = Array.from({ length: dividedIn }, (_, index) => {
+		const installmentDate = new Date(baseDate);
+		installmentDate.setMonth(baseDate.getMonth() + index);
+		installmentDate.setDate(1);
 
-	valueDivided = value / dividedIn
+		return API.post(
+			'/transaction/',
+			{
+				source,
+				amount: installmentValue + (index < remainder ? 1 : 0),
+				description,
+				category,
+				type,
+				date: installmentDate.toISOString().slice(0, 10),
+				card,
+				dividedIn,
+				isDivided,
+				fixed
+			},
+			{ withCredentials: true }
+		);
+	});
 
-	for(let running = 0; running < dividedIn; running++){
-		if(month === 13){
-			month = 1
-			year++
-		}
-		date = {year,month,day:1}
-
-		API.post('/operation/new-transaction', {value: (valueDivided).toFixed(2), description, category, type, date, card, dividedIn, isDivided})
-
-		month++
-	}
+	await Promise.all(requests);
 }
