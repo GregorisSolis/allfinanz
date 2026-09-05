@@ -60,7 +60,7 @@ export function Extract() {
 	let [description, setDescription] = useState('')
 	let [activeShortcut, setActiveShortcut] = useState<'previous' | 'current' | 'next' | null>(null)
 
-	const shortcutButtonClassName = "flex-1 rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2 text-xs font-semibold text-slate-200 transition hover:bg-white/[0.08] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0d1117] sm:flex-none"
+	const shortcutButtonClassName = "min-w-0 rounded-lg border border-white/10 bg-white/[0.04] px-2.5 py-2 text-center text-xs font-semibold leading-tight text-slate-200 transition hover:bg-white/[0.08] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0d1117] sm:flex-none sm:px-3"
 	const shortcutSelectedClassName = "border-emerald-300/50 text-emerald-200"
 
 	function splitTransactions(items: TransactionItem[]) {
@@ -165,39 +165,39 @@ export function Extract() {
 				<div className="w-full px-3 py-4 sm:p-4">
 					<ButtonAddTransaction />
 
-					<form onSubmit={setSearch} className="w-full rounded-lg border border-white/10 bg-[#0d1117] p-3 shadow-[0_20px_60px_-38px_rgba(0,0,0,0.9)] sm:p-4">
-						<div className="flex flex-col gap-1 mb-5">
+					<form onSubmit={setSearch} className="w-full max-w-full overflow-hidden rounded-lg border border-white/10 bg-[#0d1117] p-3 shadow-[0_20px_60px_-38px_rgba(0,0,0,0.9)] sm:p-4">
+						<div className="flex min-w-0 flex-col gap-1 mb-5">
 							<h2 className="text-sm font-semibold text-white">Filtros</h2>
-							<p className="text-sm text-slate-400">Refine o extrato por período, descrição, categoria ou cartão.</p>
+							<p className="break-words text-sm text-slate-400">Refine o extrato por período, descrição, categoria ou cartão.</p>
 						</div>
 
 						<div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-12 gap-3 sm:gap-4 items-end">
-							<div className="xl:col-span-2 flex flex-col">
-								<label className="text-xs uppercase tracking-[0.2em] text-slate-300 mb-2" htmlFor="startDate">Data início</label>
-								<input id="startDate" type="date" className="w-full rounded-lg bg-transparent px-4 py-2.5 text-sm text-slate-200 border border-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-500 transition" onChange={e => setStartDate(e.target.value)} value={startDate} />
+							<div className="min-w-0 xl:col-span-2 flex flex-col">
+								<label className="text-xs uppercase tracking-[0.12em] text-slate-300 mb-2 sm:tracking-[0.2em]" htmlFor="startDate">Data início</label>
+								<input id="startDate" type="date" className="w-full min-w-0 rounded-lg bg-transparent px-3 py-2.5 text-sm text-slate-200 border border-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-500 transition sm:px-4" onChange={e => setStartDate(e.target.value)} value={startDate} />
 							</div>
-							<div className="xl:col-span-2 flex flex-col">
-								<label className="text-xs uppercase tracking-[0.2em] text-slate-300 mb-2" htmlFor="endDate">Data fim</label>
-								<input id="endDate" type="date" className="w-full rounded-lg bg-transparent px-4 py-2.5 text-sm text-slate-200 border border-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-500 transition" onChange={e => setEndDate(e.target.value)} value={endDate} />
+							<div className="min-w-0 xl:col-span-2 flex flex-col">
+								<label className="text-xs uppercase tracking-[0.12em] text-slate-300 mb-2 sm:tracking-[0.2em]" htmlFor="endDate">Data fim</label>
+								<input id="endDate" type="date" className="w-full min-w-0 rounded-lg bg-transparent px-3 py-2.5 text-sm text-slate-200 border border-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-500 transition sm:px-4" onChange={e => setEndDate(e.target.value)} value={endDate} />
 							</div>
-							<div className="md:col-span-2 xl:col-span-4 flex flex-col">
-								<label className="text-xs uppercase tracking-[0.2em] text-slate-300 mb-2" htmlFor="description">Descrição</label>
-								<input id="description" type="text" placeholder="Exemplo: Mercado do mês..." className="w-full rounded-lg bg-transparent px-4 py-2.5 text-sm text-slate-200 border border-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-500 transition placeholder:text-slate-500" onChange={e => setDescription(e.target.value)} value={description} autoComplete="off" />
+							<div className="min-w-0 md:col-span-2 xl:col-span-4 flex flex-col">
+								<label className="text-xs uppercase tracking-[0.12em] text-slate-300 mb-2 sm:tracking-[0.2em]" htmlFor="description">Descrição</label>
+								<input id="description" type="text" placeholder="Exemplo: Mercado do mês..." className="w-full min-w-0 rounded-lg bg-transparent px-3 py-2.5 text-sm text-slate-200 border border-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-500 transition placeholder:text-slate-500 sm:px-4" onChange={e => setDescription(e.target.value)} value={description} autoComplete="off" />
 							</div>
-							<div className="xl:col-span-2 flex flex-col">
-								<label className="text-xs uppercase tracking-[0.2em] text-slate-300 mb-2" htmlFor="category">Categoria</label>
-								<select id="category" className="w-full rounded-lg bg-transparent px-4 py-2.5 text-sm text-slate-200 border border-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-500 transition" onChange={e => setCategory(e.target.value)} value={category}>
+							<div className="min-w-0 xl:col-span-2 flex flex-col">
+								<label className="text-xs uppercase tracking-[0.12em] text-slate-300 mb-2 sm:tracking-[0.2em]" htmlFor="category">Categoria</label>
+								<select id="category" className="w-full min-w-0 rounded-lg bg-transparent px-3 py-2.5 text-sm text-slate-200 border border-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-500 transition sm:px-4" onChange={e => setCategory(e.target.value)} value={category}>
 									<option value="">Selecione</option>
 									{categoryOptions.map(option => (
 										<option key={option._id} value={option._id}>{option.name}</option>
 									))}
 								</select>
 							</div>
-							<div className="xl:col-span-2 flex flex-col">
-								<label className="text-xs uppercase tracking-[0.2em] text-slate-300 mb-2" htmlFor="card">Cartão</label>
+							<div className="min-w-0 xl:col-span-2 flex flex-col">
+								<label className="text-xs uppercase tracking-[0.12em] text-slate-300 mb-2 sm:tracking-[0.2em]" htmlFor="card">Cartão</label>
 								<select
 									id="card"
-									className="w-full rounded-lg bg-transparent px-4 py-2.5 text-sm text-slate-200 border border-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-500 transition"
+									className="w-full min-w-0 rounded-lg bg-transparent px-3 py-2.5 text-sm text-slate-200 border border-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-500 transition sm:px-4"
 									onChange={e => setCard(e.target.value)}
 									value={card}
 									disabled={cards.length === 0}
@@ -217,7 +217,7 @@ export function Extract() {
 						</div>
 
 						<div className="mt-5 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-							<div className="grid grid-cols-3 gap-2 sm:flex sm:flex-wrap sm:items-center">
+							<div className="grid min-w-0 grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center">
 								<button
 									type="button"
 									aria-pressed={activeShortcut === 'previous'}
@@ -237,25 +237,25 @@ export function Extract() {
 								<button
 									type="button"
 									aria-pressed={activeShortcut === 'next'}
-									className={`${shortcutButtonClassName} ${activeShortcut === 'next' ? shortcutSelectedClassName : ''}`}
+									className={`${shortcutButtonClassName} col-span-2 sm:col-span-1 ${activeShortcut === 'next' ? shortcutSelectedClassName : ''}`}
 									onClick={() => handleShortcut(1)}
 								>
 									Próximo mês
 								</button>
 							</div>
 
-							<div className="grid grid-cols-2 gap-3 sm:flex sm:flex-row sm:justify-end">
+							<div className="grid min-w-0 grid-cols-2 gap-2 sm:flex sm:flex-row sm:justify-end sm:gap-3">
 								<button
 									type="button"
 									onClick={clearFilters}
-									className="inline-flex items-center justify-center gap-2 rounded-lg border border-white/10 bg-transparent px-4 py-2.5 text-sm font-semibold text-slate-200 transition hover:bg-white/[0.06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0d1117]"
+									className="inline-flex min-w-0 items-center justify-center gap-2 rounded-lg border border-white/10 bg-transparent px-3 py-2.5 text-sm font-semibold text-slate-200 transition hover:bg-white/[0.06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0d1117] sm:px-4"
 								>
 									<FiX />
 									Limpar
 								</button>
 								<button
 									type='submit'
-									className="inline-flex items-center justify-center gap-2 rounded-lg border border-emerald-300/30 bg-emerald-300 px-4 py-2.5 text-sm font-semibold text-slate-950 transition hover:bg-emerald-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0d1117]"
+									className="inline-flex min-w-0 items-center justify-center gap-2 rounded-lg border border-emerald-300/30 bg-emerald-300 px-3 py-2.5 text-sm font-semibold text-slate-950 transition hover:bg-emerald-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0d1117] sm:px-4"
 								>
 									<FiSearch />
 									Buscar
