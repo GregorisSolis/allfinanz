@@ -16,6 +16,16 @@ function generateToken(params = {}) {
 	})
 }
 
+function getTokenCookieOptions() {
+	const isProduction = process.env.NODE_ENV === 'production'
+
+	return {
+		httpOnly: true,
+		secure: isProduction,
+		sameSite: isProduction ? 'none' : 'lax',
+		maxAge: 8 * 60 * 60 * 1000 // 8 horas
+	}
+}
 
 //REGISTER USER
 router.post('/register', async (req, res) => {
@@ -37,11 +47,7 @@ router.post('/register', async (req, res) => {
 
 		const token = generateToken({ id: user.id })
 
-		res.cookie('token', token, {
-			httpOnly: true,
-			sameSite: 'lax',
-			maxAge: 8 * 60 * 60 * 1000 // 8 horas
-		});
+		res.cookie('token', token, getTokenCookieOptions());
 
 		return res.send({ user })
 	}
@@ -69,11 +75,7 @@ router.post('/authenticate', async (req, res) => {
 	user.password = undefined
 	const token = generateToken({ id: user.id })
 
-	res.cookie('token', token, {
-		httpOnly: true,
-		sameSite: 'lax',
-		maxAge: 8 * 60 * 60 * 1000 // 8 horas
-	});
+	res.cookie('token', token, getTokenCookieOptions());
 
 	res.send({ user })
 })
@@ -243,7 +245,7 @@ router.get('/auth-check', authMiddleware, (req, res) => {
 
 // Endpoint para logout (limpar o cookie)
 router.post('/logout', (req, res) => {
-	res.clearCookie('token');
+	res.clearCookie('token', getTokenCookieOptions());
 	res.send({ message: 'Logout realizado com sucesso.' });
 });
 

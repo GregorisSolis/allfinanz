@@ -6,11 +6,17 @@ const cors = require('cors')
 const cookieParser = require('cookie-parser')
 const app = express();
 
+app.set('trust proxy', 1);
+
 // Lista de origens permitidas
 const allowedOrigins = [
   'http://localhost:5173',
-  'https://allfinanz.web.app'
-  // Adicione outros domínios permitidos aqui
+  'https://allfinanz.web.app',
+  'https://allfinanz.vercel.app',
+  ...(process.env.FRONTEND_URLS || '')
+    .split(',')
+    .map(origin => origin.trim())
+    .filter(Boolean),
 ];
 
 app.use(cors({
