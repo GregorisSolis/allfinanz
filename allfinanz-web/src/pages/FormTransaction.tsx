@@ -43,6 +43,7 @@ export function FormTransaction() {
 	let [dividedIn, setDividedIn] = useState(0)
 	let [isDivided, setIsDivided] = useState(false)
 	let [fixed, setFixed] = useState(false)
+	let [transactionDate, setTransactionDate] = useState(date_now())
 
 	//cargas las tarjetas
 	async function loadCards() {
@@ -66,6 +67,12 @@ export function FormTransaction() {
 				setDividedIn(data.dividedIn || 0);
 				setIsDivided(data.isDivided || false);
 				setFixed(data.fixed || false);
+				if (data.date) {
+					const dateStr = new Date(data.date).toLocaleDateString('sv-SE', {
+						timeZone: 'America/Sao_Paulo',
+					});
+					setTransactionDate(dateStr);
+				}
 			})
 			.catch(() => {
 				toast.error('Não foi possível carregar a transação.');
@@ -119,7 +126,7 @@ export function FormTransaction() {
 
 		setIsDivided(dividedIn > 0);
 
-		let date = date_now();
+		let date = transactionDate;
 
 		if (!validateAndPrepareTransaction({ amount, type, description, category, source, dividedIn })) {
 			return;
@@ -130,7 +137,7 @@ export function FormTransaction() {
 				toast.info(`Como as parcelas excedem dois anos, recomendamos que você o adicione como uma categoria: 'Custo fixo' e as parcelas em '0'.`)
 			} else {
 				try {
-					await setDividedInTransaction(amount, description, category, type, source, card, dividedIn, true, fixed)
+					await setDividedInTransaction(amount, description, category, type, source, card, dividedIn, true, fixed, transactionDate)
 					toast.info(`A transação foi dividida em ${dividedIn} parcelas, o valor a ser pago nos próximos ${dividedIn} meses é: R$ ${formatToBRL(amount / dividedIn)}`)
 					setAmount(0)
 					setInputValue('')
@@ -153,6 +160,7 @@ export function FormTransaction() {
 						description,
 						category,
 						type,
+						date,
 						card,
 						dividedIn,
 						isDivided: dividedIn > 0,
@@ -215,6 +223,7 @@ export function FormTransaction() {
 		setDividedIn(0);
 		setIsDivided(false);
 		setFixed(false);
+		setTransactionDate(date_now());
 		setShowDialog(false);
 	}
 
@@ -317,6 +326,17 @@ export function FormTransaction() {
 						</select>
 					</div>
 					
+				<div className={fieldWrapperClassName}>
+						<label className={labelClassName} htmlFor="transactionDate">Data da transação</label>
+						<input
+							type="date"
+							id="transactionDate"
+							className={fieldClassName}
+							value={transactionDate}
+							onChange={e => setTransactionDate(e.target.value)}
+						/>
+					</div>
+
 					<div className={fieldWrapperClassName}>
 						<label className={labelClassName} htmlFor="dividedIn">Parcelas</label>
 						<input

@@ -11,9 +11,10 @@ export async function setDividedInTransaction(
 	card: string,
 	dividedIn: number,
 	isDivided: boolean,
-	fixed: boolean
+	fixed: boolean,
+	baseDateStr?: string
 ) {
-	const baseDate = new Date(`${date_now()}T12:00:00`);
+	const baseDate = new Date(`${baseDateStr || date_now()}T12:00:00`);
 	const installmentValue = Math.floor(value / dividedIn);
 	const remainder = value % dividedIn;
 
