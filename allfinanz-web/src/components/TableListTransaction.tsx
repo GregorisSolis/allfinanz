@@ -103,12 +103,90 @@ import { useTransaction } from "../contexts/TransactionContext";
 		}
 
 		return (
-			<div className="rounded-lg border border-white/10 bg-[#0d1117] p-4 text-slate-200 shadow-[0_20px_60px_-38px_rgba(0,0,0,0.9)] w-full">
+			<div className="rounded-lg border border-white/10 bg-[#0d1117] p-3 text-slate-200 shadow-[0_20px_60px_-38px_rgba(0,0,0,0.9)] w-full sm:p-4">
 
 				<div className="flex justify-between items-center mb-4">
 					<h2 className="text-sm font-semibold text-white">{title}</h2>
 				</div>
-				<div className="overflow-x-auto">
+				<div className="space-y-3 md:hidden">
+					{list.map((item, index) => (
+						<div key={item._id || index} className="rounded-lg border border-white/10 bg-white/[0.03] p-3">
+							<div className="flex items-start justify-between gap-3">
+								<label className="flex min-w-0 flex-1 items-start gap-3">
+									<input
+										type="checkbox"
+										checked={selected.includes(item._id)}
+										onChange={() => toggleSelect(item._id)}
+										className="mt-1 h-4 w-4 shrink-0 cursor-pointer appearance-none rounded-sm border border-white/20 bg-transparent checked:border-emerald-300 checked:bg-emerald-300 checked:bg-center checked:bg-no-repeat"
+									/>
+									<span className="min-w-0">
+										<span className="block break-words text-sm font-semibold text-white">{item.description || 'N/A'}</span>
+										<span className="mt-1 block text-xs text-slate-400">{typePayOptions[item.type]?.name || 'N/A'} · {categoryOptions[item.category]?.name || 'N/A'}</span>
+									</span>
+								</label>
+
+								<div className="relative shrink-0">
+									<button
+										onClick={(e) => {
+											e.stopPropagation();
+											setOpenMenuId(openMenuId === item._id ? null : item._id);
+										}}
+										className="text-slate-400 hover:text-white p-2 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#0d1117] focus:ring-emerald-300"
+										aria-label="Ações da transação"
+									>
+										<FiMoreVertical size={18} />
+									</button>
+
+									{openMenuId === item._id && (
+										<div
+											className="absolute right-0 top-9 w-40 bg-[#0d1117] border border-white/10 rounded-md shadow-lg z-20"
+											onMouseLeave={() => setOpenMenuId(null)}
+										>
+											<ul className="py-1">
+												<li>
+													<Link to={"/gasto/"+item._id}
+														className="w-full text-left px-4 py-2 text-sm text-slate-300 hover:bg-white/[0.06] flex items-center"
+														title="Editar"
+													>
+														<FiEdit size={16} className="mr-3" />
+														Editar
+													</Link>
+												</li>
+												<li>
+													<button
+														className="w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-white/[0.06] flex items-center"
+														title="Remover"
+														onClick={() => removeTransaction(item._id)}
+													>
+														<FiTrash2 size={16} className="mr-3" />
+														Remover
+													</button>
+												</li>
+											</ul>
+										</div>
+									)}
+								</div>
+							</div>
+
+							<div className="mt-3 grid grid-cols-2 gap-2 text-xs">
+								<div className="rounded-lg bg-white/[0.04] p-2">
+									<p className="uppercase text-slate-500">Cartão</p>
+									<p className="mt-1 truncate font-medium text-slate-200">{getCardName(item.card)}</p>
+								</div>
+								<div className="rounded-lg bg-white/[0.04] p-2 text-right">
+									<p className="uppercase text-slate-500">Valor</p>
+									<p className="mt-1 font-semibold text-white">{formatToBRL(item.amount || 0)}</p>
+								</div>
+							</div>
+						</div>
+					))}
+
+					<div className="rounded-lg border border-white/10 bg-white/[0.04] p-3 text-right">
+						<p className="text-xs uppercase text-slate-500">Total {selected.length > 0 ? '(selecionados)' : ''}</p>
+						<p className="mt-1 text-xl font-semibold text-white">{formatToBRL(total)}</p>
+					</div>
+				</div>
+				<div className="hidden overflow-x-auto md:block">
 					<table className="table-auto w-full border-collapse">
 						<thead>
 							<tr className="">

@@ -47,8 +47,8 @@ export function ChartReport(props: ChartReportProps) {
     helper?: string;
   }) => (
     <div className={[
-      "rounded-lg border border-white/10 bg-white/[0.04] p-5 no-select",
-      size === "large" ? "flex min-h-[240px] flex-col justify-center bg-[#0d1117] shadow-[0_20px_60px_-32px_rgba(0,0,0,0.8)]" : "",
+      "rounded-lg border border-white/10 bg-white/[0.04] p-4 no-select sm:p-5",
+      size === "large" ? "flex min-h-[180px] flex-col justify-center bg-[#0d1117] shadow-[0_20px_60px_-32px_rgba(0,0,0,0.8)] sm:min-h-[240px]" : "",
     ].join(" ")}>
       <p className={[
         "font-medium uppercase text-slate-400",
@@ -58,7 +58,7 @@ export function ChartReport(props: ChartReportProps) {
       </p>
       <p className={[
         "mt-3 break-words font-semibold tracking-normal",
-        size === "large" ? "text-4xl sm:text-5xl" : "text-2xl",
+        size === "large" ? "text-3xl sm:text-5xl" : "text-xl sm:text-2xl",
         tone === "good" ? "text-emerald-300" : "",
         tone === "warn" ? "text-amber-300" : "",
         tone === "danger" ? "text-rose-300" : "",
@@ -88,7 +88,7 @@ export function ChartReport(props: ChartReportProps) {
           </div>
         </div>
 
-        <div className="rounded-lg border border-white/10 bg-[#0d1117] p-5 shadow-[0_20px_60px_-38px_rgba(0,0,0,0.9)]">
+        <div className="rounded-lg border border-white/10 bg-[#0d1117] p-4 shadow-[0_20px_60px_-38px_rgba(0,0,0,0.9)] sm:p-5">
           <div className="flex items-start justify-between gap-4">
             <div>
               <p className="text-xs font-medium uppercase text-slate-400">Avanço do período</p>

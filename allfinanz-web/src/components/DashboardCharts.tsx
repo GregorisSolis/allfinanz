@@ -51,7 +51,7 @@ const GRID = 'rgba(255,255,255,0.06)'
 
 function ChartCard({ children, className = '' }: { children: React.ReactNode; className?: string }) {
 	return (
-		<div className={`rounded-lg border border-white/10 bg-[#0d1117] p-5 shadow-[0_20px_60px_-38px_rgba(0,0,0,0.9)] ${className}`}>
+		<div className={`rounded-lg border border-white/10 bg-[#0d1117] p-4 shadow-[0_20px_60px_-38px_rgba(0,0,0,0.9)] sm:p-5 ${className}`}>
 			{children}
 		</div>
 	)
@@ -88,7 +88,7 @@ function SpendByCategory({ items, total }: { items: ChartTransaction[]; total: n
 
 	return (
 		<div className="grid items-center gap-2 sm:grid-cols-2">
-			<div className="relative h-[260px]">
+			<div className="relative h-[220px] sm:h-[260px]">
 				<ResponsiveContainer width="100%" height="100%">
 					<PieChart>
 						<Pie
@@ -176,9 +176,9 @@ function SpendingPace({ series, currentDay }: { series: SpendPoint[]; currentDay
 				</div>
 			</div>
 
-			<div className="h-[280px]">
+			<div className="h-[230px] sm:h-[280px]">
 				<ResponsiveContainer width="100%" height="100%">
-					<AreaChart data={series} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
+					<AreaChart data={series} margin={{ top: 4, right: 4, left: -12, bottom: 0 }}>
 						<defs>
 							<linearGradient id="gradActual" x1="0" y1="0" x2="0" y2="1">
 								<stop offset="0%" stopColor={EMERALD} stopOpacity={0.35} />
@@ -198,7 +198,7 @@ function SpendingPace({ series, currentDay }: { series: SpendPoint[]; currentDay
 							tick={{ fill: '#94a3b8', fontSize: 10 }}
 							tickLine={false}
 							axisLine={false}
-							width={58}
+							width={46}
 							tickFormatter={(value) => formatToBRL_report(Number(value))}
 						/>
 						<Tooltip
@@ -245,9 +245,9 @@ function CashFlowBar({ money }: { money: ChartReportMoney }) {
 	]
 
 	return (
-		<div className="h-[280px]">
+		<div className="h-[230px] sm:h-[280px]">
 			<ResponsiveContainer width="100%" height="100%">
-				<BarChart data={data} layout="vertical" margin={{ top: 4, right: 24, left: 0, bottom: 0 }}>
+				<BarChart data={data} layout="vertical" margin={{ top: 4, right: 8, left: -8, bottom: 0 }}>
 					<CartesianGrid stroke={GRID} horizontal={false} />
 					<XAxis
 						type="number"
@@ -256,7 +256,7 @@ function CashFlowBar({ money }: { money: ChartReportMoney }) {
 						axisLine={false}
 						tickFormatter={(value) => formatToBRL_report(Number(value))}
 					/>
-					<YAxis type="category" dataKey="label" width={76} tick={{ fill: '#cbd5e1', fontSize: 12 }} tickLine={false} axisLine={false} />
+					<YAxis type="category" dataKey="label" width={68} tick={{ fill: '#cbd5e1', fontSize: 11 }} tickLine={false} axisLine={false} />
 					<Tooltip
 						cursor={{ fill: 'rgba(255,255,255,0.03)' }}
 						content={({ active, payload }) => {

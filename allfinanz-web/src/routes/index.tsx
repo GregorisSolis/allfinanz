@@ -12,7 +12,7 @@ import { PageNotFound } from "../pages/PageNotFound";
 import { ForgotPassword } from "../pages/ForgotPassword";
 import { CreateResetPassword } from '../pages/CreateResetPassword'
 import Loading from '../components/Loading'
-import { SideBar } from '../components/SideBar'
+import { MobileFloatingMenu, SideBar } from '../components/SideBar'
 import { Reports } from '../pages/Reports'
 
 import { ToastContainer } from 'react-toastify';
@@ -38,6 +38,7 @@ const AppShell = ({ children }: { children: React.ReactNode }) => (
 		<main className="min-w-0 h-screen overflow-y-auto py-5 md:py-6 md:pr-2 scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent hover:scrollbar-thumb-slate-600">
 			{children}
 		</main>
+		<MobileFloatingMenu />
 	</div>
 );
 

@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import { API } from '../services/api';
+import { API, getAuthToken } from '../services/api';
 
 interface User {
   name: string;
@@ -49,7 +49,12 @@ export function UserProvider({ children }: UserProviderProps) {
     const loadUserDataAndAuth = async () => {
       setIsLoadingUser(true);
       try {
-        const authStatus = await checkAuthentication();
+        let authStatus = await checkAuthentication();
+
+        if (!authStatus && getAuthToken()) {
+          authStatus = await checkAuthentication();
+        }
+
         setIsAuthenticated(authStatus);
 
         if (authStatus) {

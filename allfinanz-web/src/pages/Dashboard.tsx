@@ -23,7 +23,7 @@ function DateField({
 	onChange: (value: string) => void;
 }) {
 	return (
-		<div className="flex flex-col gap-2 min-w-[190px]">
+		<div className="flex w-full flex-col gap-2 sm:min-w-[190px] sm:flex-1 lg:flex-none">
 			<label className="text-xs uppercase tracking-[0.2em] text-slate-300" htmlFor={id}>
 				{label}
 			</label>
@@ -190,13 +190,13 @@ export function Dashboard() {
 				: 'Nenhum'
 
 	return (
-		<section className='text-slate-100 pb-24'>
+		<section className='px-3 pb-24 text-slate-100 sm:px-4 md:px-0'>
 			<ButtonAddTransaction />
 
 			<div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
 				<div>
 					<p className="text-sm font-medium text-slate-400">Dashboard</p>
-					<h1 className="mt-1 text-2xl font-semibold text-white">Controle financeiro</h1>
+					<h1 className="mt-1 text-xl font-semibold text-white sm:text-2xl">Controle financeiro</h1>
 					<p className="mt-2 text-sm text-slate-400">
 						Acompanhe o dinheiro disponível, gastos do período e limite diário.
 					</p>
@@ -266,7 +266,7 @@ export function Dashboard() {
 							<p className="mt-2 text-xs uppercase tracking-[0.2em] text-slate-500">Selecionado: {activeShortcutLabel}</p>
 						</div>
 					</div>
-					<div className="flex flex-wrap items-end gap-3">
+					<div className="grid gap-3 sm:grid-cols-2 lg:flex lg:flex-wrap lg:items-end">
 						<DateField
 							id="dateInit"
 							label="Data inicial"
@@ -279,7 +279,7 @@ export function Dashboard() {
 							value={dateEnd}
 							onChange={setDateEnd}
 						/>
-						<div className="flex flex-wrap items-center gap-2">
+						<div className="grid grid-cols-2 gap-2 sm:col-span-2 sm:grid-cols-5 lg:flex lg:flex-wrap lg:items-center">
 							<button
 								type="button"
 								aria-pressed={activeShortcut === 'previous'}
@@ -309,7 +309,7 @@ export function Dashboard() {
 							</button>
 							<button
 								type="button"
-								className="rounded-lg border border-emerald-300/30 bg-emerald-300 px-4 py-2.5 text-sm font-semibold text-slate-950 transition hover:bg-emerald-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0d1117] disabled:cursor-not-allowed disabled:opacity-60"
+								className="rounded-lg border border-emerald-300/30 bg-emerald-300 px-4 py-2.5 text-sm font-semibold text-slate-950 transition hover:bg-emerald-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0d1117] disabled:cursor-not-allowed disabled:opacity-60 sm:col-auto"
 								onClick={handleApplyDateRange}
 								disabled={isLoading}
 							>
@@ -317,7 +317,7 @@ export function Dashboard() {
 							</button>
 							<button
 								type="button"
-								className="rounded-lg border border-white/10 bg-transparent px-4 py-2.5 text-sm font-semibold text-slate-200 transition hover:bg-white/[0.06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0d1117] disabled:cursor-not-allowed disabled:opacity-60"
+								className="rounded-lg border border-white/10 bg-transparent px-4 py-2.5 text-sm font-semibold text-slate-200 transition hover:bg-white/[0.06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0d1117] disabled:cursor-not-allowed disabled:opacity-60 sm:col-auto"
 								onClick={handleClearDateRange}
 								disabled={isLoading}
 							>

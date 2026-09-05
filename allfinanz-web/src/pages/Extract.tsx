@@ -60,7 +60,7 @@ export function Extract() {
 	let [description, setDescription] = useState('')
 	let [activeShortcut, setActiveShortcut] = useState<'previous' | 'current' | 'next' | null>(null)
 
-	const shortcutButtonClassName = "rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2 text-xs font-semibold text-slate-200 transition hover:bg-white/[0.08] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0d1117]"
+	const shortcutButtonClassName = "flex-1 rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2 text-xs font-semibold text-slate-200 transition hover:bg-white/[0.08] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0d1117] sm:flex-none"
 	const shortcutSelectedClassName = "border-emerald-300/50 text-emerald-200"
 
 	function splitTransactions(items: TransactionItem[]) {
@@ -160,18 +160,18 @@ export function Extract() {
 
 	return (
 		<>
-			<div className="w-full pb-28 h-screen overflow-y-auto pr-4 scrollbar-thin scrollbar-thumb-brand-200 scrollbar-track-brand-600 hover:scrollbar-thumb-brand-100">
+			<div className="w-full pb-28 h-screen overflow-y-auto scrollbar-thin scrollbar-thumb-brand-200 scrollbar-track-brand-600 hover:scrollbar-thumb-brand-100 md:pr-4">
 
-				<div className="w-full p-4">
+				<div className="w-full px-3 py-4 sm:p-4">
 					<ButtonAddTransaction />
 
-					<form onSubmit={setSearch} className="w-full rounded-lg border border-white/10 bg-[#0d1117] p-4 shadow-[0_20px_60px_-38px_rgba(0,0,0,0.9)]">
+					<form onSubmit={setSearch} className="w-full rounded-lg border border-white/10 bg-[#0d1117] p-3 shadow-[0_20px_60px_-38px_rgba(0,0,0,0.9)] sm:p-4">
 						<div className="flex flex-col gap-1 mb-5">
 							<h2 className="text-sm font-semibold text-white">Filtros</h2>
 							<p className="text-sm text-slate-400">Refine o extrato por período, descrição, categoria ou cartão.</p>
 						</div>
 
-						<div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-12 gap-4 items-end">
+						<div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-12 gap-3 sm:gap-4 items-end">
 							<div className="xl:col-span-2 flex flex-col">
 								<label className="text-xs uppercase tracking-[0.2em] text-slate-300 mb-2" htmlFor="startDate">Data início</label>
 								<input id="startDate" type="date" className="w-full rounded-lg bg-transparent px-4 py-2.5 text-sm text-slate-200 border border-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-500 transition" onChange={e => setStartDate(e.target.value)} value={startDate} />
@@ -217,7 +217,7 @@ export function Extract() {
 						</div>
 
 						<div className="mt-5 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-							<div className="flex flex-wrap items-center gap-2">
+							<div className="grid grid-cols-3 gap-2 sm:flex sm:flex-wrap sm:items-center">
 								<button
 									type="button"
 									aria-pressed={activeShortcut === 'previous'}
@@ -244,7 +244,7 @@ export function Extract() {
 								</button>
 							</div>
 
-							<div className="flex flex-col sm:flex-row justify-end gap-3">
+							<div className="grid grid-cols-2 gap-3 sm:flex sm:flex-row sm:justify-end">
 								<button
 									type="button"
 									onClick={clearFilters}
@@ -264,18 +264,18 @@ export function Extract() {
 						</div>
 					</form>
 
-					<div className="mt-4 mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+					<div className="mt-4 mb-6 grid grid-cols-1 gap-3 md:grid-cols-3 md:gap-4">
 						<div className="rounded-lg border border-white/10 bg-white/[0.04] p-4 text-slate-200">
 							<p className="text-xs uppercase text-slate-500">Gastos fixos do mês</p>
-							<strong className="block mt-2 text-2xl font-semibold text-white">{formatToBRL(getTotal(fixedTransactions))}</strong>
+							<strong className="block mt-2 break-words text-xl font-semibold text-white sm:text-2xl">{formatToBRL(getTotal(fixedTransactions))}</strong>
 						</div>
 						<div className="rounded-lg border border-white/10 bg-white/[0.04] p-4 text-slate-200">
 							<p className="text-xs uppercase text-slate-500">Gastos variáveis do mês</p>
-							<strong className="block mt-2 text-2xl font-semibold text-white">{formatToBRL(getTotal(variableTransactions))}</strong>
+							<strong className="block mt-2 break-words text-xl font-semibold text-white sm:text-2xl">{formatToBRL(getTotal(variableTransactions))}</strong>
 						</div>
 						<div className="rounded-lg border border-white/10 bg-white/[0.04] p-4 text-slate-200">
 							<p className="text-xs uppercase text-slate-500">Total do extrato</p>
-							<strong className="block mt-2 text-2xl font-semibold text-white">{formatToBRL(getTotal([...fixedTransactions, ...variableTransactions]))}</strong>
+							<strong className="block mt-2 break-words text-xl font-semibold text-white sm:text-2xl">{formatToBRL(getTotal([...fixedTransactions, ...variableTransactions]))}</strong>
 						</div>
 					</div>
 

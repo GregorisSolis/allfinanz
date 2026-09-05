@@ -4,6 +4,8 @@ import {
   FiChevronRight,
   FiLogIn,
   FiLogOut,
+  FiMenu,
+  FiX,
   FiHome,
   FiFileText,
   FiBarChart2,
@@ -15,6 +17,20 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useUser } from "../contexts/UserContext";
 import { logout } from "../services/auth";
 
+const privateMenuItems = [
+  { label: "Dashboard", to: "/dashboard", icon: FiHome },
+  { label: "Extrato", to: "/extrato", icon: FiFileText },
+  { label: "Relatórios", to: "/relatorios", icon: FiBarChart2 },
+  { label: "Cartões", to: "/cartoes", icon: FiCreditCard },
+  { label: "Perfil", to: "/perfil", icon: FiUser },
+];
+
+const publicMenuItems = [
+  { label: "Início", to: "/", icon: FiHome },
+  { label: "Entrar", to: "/login", icon: FiLogIn },
+  { label: "Criar conta", to: "/registrate", icon: FiUser },
+];
+
 export function SideBar() {
   const { user, clearUser, isAuthenticated, setIsAuthenticated } = useUser();
   const location = useLocation();
@@ -22,20 +38,6 @@ export function SideBar() {
   const [isCollapsed, setIsCollapsed] = useState(() => {
     return localStorage.getItem("allfinanz-sidebar-collapsed") === "true";
   });
-
-  const privateMenuItems = [
-    { label: "Dashboard", to: "/dashboard", icon: FiHome },
-    { label: "Extrato", to: "/extrato", icon: FiFileText },
-    { label: "Relatórios", to: "/relatorios", icon: FiBarChart2 },
-    { label: "Cartões", to: "/cartoes", icon: FiCreditCard },
-    { label: "Perfil", to: "/perfil", icon: FiUser },
-  ];
-
-  const publicMenuItems = [
-    { label: "Início", to: "/", icon: FiHome },
-    { label: "Entrar", to: "/login", icon: FiLogIn },
-    { label: "Criar conta", to: "/registrate", icon: FiUser },
-  ];
 
   const menuItems = isAuthenticated ? privateMenuItems : publicMenuItems;
 
@@ -131,5 +133,111 @@ export function SideBar() {
         </button>
       </div>
     </aside>
+  );
+}
+
+export function MobileFloatingMenu() {
+  const { user, clearUser, isAuthenticated, setIsAuthenticated } = useUser();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [isOpen, setIsOpen] = useState(false);
+  const menuItems = isAuthenticated ? privateMenuItems : publicMenuItems;
+
+  async function actionLogout() {
+    await logout();
+    clearUser();
+    setIsAuthenticated(false);
+    setIsOpen(false);
+    navigate('/login');
+  }
+
+  return (
+    <div className="md:hidden">
+      {isOpen && (
+        <button
+          type="button"
+          aria-label="Fechar menu"
+          className="fixed inset-0 z-40 bg-black/50 backdrop-blur-[2px]"
+          onClick={() => setIsOpen(false)}
+        />
+      )}
+
+      <div className="fixed bottom-5 left-4 z-50">
+        {isOpen && (
+          <div className="mb-3 w-[min(calc(100vw-2rem),320px)] overflow-hidden rounded-lg border border-white/10 bg-[#0d1117] text-white shadow-2xl">
+            <div className="flex items-center gap-3 border-b border-white/10 px-4 py-4">
+              {isAuthenticated && user?.avatar ? (
+                <img
+                  src={user.avatar}
+                  alt={user.name}
+                  className="h-10 w-10 shrink-0 rounded-lg object-cover"
+                />
+              ) : (
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-400/10 text-emerald-300">
+                  <FiDollarSign className="h-5 w-5" />
+                </div>
+              )}
+              <div className="min-w-0">
+                <p className="text-xs uppercase text-slate-500">Allfinanz</p>
+                <span className="block truncate text-sm font-semibold">
+                  {isAuthenticated ? `Olá, ${user?.name || 'usuário'}` : 'Finanças pessoais'}
+                </span>
+              </div>
+            </div>
+
+            <nav className="p-2">
+              <ul className="space-y-1">
+                {menuItems.map(({ label, to, icon: Icon }) => {
+                  const isActive = to === '/'
+                    ? location.pathname === '/'
+                    : location.pathname.startsWith(to);
+
+                  return (
+                    <li key={to}>
+                      <Link
+                        to={to}
+                        onClick={() => setIsOpen(false)}
+                        className={[
+                          "flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition",
+                          isActive
+                            ? "bg-white/[0.08] text-white"
+                            : "text-slate-300 hover:bg-white/[0.06] hover:text-white",
+                        ].join(" ")}
+                      >
+                        <Icon className="h-5 w-5 shrink-0" />
+                        <span>{label}</span>
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            </nav>
+
+            {isAuthenticated && (
+              <div className="border-t border-white/10 p-2">
+                <button
+                  type="button"
+                  onClick={actionLogout}
+                  className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-slate-300 transition hover:bg-rose-400/10 hover:text-rose-200"
+                >
+                  <FiLogOut className="h-5 w-5 shrink-0" />
+                  Sair
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
+        <button
+          type="button"
+          aria-label={isOpen ? "Fechar menu" : "Abrir menu"}
+          aria-expanded={isOpen}
+          onClick={() => setIsOpen((open) => !open)}
+          className="flex h-12 w-12 items-center justify-center rounded-full border border-white/20 bg-[#0d1117]/95 text-white shadow-xl backdrop-blur transition hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#1E2127]"
+        >
+          {isOpen ? <FiX className="h-5 w-5" /> : <FiMenu className="h-5 w-5" />}
+        </button>
+      </div>
+    </div>
   );
 }

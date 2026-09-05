@@ -5,6 +5,50 @@ import { toast } from 'react-toastify'
 import { FiEye, FiEyeOff, FiLock, FiMail } from 'react-icons/fi'
 import { isAuthenticated } from '../services/auth'
 import { useUser } from '../contexts/UserContext'
+import Dialog from '../components/Dialog'
+
+function getLoginErrorMessage(error: unknown) {
+	if (error && typeof error === 'object' && 'isAxiosError' in error) {
+		const axiosError = error as {
+			message?: string;
+			code?: string;
+			response?: {
+				status?: number;
+				statusText?: string;
+				data?: unknown;
+			};
+			config?: {
+				method?: string;
+				baseURL?: string;
+				url?: string;
+			};
+		}
+
+		const responseData = axiosError.response?.data;
+		const apiMessage = responseData && typeof responseData === 'object' && 'message' in responseData
+			? String((responseData as { message?: unknown }).message)
+			: responseData && typeof responseData === 'object' && 'error' in responseData
+				? String((responseData as { error?: unknown }).error)
+				: typeof responseData === 'string'
+					? responseData
+					: undefined;
+
+		const status = axiosError.response?.status
+			? `${axiosError.response.status} ${axiosError.response.statusText || ''}`.trim()
+			: 'sem status HTTP';
+		const method = axiosError.config?.method?.toUpperCase() || 'POST';
+		const requestUrl = `${axiosError.config?.baseURL || ''}${axiosError.config?.url || ''}`;
+
+		return [
+			`Status: ${status}`,
+			`Erro: ${apiMessage || axiosError.message || 'Erro desconhecido'}`,
+			axiosError.code ? `Código: ${axiosError.code}` : null,
+			`Requisição: ${method} ${requestUrl}`,
+		].filter(Boolean).join('\n');
+	}
+
+	return error instanceof Error ? error.message : 'Erro desconhecido ao tentar fazer login.';
+}
 
 export function Login() {
 	const { setUser, setIsAuthenticated } = useUser();
@@ -18,6 +62,7 @@ export function Login() {
 	const [email, setEmail] = useState('')
 	const [password, setPassword] = useState('')
 	const [showPassword, setShowPassword] = useState(false)
+	const [loginError, setLoginError] = useState('')
 
 	const checkAuth = async () => {
 		if (await isAuthenticated()) {
@@ -46,14 +91,26 @@ export function Login() {
 						navigate("/dashboard");
 					}
 				})
-				.catch(() => {
-					toast.warning('Ops... algo está errado, verifique seu e-mail ou senha.')
+				.catch(error => {
+					setLoginError(getLoginErrorMessage(error))
 				})
 		}
 	}
 
 	return (
 		<div className="flex items-center justify-center min-h-screen px-4">
+		<Dialog
+			open={Boolean(loginError)}
+			onOpenChange={open => {
+				if (!open) setLoginError('')
+			}}
+			title="Erro ao entrar"
+			description={loginError}
+			onConfirm={() => setLoginError('')}
+			confirmText="Fechar"
+			cancelText="Fechar"
+			confirmVariant="default"
+		/>
 		<div className="w-full bg-[#0d1117] text-slate-100 p-6 rounded-lg border border-white/10 shadow-[0_20px_60px_-38px_rgba(0,0,0,0.9)] max-w-md">
 
 			<form className="space-y-6" onSubmit={setLogin} noValidate>

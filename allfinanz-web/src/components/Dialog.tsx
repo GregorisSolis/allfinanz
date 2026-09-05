@@ -43,7 +43,7 @@ export default function Dialog({
             {title}
           </AlertDialog.Title>
 
-          <AlertDialog.Description className="mt-2 text-sm text-slate-400 text-center">
+          <AlertDialog.Description className="mt-2 whitespace-pre-wrap break-words text-sm text-slate-400 text-center">
             {description}
           </AlertDialog.Description>
 

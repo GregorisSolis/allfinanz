@@ -20,13 +20,15 @@ export const clearAuthToken = () => {
 	localStorage.removeItem(AUTH_TOKEN_KEY)
 }
 
+export const getAuthToken = () => localStorage.getItem(AUTH_TOKEN_KEY)
+
 export const API = axios.create({
 	baseURL: normalizeApiUrl(import.meta.env.VITE_API_URL || DEFAULT_API_URL),
 	withCredentials: true,
 });
 
 API.interceptors.request.use(config => {
-	const token = localStorage.getItem(AUTH_TOKEN_KEY)
+	const token = getAuthToken()
 
 	if (token) {
 		config.headers.Authorization = `Bearer ${token}`
