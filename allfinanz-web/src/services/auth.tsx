@@ -1,4 +1,4 @@
-import { API } from "./api"
+import { API, clearAuthToken } from "./api"
 
 // Checa se o usuário está autenticado
 export const isAuthenticated = async () => {
@@ -14,6 +14,7 @@ export const isAuthenticated = async () => {
 // Logout: chama o endpoint de logout do backend para limpar o cookie
 export const logout = async () => {
 	await API.post('/user/logout', {}, { withCredentials: true });
+	clearAuthToken();
 }
 
 export const login = async (email: string, password: string) => {

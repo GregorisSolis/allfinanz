@@ -1,6 +1,6 @@
 import { FormEvent, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { API } from '../services/api'
+import { API, setAuthToken } from '../services/api'
 import { toast } from 'react-toastify'
 import { FiEye, FiEyeOff, FiLock, FiMail } from 'react-icons/fi'
 import { isAuthenticated } from '../services/auth'
@@ -34,6 +34,7 @@ export function Login() {
 			await API.post('/user/authenticate', { email, password }, { withCredentials: true })
 				.then(resp => {
 					if(resp){
+						setAuthToken(resp.data.token);
 						// Salvar dados do usuário no estado global
 						setUser({
 							name: resp.data.user.name,

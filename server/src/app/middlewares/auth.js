@@ -2,7 +2,11 @@ const jwt = require('jsonwebtoken')
 
 module.exports = (req, res, next) => {
 	// Busca o token no cookie ou no header
-	const token = req.cookies && req.cookies.token;
+	const authHeader = req.headers.authorization;
+	const bearerToken = authHeader && authHeader.startsWith('Bearer ')
+		? authHeader.slice(7)
+		: null;
+	const token = (req.cookies && req.cookies.token) || bearerToken;
 
 
 	if (!token) {

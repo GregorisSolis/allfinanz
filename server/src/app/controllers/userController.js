@@ -49,7 +49,7 @@ router.post('/register', async (req, res) => {
 
 		res.cookie('token', token, getTokenCookieOptions());
 
-		return res.send({ user })
+		return res.send({ user, token })
 	}
 	catch (err) {
 		return res.status(400).send({ message: "Registration Failed." + err })
@@ -77,7 +77,7 @@ router.post('/authenticate', async (req, res) => {
 
 	res.cookie('token', token, getTokenCookieOptions());
 
-	res.send({ user })
+	res.send({ user, token })
 })
 
 //MOSTRAR LA INFORMACION DEL USER
