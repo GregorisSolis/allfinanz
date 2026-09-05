@@ -1,10 +1,14 @@
 import axios from 'axios'
 
-//export const API = axios.create({ baseURL: 'https://allfinanz-production.up.railway.app/' })
+const DEFAULT_API_URL = 'http://localhost:8080/'
 
-//export const API = axios.create({ baseURL: 'https://allfinanz.onrender.com/' })
+const normalizeApiUrl = (url: string) => {
+	const correctedUrl = url.replace('https://allfinanz.vercel.com', 'https://allfinanz.vercel.app')
+
+	return correctedUrl.endsWith('/') ? correctedUrl : `${correctedUrl}/`
+}
 
 export const API = axios.create({
-	baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8080/',
+	baseURL: normalizeApiUrl(import.meta.env.VITE_API_URL || DEFAULT_API_URL),
 	withCredentials: true,
 });
