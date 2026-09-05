@@ -33,5 +33,5 @@ app.use("/files", express.static(path.resolve(__dirname, "tmp", "uploads")));
 
 require('./app/controllers/index')(app)
 
-app.listen(process.env.PORT);
-console.log('Servidor Activo OK');
+app.listen(process.env.PORT, () => console.log('Servidor Activo OK'));
+module.exports = app;
