@@ -9,6 +9,7 @@ const app = express();
 // Lista de origens permitidas
 const allowedOrigins = [
   'http://localhost:5173',
+  'https://allfinanz.web.app'
   // Adicione outros domínios permitidos aqui
 ];
 
