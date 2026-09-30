@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { logout } from '../services/auth'
 import { API } from '../services/api'
-import { FiCalendar, FiRefreshCw } from 'react-icons/fi'
+import { FiCalendar, FiFilter, FiRefreshCw, FiX } from 'react-icons/fi'
 
 import { toast } from 'react-toastify'
 import { ChartReport, ChartReportProps } from '../components/ChartReport'
@@ -78,6 +78,7 @@ export function Dashboard() {
 	const [dateEnd, setDateEnd] = useState('')
 	const [activeRange, setActiveRange] = useState<{ date_init: string; date_end: string } | null>(null)
 	const [activeShortcut, setActiveShortcut] = useState<'previous' | 'current' | 'next' | null>(null)
+	const [isFilterOpen, setIsFilterOpen] = useState(false)
 	const navigate = useNavigate()
 
 	const { user } = useUser();
@@ -94,6 +95,15 @@ export function Dashboard() {
 		setDateInit(report.period.start || '');
 		setDateEnd(report.period.end || '');
 	}, [report, activeRange])
+
+	useEffect(() => {
+		if (!isFilterOpen) return;
+		const handleKeyDown = (event: KeyboardEvent) => {
+			if (event.key === 'Escape') setIsFilterOpen(false)
+		}
+		window.addEventListener('keydown', handleKeyDown)
+		return () => window.removeEventListener('keydown', handleKeyDown)
+	}, [isFilterOpen])
 
 	async function loadReport(range?: { date_init: string; date_end: string }) {
 
@@ -153,6 +163,7 @@ export function Dashboard() {
 		const range = { date_init: dateInit, date_end: dateEnd };
 		setActiveRange(range);
 		setActiveShortcut(null);
+		setIsFilterOpen(false);
 		updateView(range);
 	}
 
@@ -161,6 +172,7 @@ export function Dashboard() {
 		setDateEnd('');
 		setActiveRange(null);
 		setActiveShortcut(null);
+		setIsFilterOpen(false);
 		loadReport();
 	}
 
@@ -175,6 +187,7 @@ export function Dashboard() {
 		setDateEnd(range.date_end);
 		setActiveRange(range);
 		setActiveShortcut(shortcut);
+		setIsFilterOpen(false);
 		updateView(range);
 	}
 
@@ -193,7 +206,7 @@ export function Dashboard() {
 		<section className='px-3 pb-24 text-slate-100 sm:px-4 md:px-0'>
 			<ButtonAddTransaction />
 
-			<div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+			<div className="mb-4 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
 				<div>
 					<p className="text-sm font-medium text-slate-400">Dashboard</p>
 					<h1 className="mt-1 text-xl font-semibold text-white sm:text-2xl">Controle financeiro</h1>
@@ -202,16 +215,91 @@ export function Dashboard() {
 					</p>
 				</div>
 
-				<button
-					type="button"
-					className="inline-flex w-fit items-center gap-2 rounded-lg border border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm font-semibold text-slate-200 transition hover:bg-white/[0.08] disabled:cursor-not-allowed disabled:opacity-60"
-					onClick={() => updateView()}
-					disabled={isLoading}
-				>
-					<FiRefreshCw className={isLoading ? "animate-spin" : ""} />
-					Atualizar
-				</button>
+				<div className="flex items-center gap-2">
+					<div className="relative">
+						<button
+							type="button"
+							aria-haspopup="dialog"
+							aria-expanded={isFilterOpen}
+							className="inline-flex w-fit items-center gap-2 rounded-lg border border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm font-semibold text-slate-200 transition hover:bg-white/[0.08] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 disabled:cursor-not-allowed disabled:opacity-60"
+							onClick={() => setIsFilterOpen((open) => !open)}
+							disabled={isLoading}
+						>
+							<FiFilter />
+							Filtros
+						</button>
+						{isFilterOpen && (
+							<div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 p-4 md:absolute md:inset-auto md:right-0 md:top-full md:z-40 md:block md:w-[min(760px,calc(100vw-2rem))] md:bg-transparent md:p-0">
+								<button
+									type="button"
+									aria-label="Fechar filtros"
+									className="absolute inset-0 md:hidden"
+									onClick={() => setIsFilterOpen(false)}
+								/>
+								<div role="dialog" aria-modal="true" aria-labelledby="dashboard-filters-title" className="relative z-10 max-h-[90dvh] w-full max-w-xl overflow-y-auto rounded-lg border border-white/10 bg-[#0d1117] p-4 text-slate-200 shadow-2xl sm:p-5 md:mt-2 md:max-h-[calc(100vh-2rem)] md:max-w-none">
+									<div className="mb-4 flex items-start justify-between gap-3">
+										<div>
+											<p id="dashboard-filters-title" className="text-sm font-semibold text-white">Filtrar relatório</p>
+											<p className="mt-1 text-sm text-slate-400">Escolha um intervalo para recalcular os indicadores.</p>
+											<p className="mt-2 text-xs uppercase tracking-[0.2em] text-slate-500">Selecionado: {activeShortcutLabel}</p>
+										</div>
+										<button type="button" aria-label="Fechar filtros" className="rounded-lg p-2 text-slate-400 hover:bg-white/[0.08] hover:text-white md:hidden" onClick={() => setIsFilterOpen(false)}>
+											<FiX />
+										</button>
+									</div>
+									<div className="grid gap-3 sm:grid-cols-2">
+										<DateField id="dateInit" label="Data inicial" value={dateInit} onChange={setDateInit} />
+										<DateField id="dateEnd" label="Data final" value={dateEnd} onChange={setDateEnd} />
+										<div className="grid grid-cols-2 gap-2 sm:col-span-2 sm:grid-cols-5">
+											<button type="button" aria-pressed={activeShortcut === 'previous'} className={`${shortcutButtonClassName} ${activeShortcut === 'previous' ? shortcutSelectedClassName : ''}`} onClick={() => handleMonthShortcut(-1)} disabled={isLoading}>Mês passado</button>
+											<button type="button" aria-pressed={activeShortcut === 'current'} className={`${shortcutButtonClassName} ${activeShortcut === 'current' ? shortcutSelectedClassName : ''}`} onClick={() => handleMonthShortcut(0)} disabled={isLoading}>Mês atual</button>
+											<button type="button" aria-pressed={activeShortcut === 'next'} className={`${shortcutButtonClassName} ${activeShortcut === 'next' ? shortcutSelectedClassName : ''}`} onClick={() => handleMonthShortcut(1)} disabled={isLoading}>Próximo mês</button>
+											<button type="button" className="rounded-lg border border-emerald-300/30 bg-emerald-300 px-4 py-2.5 text-sm font-semibold text-slate-950 transition hover:bg-emerald-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 disabled:cursor-not-allowed disabled:opacity-60" onClick={handleApplyDateRange} disabled={isLoading}>Aplicar</button>
+											<button type="button" className="rounded-lg border border-white/10 bg-transparent px-4 py-2.5 text-sm font-semibold text-slate-200 transition hover:bg-white/[0.06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 disabled:cursor-not-allowed disabled:opacity-60" onClick={handleClearDateRange} disabled={isLoading}>Limpar</button>
+										</div>
+									</div>
+								</div>
+							</div>
+						)}
+					</div>
+					<button
+						type="button"
+						className="inline-flex w-fit items-center gap-2 rounded-lg border border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm font-semibold text-slate-200 transition hover:bg-white/[0.08] disabled:cursor-not-allowed disabled:opacity-60"
+						onClick={() => updateView()}
+						disabled={isLoading}
+					>
+						<FiRefreshCw className={isLoading ? "animate-spin" : ""} />
+						Atualizar
+					</button>
+				</div>
 			</div>
+
+			{report && (
+				<div className="mb-4 rounded-lg border border-white/10 bg-white/[0.04] p-4 text-slate-200">
+					<div className="flex items-center gap-2 text-sm font-semibold text-white">
+						<FiCalendar className="text-slate-400" />
+						Período do relatório
+					</div>
+					<div className="mt-4 grid gap-3 text-sm sm:grid-cols-2 xl:grid-cols-4">
+						<div>
+							<p className="text-xs uppercase text-slate-500">Intervalo</p>
+							<p className="mt-1 font-medium">{report.period.start || '--'} até {report.period.end || '--'}</p>
+						</div>
+						<div>
+							<p className="text-xs uppercase text-slate-500">Dia do salário</p>
+							<p className="mt-1 font-medium">{user?.salary_day ? `${user.salary_day}º` : '--'}</p>
+						</div>
+						<div>
+							<p className="text-xs uppercase text-slate-500">Dias decorridos</p>
+							<p className="mt-1 font-medium">{report.period.currentDay ?? '--'}</p>
+						</div>
+						<div>
+							<p className="text-xs uppercase text-slate-500">Total de dias</p>
+							<p className="mt-1 font-medium">{report.period.totalDays ?? '--'}</p>
+						</div>
+					</div>
+				</div>
+			)}
 
 			<div className={isLoading ? "animate-pulse transition" : ""}>
 				{report && (
@@ -231,102 +319,6 @@ export function Dashboard() {
 					</div>
 				)}
 			</div>
-
-			<section className={(isLoading ? "animate-pulse transition " : "") + "mt-4 space-y-4"}>
-				<div className="rounded-lg border border-white/10 bg-white/[0.04] p-4 text-slate-200">
-					<div className="flex items-center gap-2 text-sm font-semibold text-white">
-						<FiCalendar className="text-slate-400" />
-						Período do relatório
-					</div>
-					<div className="mt-4 grid gap-3 text-sm sm:grid-cols-2 xl:grid-cols-4">
-						<div>
-							<p className="text-xs uppercase text-slate-500">Intervalo</p>
-							<p className="mt-1 font-medium">{report?.period.start || '--'} até {report?.period.end || '--'}</p>
-						</div>
-						<div>
-							<p className="text-xs uppercase text-slate-500">Dia do salário</p>
-							<p className="mt-1 font-medium">{user?.salary_day ? `${user.salary_day}º` : '--'}</p>
-						</div>
-						<div>
-							<p className="text-xs uppercase text-slate-500">Dias decorridos</p>
-							<p className="mt-1 font-medium">{report?.period.currentDay ?? '--'}</p>
-						</div>
-						<div>
-							<p className="text-xs uppercase text-slate-500">Total de dias</p>
-							<p className="mt-1 font-medium">{report?.period.totalDays ?? '--'}</p>
-						</div>
-					</div>
-				</div>
-
-				<div className="rounded-lg border border-white/10 bg-[#0d1117] p-4 shadow-[0_20px_60px_-38px_rgba(0,0,0,0.9)]">
-					<div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-						<div>
-							<p className="text-sm font-semibold text-white">Filtrar relatório</p>
-							<p className="mt-1 text-sm text-slate-400">Escolha um intervalo fechado para recalcular os indicadores.</p>
-							<p className="mt-2 text-xs uppercase tracking-[0.2em] text-slate-500">Selecionado: {activeShortcutLabel}</p>
-						</div>
-					</div>
-					<div className="grid gap-3 sm:grid-cols-2 lg:flex lg:flex-wrap lg:items-end">
-						<DateField
-							id="dateInit"
-							label="Data inicial"
-							value={dateInit}
-							onChange={setDateInit}
-						/>
-						<DateField
-							id="dateEnd"
-							label="Data final"
-							value={dateEnd}
-							onChange={setDateEnd}
-						/>
-						<div className="grid grid-cols-2 gap-2 sm:col-span-2 sm:grid-cols-5 lg:flex lg:flex-wrap lg:items-center">
-							<button
-								type="button"
-								aria-pressed={activeShortcut === 'previous'}
-								className={`${shortcutButtonClassName} ${activeShortcut === 'previous' ? shortcutSelectedClassName : ''}`}
-								onClick={() => handleMonthShortcut(-1)}
-								disabled={isLoading}
-							>
-								Mês passado
-							</button>
-							<button
-								type="button"
-								aria-pressed={activeShortcut === 'current'}
-								className={`${shortcutButtonClassName} ${activeShortcut === 'current' ? shortcutSelectedClassName : ''}`}
-								onClick={() => handleMonthShortcut(0)}
-								disabled={isLoading}
-							>
-								Mês atual
-							</button>
-							<button
-								type="button"
-								aria-pressed={activeShortcut === 'next'}
-								className={`${shortcutButtonClassName} ${activeShortcut === 'next' ? shortcutSelectedClassName : ''}`}
-								onClick={() => handleMonthShortcut(1)}
-								disabled={isLoading}
-							>
-								Próximo mês
-							</button>
-							<button
-								type="button"
-								className="rounded-lg border border-emerald-300/30 bg-emerald-300 px-4 py-2.5 text-sm font-semibold text-slate-950 transition hover:bg-emerald-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0d1117] disabled:cursor-not-allowed disabled:opacity-60 sm:col-auto"
-								onClick={handleApplyDateRange}
-								disabled={isLoading}
-							>
-								Aplicar
-							</button>
-							<button
-								type="button"
-								className="rounded-lg border border-white/10 bg-transparent px-4 py-2.5 text-sm font-semibold text-slate-200 transition hover:bg-white/[0.06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0d1117] disabled:cursor-not-allowed disabled:opacity-60 sm:col-auto"
-								onClick={handleClearDateRange}
-								disabled={isLoading}
-							>
-								Limpar
-							</button>
-						</div>
-					</div>
-				</div>
-			</section>
 		</section>
 	)
 }

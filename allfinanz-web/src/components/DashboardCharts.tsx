@@ -87,8 +87,8 @@ function SpendByCategory({ items, total }: { items: ChartTransaction[]; total: n
 	}
 
 	return (
-		<div className="grid items-center gap-2 sm:grid-cols-2">
-			<div className="relative h-[220px] sm:h-[260px]">
+		<div className="grid gap-3">
+			<div className="relative aspect-[4/3] max-h-[340px] min-h-[260px] w-full">
 				<ResponsiveContainer width="100%" height="100%">
 					<PieChart>
 						<Pie

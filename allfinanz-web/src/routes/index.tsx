@@ -31,11 +31,11 @@ const PrivateRoute = ({ children, redirectTo }: { children: React.ReactNode, red
 };
 
 const AppShell = ({ children }: { children: React.ReactNode }) => (
-	<div className="grid min-h-screen w-full grid-cols-[auto_minmax(0,1fr)] gap-4 px-0 text-slate-100 sm:px-0">
+	<div className="grid min-h-screen w-full grid-cols-1 gap-4 px-0 text-slate-100 md:grid-cols-[auto_minmax(0,1fr)] sm:px-0">
 		<section className="hidden py-6 md:block">
 			<SideBar />
 		</section>
-		<main className="min-w-0 h-screen overflow-y-auto py-5 md:py-6 md:pr-2 scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent hover:scrollbar-thumb-slate-600">
+		<main className="app-shell-main min-w-0 h-screen overflow-y-auto py-5 md:py-6 md:pr-2 scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent hover:scrollbar-thumb-slate-600">
 			{children}
 		</main>
 		<MobileFloatingMenu />

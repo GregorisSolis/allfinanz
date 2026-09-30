@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FiArchive, FiCalendar, FiEye, FiPrinter, FiRefreshCw, FiTrash2 } from 'react-icons/fi';
+import { FiArchive, FiCalendar, FiEye, FiPrinter, FiRefreshCw, FiTrash2, FiX } from 'react-icons/fi';
 import { toast } from 'react-toastify';
 import Dialog from '../components/Dialog';
 import { API } from '../services/api';
@@ -101,6 +101,57 @@ function TransactionRows({ transactions }: { transactions: TransactionSnapshot[]
 	);
 }
 
+function ClosureList({ closures, selectedId, isLoading, onSelect }: {
+	closures: CycleClosureListItem[];
+	selectedId?: string;
+	isLoading: boolean;
+	onSelect: (id: string) => void;
+}) {
+	if (!closures.length) {
+		return (
+			<p className="rounded-lg border border-white/10 bg-white/[0.03] p-4 text-sm text-slate-400">
+				Nenhum ciclo fechado ainda.
+			</p>
+		);
+	}
+
+	return (
+		<div className={isLoading ? 'space-y-2 opacity-70' : 'space-y-2'}>
+			{closures.map((closure) => (
+				<button
+					key={closure.id}
+					type="button"
+					className={[
+						'w-full rounded-lg border p-3 text-left transition',
+						selectedId === closure.id
+							? 'border-emerald-300/40 bg-emerald-300/10'
+							: 'border-white/10 bg-white/[0.03] hover:bg-white/[0.06]'
+					].join(' ')}
+					onClick={() => onSelect(closure.id)}
+				>
+					<div className="flex items-start justify-between gap-3">
+						<div className="min-w-0">
+							<p className="text-sm font-semibold text-white">
+								{formatDate(closure.cycleStart)} até {formatDate(closure.cycleEnd)}
+							</p>
+							<p className="mt-1 text-xs text-slate-500">
+								Fechado em {formatDateTime(closure.closedAt)}
+							</p>
+						</div>
+						<FiEye className="mt-1 shrink-0 text-slate-400" />
+					</div>
+					<div className="mt-3 grid grid-cols-2 gap-2 text-xs">
+						<span className="text-slate-500">Fixos</span>
+						<span className="text-right font-semibold text-slate-200">{formatToBRL_report(closure.totals.fixed)}</span>
+						<span className="text-slate-500">Total</span>
+						<span className="text-right font-semibold text-slate-200">{formatToBRL_report(closure.totals.total)}</span>
+					</div>
+				</button>
+			))}
+		</div>
+	);
+}
+
 export function Reports() {
 	const [closures, setClosures] = useState<CycleClosureListItem[]>([]);
 	const [selectedClosure, setSelectedClosure] = useState<CycleClosure | null>(null);
@@ -108,6 +159,7 @@ export function Reports() {
 	const [isClosing, setIsClosing] = useState(false);
 	const [isDeleting, setIsDeleting] = useState(false);
 	const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+	const [showClosurePicker, setShowClosurePicker] = useState(false);
 	const navigate = useNavigate();
 
 	document.title = 'Allfinanz | Relatórios';
@@ -115,6 +167,15 @@ export function Reports() {
 	useEffect(() => {
 		loadClosures();
 	}, []);
+
+	useEffect(() => {
+		if (!showClosurePicker) return;
+		const handleKeyDown = (event: KeyboardEvent) => {
+			if (event.key === 'Escape') setShowClosurePicker(false);
+		};
+		window.addEventListener('keydown', handleKeyDown);
+		return () => window.removeEventListener('keydown', handleKeyDown);
+	}, [showClosurePicker]);
 
 	async function handleRequestError(error: any, fallbackMessage: string) {
 		if (error.response?.status === 401) {
@@ -236,55 +297,72 @@ export function Reports() {
 				</div>
 			</div>
 
-			<div className="grid gap-4 xl:grid-cols-[420px_minmax(0,1fr)]">
-				<aside className="rounded-lg border border-white/10 bg-[#0d1117] p-4 print:hidden">
+			{closures.length > 0 && (
+				<div className="mb-4 xl:hidden print:hidden">
+					<button
+						type="button"
+						className="flex w-full items-center justify-between gap-3 rounded-lg border border-white/10 bg-[#0d1117] p-4 text-left"
+						onClick={() => setShowClosurePicker(true)}
+					>
+						<span className="flex min-w-0 items-center gap-3">
+							<FiCalendar className="shrink-0 text-slate-400" />
+							<span className="min-w-0">
+								<span className="block text-xs uppercase text-slate-500">Fechamento selecionado</span>
+								<span className="mt-1 block truncate text-sm font-semibold text-white">
+									{selectedClosure
+									? `${formatDate(selectedClosure.cycleStart)} até ${formatDate(selectedClosure.cycleEnd)}`
+									: 'Escolha um ciclo'}
+								</span>
+							</span>
+						</span>
+						<span className="shrink-0 text-sm font-semibold text-emerald-300">Trocar</span>
+					</button>
+				</div>
+			)}
+
+			{showClosurePicker && (
+				<div className="fixed inset-0 z-[60] print:hidden xl:hidden">
+					<button
+						type="button"
+						aria-label="Fechar lista de fechamentos"
+						className="absolute inset-0 bg-black/70"
+						onClick={() => setShowClosurePicker(false)}
+					/>
+					<div role="dialog" aria-modal="true" aria-labelledby="closure-picker-title" className="relative z-10 h-[100dvh] w-full overscroll-contain overflow-y-auto bg-[#0d1117] px-4 py-5 text-slate-100">
+						<div className="mb-5 flex items-start justify-between gap-3 border-b border-white/10 pb-4">
+							<div>
+								<h2 id="closure-picker-title" className="text-base font-semibold text-white">Todos os fechamentos</h2>
+								<p className="mt-1 text-sm text-slate-400">Selecione o ciclo que deseja consultar.</p>
+							</div>
+							<button type="button" aria-label="Fechar lista de fechamentos" className="rounded-lg p-2 text-slate-400 hover:bg-white/[0.08] hover:text-white" onClick={() => setShowClosurePicker(false)}>
+								<FiX />
+							</button>
+						</div>
+						<ClosureList
+							closures={closures}
+							selectedId={selectedClosure?.id}
+							isLoading={isLoading}
+							onSelect={(id) => { setShowClosurePicker(false); loadClosure(id); }}
+						/>
+					</div>
+				</div>
+			)}
+
+			<div className="grid min-w-0 gap-4 xl:grid-cols-[420px_minmax(0,1fr)]">
+				<aside className="hidden rounded-lg border border-white/10 bg-[#0d1117] p-4 print:hidden xl:block">
 					<div className="mb-4 flex items-center gap-2 text-sm font-semibold text-white">
 						<FiCalendar className="text-slate-400" />
 						Todos os fechamentos
 					</div>
-
-					<div className={isLoading ? 'space-y-2 opacity-70' : 'space-y-2'}>
-						{closures.map((closure) => (
-							<button
-								key={closure.id}
-								type="button"
-								className={[
-									'w-full rounded-lg border p-3 text-left transition',
-									selectedClosure?.id === closure.id
-										? 'border-emerald-300/40 bg-emerald-300/10'
-										: 'border-white/10 bg-white/[0.03] hover:bg-white/[0.06]'
-								].join(' ')}
-								onClick={() => loadClosure(closure.id)}
-							>
-								<div className="flex items-start justify-between gap-3">
-									<div>
-										<p className="text-sm font-semibold text-white">
-											{formatDate(closure.cycleStart)} até {formatDate(closure.cycleEnd)}
-										</p>
-										<p className="mt-1 text-xs text-slate-500">
-											Fechado em {formatDateTime(closure.closedAt)}
-										</p>
-									</div>
-									<FiEye className="mt-1 shrink-0 text-slate-400" />
-								</div>
-								<div className="mt-3 grid grid-cols-2 gap-2 text-xs">
-									<span className="text-slate-500">Fixos</span>
-									<span className="text-right font-semibold text-slate-200">{formatToBRL_report(closure.totals.fixed)}</span>
-									<span className="text-slate-500">Total</span>
-									<span className="text-right font-semibold text-slate-200">{formatToBRL_report(closure.totals.total)}</span>
-								</div>
-							</button>
-						))}
-
-						{!closures.length && (
-							<p className="rounded-lg border border-white/10 bg-white/[0.03] p-4 text-sm text-slate-400">
-								Nenhum ciclo fechado ainda.
-							</p>
-						)}
-					</div>
+					<ClosureList
+						closures={closures}
+						selectedId={selectedClosure?.id}
+						isLoading={isLoading}
+						onSelect={loadClosure}
+					/>
 				</aside>
 
-				<main className="rounded-lg border border-white/10 bg-[#0d1117] p-5 shadow-[0_20px_60px_-38px_rgba(0,0,0,0.9)] print:border-0 print:bg-white print:p-0 print:text-slate-950 print:shadow-none">
+				<article className="min-w-0 rounded-lg border border-white/10 bg-[#0d1117] p-5 shadow-[0_20px_60px_-38px_rgba(0,0,0,0.9)] print:border-0 print:bg-white print:p-0 print:text-slate-950 print:shadow-none">
 					{selectedClosure ? (
 						<div>
 							<div className="mb-5 flex flex-col gap-3 border-b border-white/10 pb-5 print:border-slate-300">
@@ -362,17 +440,17 @@ export function Reports() {
 							</section>
 						</div>
 					) : (
-						<div className="flex min-h-[420px] items-center justify-center rounded-lg border border-dashed border-white/10 bg-white/[0.02] p-8 text-center print:hidden">
+						<div className="flex min-h-[240px] items-center justify-center rounded-lg border border-dashed border-white/10 bg-white/[0.02] p-8 text-center print:hidden sm:min-h-[420px]">
 							<div>
 								<FiArchive className="mx-auto h-8 w-8 text-slate-500" />
-								<p className="mt-3 text-sm font-semibold text-white">Selecione um fechamento</p>
+								<p className="mt-3 text-sm font-semibold text-white">{closures.length ? 'Selecione um fechamento' : 'Nenhum ciclo fechado ainda'}</p>
 								<p className="mt-1 text-sm text-slate-400">
-									Todos os ciclos salvos aparecem na lista ao lado.
+									{closures.length ? 'Os ciclos salvos aparecem no seletor acima.' : 'Feche um ciclo para começar o histórico.'}
 								</p>
 							</div>
 						</div>
 					)}
-				</main>
+				</article>
 			</div>
 		</section>
 	);
