@@ -279,14 +279,15 @@ const getReportData = async (user_id, date_init, date_end) => {
     };
 };
 
-const getCycleClosureData = async (user_id, cycle_start) => {
+const getCycleClosureData = async (user_id, cycle_start, cycle_salary) => {
     const user = await User.findById(user_id);
     if (!user) {
         const error = new Error('User not found.');
         error.statusCode = 404;
         throw error;
     }
-    if (!user.salary || user.salary <= 0) {
+    const salaryInCents = cycle_salary === undefined ? Number(user.salary) : Number(cycle_salary);
+    if (!Number.isFinite(salaryInCents) || salaryInCents <= 0) {
         const error = new Error('Invalid salary value.');
         error.statusCode = 400;
         throw error;
@@ -323,7 +324,7 @@ const getCycleClosureData = async (user_id, cycle_start) => {
     ]);
 
     const transactions = [...fixedTransactions, ...variableTransactions];
-    const salary = toDecimalFormat(user.salary);
+    const salary = toDecimalFormat(salaryInCents);
     const expenses = calculateExpenses(transactions);
     const salary_balance = formatToTwoDecimals(salary - expenses.total);
     const daily_limit = formatToTwoDecimals(salary_balance / period.days_in_period);
@@ -408,8 +409,8 @@ const handleReportError = (res, err) => {
 
 router.post('/closures', async (req, res) => {
     try {
-        const { cycle_start } = req.body;
-        const report = await getCycleClosureData(req.userId, cycle_start);
+        const { cycle_start, cycle_salary } = req.body;
+        const report = await getCycleClosureData(req.userId, cycle_start, cycle_salary);
 
         const closure = await CycleClosure.create({
             user: req.userId,

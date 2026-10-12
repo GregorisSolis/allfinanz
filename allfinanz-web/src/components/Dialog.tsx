@@ -36,9 +36,12 @@ export default function Dialog({
       {children && <AlertDialog.Trigger asChild>{children}</AlertDialog.Trigger>}
 
       <AlertDialog.Portal>
-        <AlertDialog.Overlay className="bg-black/60 backdrop-blur-sm fixed inset-0 animate-fadeIn" />
+        <AlertDialog.Overlay className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm animate-fadeIn" />
 
-        <AlertDialog.Content className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#0d1117] border border-white/10 rounded-lg p-6 w-[90vw] max-w-md shadow-[0_20px_60px_-38px_rgba(0,0,0,0.9)]">
+        <AlertDialog.Content
+          className="fixed left-1/2 top-1/2 z-[101] w-[90vw] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-lg border border-white/10 bg-[#0b1320] p-6 shadow-[0_20px_60px_-38px_rgba(0,0,0,0.9)]"
+          style={{ backgroundColor: '#0b1320', opacity: 1 }}
+        >
           <AlertDialog.Title className="text-lg font-semibold text-white text-center">
             {title}
           </AlertDialog.Title>

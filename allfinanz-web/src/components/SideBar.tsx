@@ -56,7 +56,7 @@ export function SideBar() {
 
   return (
     <aside className={[
-      "sticky top-6 h-[calc(100vh-3rem)] rounded-lg border border-white/10 bg-[#0d1117]",
+      "sticky top-6 h-[calc(100vh-3rem)] rounded-2xl border border-white/[0.08] bg-[#0b1320]",
       "shadow-[0_20px_60px_-36px_rgba(0,0,0,0.9)] flex flex-col text-white overflow-hidden",
       "transition-[width] duration-300 ease-out",
       isCollapsed ? "w-[72px]" : "w-[260px]",
@@ -69,7 +69,7 @@ export function SideBar() {
             className="h-10 w-10 shrink-0 rounded-lg object-cover"
           />
         ) : (
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-400/10 text-emerald-300">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-sky-400/10 text-sky-300">
             <FiDollarSign className="w-5 h-5" />
           </div>
         )}
@@ -97,7 +97,7 @@ export function SideBar() {
                     "flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition",
                     isCollapsed ? "justify-center px-0" : "",
                     isActive
-                      ? "bg-white/[0.08] text-white"
+                      ? "border border-sky-300/15 bg-sky-300/[0.08] text-sky-100"
                       : "text-slate-300 hover:bg-white/[0.06] hover:text-white",
                   ].join(" ")}
                 >
@@ -164,7 +164,7 @@ export function MobileFloatingMenu() {
 
       <div className="fixed bottom-5 left-4 z-50">
         {isOpen && (
-          <div className="mb-3 w-[min(calc(100vw-2rem),320px)] overflow-hidden rounded-lg border border-white/10 bg-[#0d1117] text-white shadow-2xl">
+          <div className="mb-3 w-[min(calc(100vw-2rem),320px)] overflow-hidden rounded-2xl border border-white/10 bg-[#0b1320] text-white shadow-2xl">
             <div className="flex items-center gap-3 border-b border-white/10 px-4 py-4">
               {isAuthenticated && user?.avatar ? (
                 <img
@@ -173,7 +173,7 @@ export function MobileFloatingMenu() {
                   className="h-10 w-10 shrink-0 rounded-lg object-cover"
                 />
               ) : (
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-400/10 text-emerald-300">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-sky-400/10 text-sky-300">
                   <FiDollarSign className="h-5 w-5" />
                 </div>
               )}
@@ -200,7 +200,7 @@ export function MobileFloatingMenu() {
                         className={[
                           "flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition",
                           isActive
-                            ? "bg-white/[0.08] text-white"
+                            ? "border border-sky-300/15 bg-sky-300/[0.08] text-sky-100"
                             : "text-slate-300 hover:bg-white/[0.06] hover:text-white",
                         ].join(" ")}
                       >
@@ -233,7 +233,7 @@ export function MobileFloatingMenu() {
           aria-label={isOpen ? "Fechar menu" : "Abrir menu"}
           aria-expanded={isOpen}
           onClick={() => setIsOpen((open) => !open)}
-          className="flex h-12 w-12 items-center justify-center rounded-full border border-white/20 bg-[#0d1117]/95 text-white shadow-xl backdrop-blur transition hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#1E2127]"
+          className="flex h-12 w-12 items-center justify-center rounded-full border border-sky-300/20 bg-[#0b1320]/95 text-white shadow-xl backdrop-blur transition hover:bg-sky-400/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#070d18]"
         >
           {isOpen ? <FiX className="h-5 w-5" /> : <FiMenu className="h-5 w-5" />}
         </button>

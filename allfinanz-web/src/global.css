@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 body {
-	@apply bg-[#1E2127] font-montserrat;
+	@apply bg-[#070d18] font-montserrat;
 	overflow: hidden;
 }
 

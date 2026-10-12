@@ -1,6 +1,8 @@
 import { useState, useEffect, FormEvent, ChangeEvent } 	from 'react'
-import { useNavigate, useParams } 						from 'react-router-dom'
-import { FiCreditCard, FiDollarSign, FiEdit3, FiRepeat, FiSave, FiTag } from 'react-icons/fi'
+import { useNavigate, useParams, useSearchParams } 						from 'react-router-dom'
+import { FiArrowLeft, FiBookOpen, FiBriefcase, FiCoffee, FiCopy, FiCreditCard, FiDollarSign, FiEdit3, FiGift, FiHeart, FiHome, FiMap, FiRepeat, FiSave, FiShoppingBag, FiShoppingCart, FiTag, FiTrash2, FiTruck, FiWifi, FiZap } from 'react-icons/fi'
+import { RiCoinsLine, RiQrCodeLine } from 'react-icons/ri'
+import type { IconType } from 'react-icons'
 
 
 import { typePayOptions } 			from '../services/typePayOptions'
@@ -13,13 +15,54 @@ import Dialog from '../components/Dialog'
 import { formatToBRL } from '../services/amountFormat'
 
 const fieldWrapperClassName = 'flex flex-col gap-2'
-const labelClassName = 'text-xs uppercase tracking-[0.2em] text-slate-300'
-const fieldClassName = 'w-full rounded-lg bg-transparent px-4 py-3 text-sm text-slate-200 border border-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-500 transition placeholder:text-slate-500 disabled:cursor-not-allowed disabled:opacity-60'
-const selectClassName = `${fieldClassName} bg-[#0d1117]`
+const labelClassName = 'text-xs font-medium uppercase tracking-[0.16em] text-slate-300'
+const fieldClassName = 'w-full rounded-xl border border-white/10 bg-white/[0.035] px-4 py-3 text-sm text-slate-100 transition placeholder:text-slate-500 focus:border-sky-400/50 focus:outline-none focus:ring-2 focus:ring-sky-400/15 disabled:cursor-not-allowed disabled:opacity-60'
+const selectClassName = `${fieldClassName} bg-[#0e1b2b]`
+
+const expenseIconRules: { categories: string[]; keywords: string[]; icon: IconType }[] = [
+	{ categories: ['7'], keywords: ['internet', 'wifi', 'wi-fi', 'roteador', 'modem', 'telefone', 'telefonia', 'fibra'], icon: FiWifi },
+	{ categories: [], keywords: ['energia', 'conta de luz', 'eletricidade', 'eletrica', 'eletrico'], icon: FiZap },
+	{ categories: ['13'], keywords: ['escola', 'faculdade', 'curso', 'livro', 'caderno', 'material escolar', 'educacao'], icon: FiBookOpen },
+	{ categories: ['2'], keywords: ['consulta', 'remedio', 'farmacia', 'exame', 'dentista', 'terapia'], icon: FiHeart },
+	{ categories: ['4'], keywords: ['mercado', 'supermercado', 'feira', 'alimentos'], icon: FiShoppingCart },
+	{ categories: ['5'], keywords: ['uber', 'taxi', 'combustivel', 'onibus', 'metro', 'transporte'], icon: FiTruck },
+	{ categories: ['12'], keywords: ['restaurante', 'cafe', 'lanchonete', 'pizza'], icon: FiCoffee },
+	{ categories: ['6'], keywords: ['presente', 'lembranca', 'doacao'], icon: FiGift },
+	{ categories: ['8'], keywords: ['viagem', 'passagem', 'hotel', 'hospedagem'], icon: FiMap },
+	{ categories: ['3'], keywords: ['roupa', 'calcado', 'vestuario'], icon: FiShoppingBag },
+	{ categories: ['9'], keywords: ['familia', 'filho', 'crianca'], icon: FiHeart },
+	{ categories: ['10'], keywords: ['aluguel', 'condominio', 'moradia', 'casa'], icon: FiHome },
+	{ categories: ['11'], keywords: ['servico', 'manutencao', 'assinatura'], icon: FiBriefcase },
+]
+
+function normalizeIconSearch(value: string) {
+	return value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
+}
+
+function getExpenseIcon(description: string, category: string): IconType | undefined {
+	const title = normalizeIconSearch(description)
+	const categoryName = normalizeIconSearch(
+		categoryOptions.find(option => String(option._id) === String(category))?.name || ''
+	)
+	const categoryId = String(category)
+
+	const titleMatch = expenseIconRules.find(rule =>
+		rule.keywords.some(keyword => title.includes(normalizeIconSearch(keyword)))
+	)
+	if (titleMatch) return titleMatch.icon
+
+	return expenseIconRules.find(rule =>
+		rule.categories.includes(categoryId) ||
+		rule.keywords.some(keyword => categoryName.includes(normalizeIconSearch(keyword)))
+	)?.icon
+}
 
 export function FormTransaction() {
 
 	const { id } = useParams();
+	const [searchParams] = useSearchParams();
+	const isCopy = searchParams.get('copy') === 'next-month';
+	const isEditing = Boolean(id) && !isCopy;
 
 	useEffect(() => {
 		loadCards();
@@ -28,10 +71,14 @@ export function FormTransaction() {
 			getTransaction();
 		}
 
-	}, [])
+	}, [id, isCopy])
 
 	const navigate = useNavigate();
 	const [showDialog, setShowDialog] = useState(false);
+	const [isAdjusting, setIsAdjusting] = useState(false);
+	const [showCopyConfirmation, setShowCopyConfirmation] = useState(false);
+	const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+	const [isTransactionLoading, setIsTransactionLoading] = useState(Boolean(id) && !isCopy);
 	let [cards, setCards] = useState<any[]>([])
 	const [amount, setAmount] = useState(0);
 	const [inputValue, setInputValue] = useState('');
@@ -71,12 +118,24 @@ export function FormTransaction() {
 					const dateStr = new Date(data.date).toLocaleDateString('sv-SE', {
 						timeZone: 'America/Sao_Paulo',
 					});
-					setTransactionDate(dateStr);
+					if (isCopy) {
+						const [year, month, day] = dateStr.split('-').map(Number);
+						const targetYear = month === 12 ? year + 1 : year;
+						const targetMonth = month === 12 ? 1 : month + 1;
+						const targetDay = Math.min(day, new Date(targetYear, targetMonth, 0).getDate());
+						setTransactionDate(`${targetYear}-${String(targetMonth).padStart(2, '0')}-${String(targetDay).padStart(2, '0')}`);
+						setDividedIn(0);
+						setIsDivided(false);
+						setFixed(false);
+					} else {
+						setTransactionDate(dateStr);
+					}
 				}
 			})
 			.catch(() => {
 				toast.error('Não foi possível carregar a transação.');
-			});
+			})
+			.finally(() => setIsTransactionLoading(false));
 	}
 
 	// Função auxiliar para validação e preparação dos dados da transação
@@ -185,7 +244,7 @@ export function FormTransaction() {
 					{ withCredentials: true }
 				)
 			}
-			if(!id){
+			if(!isEditing){
 				setAmount(0)
 				setDescription('')
 				setDividedIn(0)
@@ -209,6 +268,16 @@ export function FormTransaction() {
 
 	function handleGoToDashboard() {
 		navigate('/dashboard');
+	}
+
+	async function deleteTransaction() {
+		try {
+			await API.delete(`/transaction/${id}`, { withCredentials: true });
+			toast.success('Transação removida com sucesso.');
+			navigate('/extrato');
+		} catch {
+			toast.error('Erro ao remover a transação.');
+		}
 	}
 
 	function handleAddAnother() {
@@ -237,27 +306,141 @@ export function FormTransaction() {
 		setInputValue(formatted);
 	}
 
+	const isCredit = String(type) === '1';
+	const isCardPayment = isCredit || String(type) === '2';
+	const isPixPayment = String(type) === '4';
+	const PaymentIcon = isCardPayment ? FiCreditCard : isPixPayment ? RiQrCodeLine : RiCoinsLine;
+	const ExpenseIcon = getExpenseIcon(description, category) || PaymentIcon;
+	const categoryLabel = categoryOptions.find(option => String(option._id) === String(category))?.name || 'Categoria não informada';
+	const paymentLabel = typePayOptions.find(option => String(option._id) === String(type))?.name || 'Forma de pagamento não informada';
+	const sourceLabel = source === 'salary'
+		? 'Salário'
+		: source === 'carryover'
+			? 'Lazer'
+			: source === 'savings'
+				? 'Poupança'
+				: 'Conta de origem não informada';
+	const transactionDateLabel = transactionDate
+		? new Date(`${transactionDate}T12:00:00`).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })
+		: 'Data não informada';
+	const cardName = card ? cards.find(item => item._id === card)?.name || 'Cartão não encontrado' : '';
+
 		return (
 			<section className="text-slate-100 pb-24">
-				<div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+				<div className="mb-6 flex flex-col-reverse gap-4 sm:flex-row sm:items-end sm:justify-between">
 					<div>
-						<p className="text-sm font-medium text-slate-400">{id ? 'Editar gasto' : 'Novo gasto'}</p>
-						<h1 className="mt-1 text-2xl font-semibold text-white">{ id ? 'Editar transação' : 'Adicionar transação' }</h1>
+						<p className="text-sm font-medium text-sky-300">{isEditing ? 'Editar gasto' : isCopy ? 'Copiar gasto' : 'Nova transação'}</p>
+						<h1 className="mt-1 text-2xl font-semibold text-white">{isEditing ? 'Editar transação' : isCopy ? 'Copiar transação para o próximo mês' : 'Registrar movimentação'}</h1>
 						<p className="mt-2 text-sm text-slate-400">
-							Registre despesas, parcelamentos e recorrências no seu controle financeiro.
+							Revise os dados registrados e ajuste os detalhes necessários.
 						</p>
 					</div>
+					<button
+						type="button"
+						onClick={() => navigate('/extrato')}
+						className="inline-flex w-fit items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm font-medium text-slate-300 transition hover:border-sky-300/30 hover:bg-sky-300/[0.06] hover:text-white"
+					>
+						<FiArrowLeft aria-hidden="true" />
+						Voltar ao extrato
+					</button>
 				</div>
 
-				<div className="rounded-lg border border-white/10 bg-[#0d1117] p-4 shadow-[0_20px_60px_-38px_rgba(0,0,0,0.9)] sm:p-6">
-					<div className="mb-6 flex items-center gap-2 text-sm font-semibold text-white">
-						<FiEdit3 className="text-slate-400" />
-						Dados da transação
+				<div className="mx-auto w-full max-w-4xl">
+				{isEditing && !isAdjusting ? (
+					<div className="relative overflow-hidden rounded-2xl border border-white/[0.08] bg-[#0b1320]/90 p-5 shadow-[0_24px_70px_-42px_rgba(0,0,0,0.95)] sm:p-8">
+						<div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-blue-500/10 blur-[90px]" />
+						<div className="relative z-10 mb-6 flex items-center justify-between gap-3 border-b border-white/[0.08] pb-5">
+							<div>
+								<p className="text-sm font-semibold text-white">Detalhes da transação</p>
+								<p className="mt-1 text-xs text-slate-500">Confira os dados registrados</p>
+							</div>
+							<div className="flex items-center gap-2">
+								<button type="button" aria-label="Copiar para o próximo mês" title="Copiar para o próximo mês" onClick={() => setShowCopyConfirmation(true)} className="rounded-xl border border-sky-300/15 bg-sky-300/[0.06] p-3 text-sky-200 transition hover:border-sky-300/30 hover:bg-sky-300/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300">
+									<FiCopy size={18} />
+								</button>
+								<button type="button" aria-label="Excluir transação" title="Excluir transação" onClick={() => setShowDeleteConfirmation(true)} className="rounded-xl border border-red-300/15 bg-red-300/[0.05] p-3 text-red-300 transition hover:border-red-300/30 hover:bg-red-300/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-300">
+									<FiTrash2 size={18} />
+								</button>
+							</div>
+						</div>
+
+						{isTransactionLoading ? (
+							<div className="relative z-10 flex min-h-[220px] items-center justify-center text-sm text-slate-400">Carregando transação...</div>
+						) : (
+							<div className="relative z-10">
+								<div className="rounded-2xl border border-sky-300/15 bg-gradient-to-br from-sky-400/[0.08] to-white/[0.02] p-5 sm:p-7">
+									<div className="flex flex-wrap items-start justify-between gap-4">
+										<div className="flex min-w-0 items-center gap-3">
+											<span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-sky-300/20 bg-sky-300/[0.08] text-sky-200">
+													<ExpenseIcon className="text-xl" />
+											</span>
+											<div className="min-w-0">
+												<p className="truncate text-base font-semibold text-white">{description || 'Transação sem descrição'}</p>
+												<p className="mt-1 text-sm text-slate-400">{categoryLabel}</p>
+											</div>
+										</div>
+										<span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs font-medium text-slate-300">{fixed ? 'Gasto fixo' : dividedIn > 1 ? `${dividedIn} parcelas` : 'À vista'}</span>
+									</div>
+									<p className="mt-7 text-3xl font-semibold tracking-tight text-white sm:text-4xl">{formatToBRL(amount)}</p>
+									<p className="mt-1 text-xs text-slate-500">Valor da movimentação</p>
+								</div>
+
+								<div className="mt-4 grid gap-3 sm:grid-cols-2">
+									<div className="rounded-xl border border-white/[0.08] bg-white/[0.025] p-4">
+										<p className="text-xs font-medium uppercase tracking-[0.14em] text-slate-500">Forma de pagamento</p>
+										<div className="mt-3 flex items-center gap-3">
+											<span className="flex h-9 w-11 items-center justify-center rounded-xl bg-sky-300/10 text-sky-200"><PaymentIcon /></span>
+											<p className="truncate text-sm font-medium text-slate-100">{paymentLabel}</p>
+										</div>
+									</div>
+									{cardName && (
+										<div className="rounded-xl border border-white/[0.08] bg-white/[0.025] p-4">
+											<p className="text-xs font-medium uppercase tracking-[0.14em] text-slate-500">Cartão utilizado</p>
+											<p className="mt-3 truncate text-sm font-medium text-slate-100">{cardName}</p>
+										</div>
+									)}
+									<div className="rounded-xl border border-white/[0.08] bg-white/[0.025] p-4">
+										<p className="text-xs font-medium uppercase tracking-[0.14em] text-slate-500">Descontar de</p>
+										<p className="mt-3 text-sm font-medium text-slate-100">{sourceLabel}</p>
+									</div>
+									<div className="rounded-xl border border-white/[0.08] bg-white/[0.025] p-4">
+										<p className="text-xs font-medium uppercase tracking-[0.14em] text-slate-500">Data</p>
+										<p className="mt-3 text-sm font-medium text-slate-100">{transactionDateLabel}</p>
+									</div>
+									<div className="rounded-xl border border-white/[0.08] bg-white/[0.025] p-4">
+										<p className="text-xs font-medium uppercase tracking-[0.14em] text-slate-500">Categoria</p>
+										<p className="mt-3 text-sm font-medium text-slate-100">{categoryLabel}</p>
+									</div>
+								</div>
+							</div>
+						)}
+
+						<button
+							type="button"
+							disabled={isTransactionLoading}
+							onClick={() => setIsAdjusting(true)}
+							className="relative z-10 mx-auto mt-6 flex h-12 w-full max-w-[360px] items-center justify-center gap-2 rounded-2xl border border-sky-300/30 bg-sky-500 px-6 text-sm font-semibold text-white shadow-[0_10px_30px_-12px_rgba(14,165,233,0.65)] transition hover:bg-sky-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300 disabled:cursor-wait disabled:opacity-60"
+						>
+							<FiEdit3 />
+							Editar transação
+						</button>
+					</div>
+				) : (
+				<div className="rounded-2xl border border-white/[0.08] bg-[#0b1320]/90 p-4 shadow-[0_24px_70px_-42px_rgba(0,0,0,0.95)] sm:p-6">
+					<div className="mb-6 flex items-center justify-between gap-3 border-b border-white/[0.08] pb-5">
+						<div className="flex items-center gap-3">
+						<span className="flex h-10 w-10 items-center justify-center rounded-xl border border-sky-300/15 bg-sky-300/[0.08] text-sky-300"><FiEdit3 /></span>
+						<div>
+							<p className="text-sm font-semibold text-white">Detalhes da transação</p>
+							<p className="mt-0.5 text-xs text-slate-500">Preencha as informações da movimentação</p>
+						</div>
+						</div>
+						{isEditing && isAdjusting && <button type="button" onClick={() => setIsAdjusting(false)} className="shrink-0 rounded-xl border border-white/10 px-3 py-2 text-xs font-semibold text-slate-300 transition hover:border-sky-300/25 hover:bg-sky-300/[0.06] hover:text-sky-100">Ver transação</button>}
 					</div>
 
 				<form
 					className="space-y-6"
-					onSubmit={id ? setUpdateTransaction : setNewTransaction}
+					onSubmit={isEditing ? setUpdateTransaction : setNewTransaction}
 					noValidate
 				>
 					<div className="grid gap-4 lg:grid-cols-2">
@@ -276,10 +459,10 @@ export function FormTransaction() {
 					
 					<div className={fieldWrapperClassName}>
 						<label className={labelClassName} htmlFor="amount">
-							Valor <small className='text-muted'>(R$)</small>
+							Valor <small className="text-slate-500">(R$)</small>
 						</label>
 						<div className="relative">
-							<div className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-slate-400">
+							<div className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-sky-300">
 								<FiDollarSign size={16} />
 							</div>
 							<input
@@ -352,12 +535,12 @@ export function FormTransaction() {
 						/>
 					</div> 
 					
-					<div className="rounded-lg border border-white/10 bg-white/[0.04] p-4">
+					<div className="rounded-2xl border border-white/[0.08] bg-white/[0.025] p-4">
 						<label className="flex items-start gap-3" htmlFor="fixed">
 							<input
 								type="checkbox"
 								id="fixed"
-								className="mt-1 h-4 w-4 rounded border-slate-600 bg-transparent text-emerald-300 focus:ring-emerald-300"
+								className="mt-1 h-4 w-4 rounded border-white/20 bg-transparent text-sky-300 focus:ring-sky-300"
 								checked={fixed}
 								onChange={(e) => {
 									const checked = e.target.checked;
@@ -394,7 +577,7 @@ export function FormTransaction() {
 					
 
 					{/* Mostrar select de cartões apenas se o tipo for crédito */}
-					{type === '1' && (
+					{isCredit && (
 						<div className={fieldWrapperClassName}>
 							<label className={labelClassName} htmlFor='card'>Cartão</label>
 							<select
@@ -421,20 +604,23 @@ export function FormTransaction() {
 					)}
 		
 					{/* Botón */}
-					<div className="flex flex-col gap-3 border-t border-white/10 pt-6 sm:flex-row sm:items-center sm:justify-between">
+					<div className="flex flex-col gap-3 border-t border-white/[0.08] pt-6 sm:flex-row sm:items-center sm:justify-between">
 						<div className="flex items-center gap-2 text-sm text-slate-400">
-							{fixed ? <FiRepeat className="text-slate-500" /> : type === '1' ? <FiCreditCard className="text-slate-500" /> : <FiTag className="text-slate-500" />}
+							{fixed ? <FiRepeat className="text-sky-300" /> : isCredit ? <FiCreditCard className="text-sky-300" /> : <FiTag className="text-sky-300" />}
 							{fixed ? 'Será tratado como gasto mensal recorrente.' : dividedIn > 1 ? `Será dividido em ${dividedIn} parcelas.` : 'Preencha os dados para salvar.'}
 						</div>
 						<button
 							type="submit"
-							className="inline-flex items-center justify-center gap-2 rounded-lg border border-emerald-300/30 bg-emerald-300 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-emerald-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0d1117]"
+							className="inline-flex items-center justify-center gap-2 rounded-2xl border border-sky-300/30 bg-sky-500 px-6 py-3 text-sm font-semibold text-white shadow-[0_10px_30px_-12px_rgba(14,165,233,0.65)] transition hover:bg-sky-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0b1320]"
 						>
 							<FiSave />
-							{id ? "Editar" : "Adicionar"}
+							{isEditing ? "Salvar alterações" : isCopy ? "Criar cópia" : "Adicionar"}
 						</button>
 					</div>
 				</form>
+				</div>
+				)}
+
 				</div>
 
 				<Dialog
@@ -445,8 +631,27 @@ export function FormTransaction() {
 					onConfirm={handleGoToDashboard}
 					onCancel={handleAddAnother}
 					confirmText="Ir para o Dashboard"
-					cancelText={id ? "Continuar Editando" : "Adicionar Outra"}
+					cancelText={isEditing ? "Continuar Editando" : "Adicionar Outra"}
 					confirmVariant="default"
+				/>
+				<Dialog
+					open={showCopyConfirmation}
+					onOpenChange={setShowCopyConfirmation}
+					title="Copiar para o próximo mês?"
+					description="Uma nova transação será criada para o próximo mês com estes dados."
+					onConfirm={() => navigate(`/gasto/${id}?copy=next-month`)}
+					confirmText="Copiar transação"
+					cancelText="Cancelar"
+					confirmVariant="default"
+				/>
+				<Dialog
+					open={showDeleteConfirmation}
+					onOpenChange={setShowDeleteConfirmation}
+					title="Excluir transação?"
+					description="Essa transação será removida permanentemente."
+					onConfirm={deleteTransaction}
+					confirmText="Excluir"
+					cancelText="Cancelar"
 				/>
 			</section>
 	);

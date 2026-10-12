@@ -44,14 +44,14 @@ export interface DashboardChartsProps {
 	variableTransactions: ChartTransaction[]
 }
 
-const EMERALD = '#34d399'
+const BLUE = '#38bdf8'
 const ROSE = '#fb7185'
 const SLATE = '#64748b'
 const GRID = 'rgba(255,255,255,0.06)'
 
 function ChartCard({ children, className = '' }: { children: React.ReactNode; className?: string }) {
 	return (
-		<div className={`rounded-lg border border-white/10 bg-[#0d1117] p-4 shadow-[0_20px_60px_-38px_rgba(0,0,0,0.9)] sm:p-5 ${className}`}>
+		<div className={`rounded-2xl border border-white/[0.08] bg-[#0b1320]/80 p-4 shadow-[0_20px_60px_-38px_rgba(0,0,0,0.9)] sm:p-5 ${className}`}>
 			{children}
 		</div>
 	)
@@ -61,7 +61,7 @@ function SectionTitle({ icon, title, subtitle }: { icon: React.ReactNode; title:
 	return (
 		<div className="mb-4">
 			<div className="flex items-center gap-2 text-sm font-semibold text-white">
-				<span className="text-emerald-300">{icon}</span>
+				<span className="text-sky-300">{icon}</span>
 				{title}
 			</div>
 			<p className="mt-1 text-xs text-slate-400">{subtitle}</p>
@@ -161,7 +161,7 @@ function SpendingPace({ series, currentDay }: { series: SpendPoint[]; currentDay
 			<div className="mb-4 flex flex-wrap items-center justify-between gap-2">
 				<div className="flex flex-wrap gap-4 text-xs text-slate-400">
 					<span className="flex items-center gap-1.5">
-						<span className="h-2 w-2 rounded-full" style={{ backgroundColor: EMERALD }} /> Gasto real
+						<span className="h-2 w-2 rounded-full" style={{ backgroundColor: BLUE }} /> Gasto real
 					</span>
 					<span className="flex items-center gap-1.5">
 						<span className="inline-block w-4 border-t border-dashed border-slate-400" /> Presupuesto ideal
@@ -181,8 +181,8 @@ function SpendingPace({ series, currentDay }: { series: SpendPoint[]; currentDay
 					<AreaChart data={series} margin={{ top: 4, right: 4, left: -12, bottom: 0 }}>
 						<defs>
 							<linearGradient id="gradActual" x1="0" y1="0" x2="0" y2="1">
-								<stop offset="0%" stopColor={EMERALD} stopOpacity={0.35} />
-								<stop offset="100%" stopColor={EMERALD} stopOpacity={0.02} />
+								<stop offset="0%" stopColor={BLUE} stopOpacity={0.35} />
+								<stop offset="100%" stopColor={BLUE} stopOpacity={0.02} />
 							</linearGradient>
 						</defs>
 						<CartesianGrid stroke={GRID} vertical={false} />
@@ -208,7 +208,7 @@ function SpendingPace({ series, currentDay }: { series: SpendPoint[]; currentDay
 									<div className="rounded-lg border border-white/10 bg-[#0d1117]/95 px-3 py-2 text-xs shadow-xl">
 										<p className="font-semibold text-white">Día {payload[0].payload.day} · {label}</p>
 										<p className="mt-1 text-slate-300">
-											<span className="mr-1 inline-block h-2 w-2 rounded-full" style={{ backgroundColor: EMERALD }} />
+											<span className="mr-1 inline-block h-2 w-2 rounded-full" style={{ backgroundColor: BLUE }} />
 											Acumulado: <span className="font-semibold text-white">{compactBRL(Number(payload[0].value))}</span>
 										</p>
 										<p className="text-slate-400">
@@ -223,11 +223,11 @@ function SpendingPace({ series, currentDay }: { series: SpendPoint[]; currentDay
 						<Area
 							type="monotone"
 							dataKey="actual"
-							stroke={EMERALD}
+							stroke={BLUE}
 							strokeWidth={2.5}
 							fill="url(#gradActual)"
 							dot={false}
-							activeDot={{ r: 4, fill: EMERALD, stroke: '#0d1117' }}
+							activeDot={{ r: 4, fill: BLUE, stroke: '#0b1320' }}
 						/>
 						<Area type="monotone" dataKey="ideal" stroke="#94a3b8" strokeWidth={1.5} strokeDasharray="6 4" fill="none" dot={false} />
 					</AreaChart>
@@ -239,7 +239,7 @@ function SpendingPace({ series, currentDay }: { series: SpendPoint[]; currentDay
 
 function CashFlowBar({ money }: { money: ChartReportMoney }) {
 	const data = [
-		{ key: 'Entrada', label: 'Entrada', value: money.salary, color: EMERALD, sub: 'Salário do ciclo' },
+		{ key: 'Entrada', label: 'Entrada', value: money.salary, color: BLUE, sub: 'Salário do ciclo' },
 		{ key: 'Gastos', label: 'Gastos', value: money.totalExpenses, color: ROSE, sub: 'Fixos + variáveis' },
 		{ key: 'Disponível', label: 'Disponível', value: money.available, color: money.available < 0 ? ROSE : '#38bdf8', sub: 'Saldo restante' },
 	]
@@ -294,7 +294,7 @@ function Insight({ status, label, value, helper }: { status: 'good' | 'warn' | '
 	}[status]
 
 	return (
-		<div className={`rounded-lg border p-3 ${styles.border}`}>
+		<div className={`rounded-xl border p-3 ${styles.border}`}>
 			<div className="flex items-center gap-2">
 				{styles.icon}
 				<p className="text-[11px] uppercase tracking-[0.12em] text-slate-400">{label}</p>

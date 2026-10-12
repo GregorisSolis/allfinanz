@@ -2,10 +2,7 @@
 	import { formatToBRL } from "../services/amountFormat";
 	import { typePayOptions } from "../services/typePayOptions";
 	import { categoryOptions } from "../services/categoryOptions";
-	import { FiEdit, FiTrash2, FiMoreVertical } from "react-icons/fi";
-	import { API } from '../services/api'
-	import { Link } from "react-router-dom";
-import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 import { useTransaction } from "../contexts/TransactionContext";
 
 	interface FixedCostItem {
@@ -25,15 +22,14 @@ import { useTransaction } from "../contexts/TransactionContext";
 	interface ListFixedCostProps {
 		list: FixedCostItem[]
 		title: string
-		reload: () => void
 		cards?: CardItem[]
 	}
 
 	export function TableListTransaction(props: ListFixedCostProps) {
 
-		const { list, reload, title, cards = [] } = props;
+		const { list, title, cards = [] } = props;
+		const navigate = useNavigate();
 		const [selected, setSelected] = useState<string[]>([]);
-		const [openMenuId, setOpenMenuId] = useState<string | null>(null);
 		const { updateFixedTotal, updateRelativeTotal, updateSelectedFixedTotal, updateSelectedRelativeTotal } = useTransaction();
 
 		const toggleSelect = (id: string) => {
@@ -80,10 +76,12 @@ import { useTransaction } from "../contexts/TransactionContext";
 			return cards.find(card => card._id === cardId)?.name || '--'
 		}
 
+		const openTransaction = (id: string) => navigate(`/gasto/${id}`);
+
 		// Verificar se la lista está vacía o no es un array
 		if (!Array.isArray(list) || list.length === 0) {
 			return (
-				<div className="rounded-lg border border-white/10 bg-[#0d1117] p-6 text-slate-200 shadow-[0_20px_60px_-38px_rgba(0,0,0,0.9)] w-full">
+				<div className="w-full rounded-2xl border border-white/[0.08] bg-[#0b1320] p-6 text-slate-200 shadow-[0_20px_60px_-38px_rgba(0,0,0,0.9)]">
 					<h2 className="text-sm mb-4 font-semibold text-white">{title}</h2>
 					<div className="text-center py-8">
 						<p className="text-slate-400 mb-4">Nenhuma transação encontrada</p>
@@ -92,88 +90,47 @@ import { useTransaction } from "../contexts/TransactionContext";
 			)
 		}
 
-		const removeTransaction = async (id: string) => {
-			try {
-				await API.delete(`/transaction/${id}`, {withCredentials: true})
-				toast.success("Transação removida com sucesso.")
-				reload()
-			} catch (error) {
-				toast.error("Erro ao remover a transação.")
-			}
-		}
-
 		return (
-			<div className="rounded-lg border border-white/10 bg-[#0d1117] p-3 text-slate-200 shadow-[0_20px_60px_-38px_rgba(0,0,0,0.9)] w-full sm:p-4">
+			<div className="w-full rounded-2xl border border-white/[0.08] bg-[#0b1320] p-3 text-slate-200 shadow-[0_20px_60px_-38px_rgba(0,0,0,0.9)] sm:p-4">
 
 				<div className="flex justify-between items-center mb-4">
 					<h2 className="text-sm font-semibold text-white">{title}</h2>
 				</div>
 				<div className="space-y-3 md:hidden">
 					{list.map((item, index) => (
-						<div key={item._id || index} className="rounded-lg border border-white/10 bg-white/[0.03] p-3">
+						<div
+							key={item._id || index}
+							role="link"
+							tabIndex={0}
+							onClick={() => openTransaction(item._id)}
+							onKeyDown={event => {
+								if (event.target === event.currentTarget && event.key === 'Enter') openTransaction(item._id);
+							}}
+							className="cursor-pointer rounded-xl border border-white/[0.08] bg-white/[0.025] p-3 transition hover:border-sky-300/20 hover:bg-white/[0.04]"
+						>
 							<div className="flex items-start justify-between gap-3">
-								<label className="flex min-w-0 flex-1 items-start gap-3">
+								<div className="flex min-w-0 flex-1 items-start gap-3">
 									<input
 										type="checkbox"
 										checked={selected.includes(item._id)}
 										onChange={() => toggleSelect(item._id)}
-										className="mt-1 h-4 w-4 shrink-0 cursor-pointer appearance-none rounded-sm border border-white/20 bg-transparent checked:border-emerald-300 checked:bg-emerald-300 checked:bg-center checked:bg-no-repeat"
+										onClick={event => event.stopPropagation()}
+										className="mt-1 h-4 w-4 shrink-0 cursor-pointer appearance-none rounded-sm border border-white/20 bg-transparent checked:border-sky-300 checked:bg-sky-300 checked:bg-center checked:bg-no-repeat"
 									/>
 									<span className="min-w-0">
 										<span className="block break-words text-sm font-semibold text-white">{item.description || 'N/A'}</span>
 										<span className="mt-1 block text-xs text-slate-400">{typePayOptions[item.type]?.name || 'N/A'} · {categoryOptions[item.category]?.name || 'N/A'}</span>
 									</span>
-								</label>
-
-								<div className="relative shrink-0">
-									<button
-										onClick={(e) => {
-											e.stopPropagation();
-											setOpenMenuId(openMenuId === item._id ? null : item._id);
-										}}
-										className="text-slate-400 hover:text-white p-2 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#0d1117] focus:ring-emerald-300"
-										aria-label="Ações da transação"
-									>
-										<FiMoreVertical size={18} />
-									</button>
-
-									{openMenuId === item._id && (
-										<div
-											className="absolute right-0 top-9 w-40 bg-[#0d1117] border border-white/10 rounded-md shadow-lg z-20"
-											onMouseLeave={() => setOpenMenuId(null)}
-										>
-											<ul className="py-1">
-												<li>
-													<Link to={"/gasto/"+item._id}
-														className="w-full text-left px-4 py-2 text-sm text-slate-300 hover:bg-white/[0.06] flex items-center"
-														title="Editar"
-													>
-														<FiEdit size={16} className="mr-3" />
-														Editar
-													</Link>
-												</li>
-												<li>
-													<button
-														className="w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-white/[0.06] flex items-center"
-														title="Remover"
-														onClick={() => removeTransaction(item._id)}
-													>
-														<FiTrash2 size={16} className="mr-3" />
-														Remover
-													</button>
-												</li>
-											</ul>
-										</div>
-									)}
 								</div>
+
 							</div>
 
 							<div className="mt-3 grid grid-cols-2 gap-2 text-xs">
-								<div className="rounded-lg bg-white/[0.04] p-2">
+								<div className="rounded-xl bg-white/[0.04] p-2">
 									<p className="uppercase text-slate-500">Cartão</p>
 									<p className="mt-1 truncate font-medium text-slate-200">{getCardName(item.card)}</p>
 								</div>
-								<div className="rounded-lg bg-white/[0.04] p-2 text-right">
+								<div className="rounded-xl bg-white/[0.04] p-2 text-right">
 									<p className="uppercase text-slate-500">Valor</p>
 									<p className="mt-1 font-semibold text-white">{formatToBRL(item.amount || 0)}</p>
 								</div>
@@ -181,7 +138,7 @@ import { useTransaction } from "../contexts/TransactionContext";
 						</div>
 					))}
 
-					<div className="rounded-lg border border-white/10 bg-white/[0.04] p-3 text-right">
+					<div className="rounded-xl border border-white/[0.08] bg-white/[0.04] p-3 text-right">
 						<p className="text-xs uppercase text-slate-500">Total {selected.length > 0 ? '(selecionados)' : ''}</p>
 						<p className="mt-1 text-xl font-semibold text-white">{formatToBRL(total)}</p>
 					</div>
@@ -196,18 +153,27 @@ import { useTransaction } from "../contexts/TransactionContext";
 								<th className="p-3 text-left text-xs uppercase text-slate-500">Categoria</th>
 								<th className="p-3 text-left text-xs uppercase text-slate-500">Cartão</th>
 								<th className="p-3 text-center text-xs uppercase text-slate-500">Valor</th>
-								<th className="p-3 text-center text-xs uppercase text-slate-500">Ações</th>
 							</tr>
 						</thead>
 						<tbody>
 							{list.map((item, index) => (
-								<tr key={item._id || index} className="border-t border-white/10">
+								<tr
+									key={item._id || index}
+									role="link"
+									tabIndex={0}
+									onClick={() => openTransaction(item._id)}
+									onKeyDown={event => {
+										if (event.target === event.currentTarget && event.key === 'Enter') openTransaction(item._id);
+									}}
+									className="cursor-pointer border-t border-white/10 transition hover:bg-white/[0.035] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-sky-300"
+								>
 									<td className="p-3 text-center">
 										<input
 											type="checkbox"
 											checked={selected.includes(item._id)}
 											onChange={() => toggleSelect(item._id)}
-											className="h-4 w-4 cursor-pointer appearance-none rounded-sm border border-white/20 bg-transparent checked:border-emerald-300 checked:bg-emerald-300 checked:bg-center checked:bg-no-repeat"
+											onClick={event => event.stopPropagation()}
+											className="h-4 w-4 cursor-pointer appearance-none rounded-sm border border-white/20 bg-transparent checked:border-sky-300 checked:bg-sky-300 checked:bg-center checked:bg-no-repeat"
 										/>
 									</td>
 									<td className="p-3">{item.description || 'N/A'}</td>
@@ -215,54 +181,13 @@ import { useTransaction } from "../contexts/TransactionContext";
 									<td className="p-3">{categoryOptions[item.category]?.name || 'N/A'}</td>
 									<td className="p-3">{getCardName(item.card)}</td>
 									<td className="p-3 text-center">{formatToBRL(item.amount || 0)}</td>
-									<td className="p-3 text-center relative">
-										<button
-											onClick={(e) => {
-												e.stopPropagation();  // <-- Importante: evita burbujas innecesarias
-												setOpenMenuId(openMenuId === item._id ? null : item._id);
-											}}
-											className="text-slate-400 hover:text-white p-2 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#0d1117] focus:ring-emerald-300"
-										>
-											<span className="pointer-events-none">
-												<FiMoreVertical size={18} />
-											</span>
-										</button>
-
-										{openMenuId === item._id && (
-											<div
-												className="absolute right-8 top-0 mt-2 w-40 bg-[#0d1117] border border-white/10 rounded-md shadow-lg z-20"
-												onMouseLeave={() => setOpenMenuId(null)}
-											>
-												<ul className="py-1">
-													<li>
-														<Link to={"/gasto/"+item._id}
-															className="w-full text-left px-4 py-2 text-sm text-slate-300 hover:bg-white/[0.06] flex items-center"
-															title="Editar"
-														>
-															<FiEdit size={16} className="mr-3" />
-															Editar
-														</Link>
-													</li>
-													<li>
-														<button
-															className="w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-white/[0.06] flex items-center"
-															title="Remover"
-															onClick={() => removeTransaction(item._id)}
-														>
-															<FiTrash2 size={16} className="mr-3" />
-															Remover
-														</button>
-													</li>
-												</ul>
-											</div>
-										)}
-									</td>
+									
 								</tr>
 							))}
 						</tbody>
 						<tfoot>
 							<tr className="font-semibold">
-								<td colSpan={6} className="p-3 text-right">
+								<td colSpan={5} className="p-3 text-right">
 									Total {selected.length > 0 ? '(Seleccionados)' : ''}
 								</td>
 								<td className="p-3 text-center text-2xl font-semibold text-white">{formatToBRL(total)}</td>
@@ -271,7 +196,7 @@ import { useTransaction } from "../contexts/TransactionContext";
 					</table>
 				</div>
 				{selected.length > 0 && (
-					<div className="mt-4 p-3 rounded-lg border border-white/10 bg-white/[0.04]">
+							<div className="mt-4 rounded-xl border border-sky-300/15 bg-sky-300/[0.06] p-3">
 						<p className="text-sm text-slate-300">
 							{selected.length} elemento(s) seleccionado(s)
 						</p>

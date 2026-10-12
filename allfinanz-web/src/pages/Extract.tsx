@@ -61,8 +61,8 @@ export function Extract() {
 	let [activeShortcut, setActiveShortcut] = useState<'previous' | 'current' | 'next' | null>(null)
 	let [isFilterOpen, setIsFilterOpen] = useState(false)
 
-	const shortcutButtonClassName = "min-w-0 rounded-lg border border-white/10 bg-white/[0.04] px-2.5 py-2 text-center text-xs font-semibold leading-tight text-slate-200 transition hover:bg-white/[0.08] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0d1117] sm:flex-none sm:px-3"
-	const shortcutSelectedClassName = "border-emerald-300/50 text-emerald-200"
+	const shortcutButtonClassName = "min-w-0 rounded-xl border border-white/10 bg-white/[0.04] px-2.5 py-2 text-center text-xs font-semibold leading-tight text-slate-200 transition hover:border-sky-300/25 hover:bg-sky-300/[0.06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0b1320] sm:flex-none sm:px-3"
+	const shortcutSelectedClassName = "border-sky-300/50 bg-sky-300/[0.08] text-sky-200"
 
 	useEffect(() => {
 		if (!isFilterOpen) return
@@ -81,6 +81,8 @@ export function Extract() {
 	function getTotal(items: TransactionItem[]) {
 		return items.reduce((total, item) => total + (item.amount || 0), 0)
 	}
+
+	const currentMonthLabel = new Date().toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })
 
 	function clearFilters() {
 		setStartDate('')
@@ -187,7 +189,7 @@ export function Extract() {
 
 					<div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
 						<div>
-							<p className="text-sm font-medium text-slate-400">Extrato</p>
+							<p className="text-sm font-medium text-sky-300">Extrato</p>
 							<h1 className="mt-1 text-xl font-semibold text-white sm:text-2xl">Movimentações</h1>
 							<p className="mt-2 text-sm text-slate-400">Consulte e filtre suas transações.</p>
 						</div>
@@ -197,16 +199,16 @@ export function Extract() {
 									type="button"
 									aria-haspopup="dialog"
 									aria-expanded={isFilterOpen}
-									className="inline-flex w-fit items-center gap-2 rounded-lg border border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm font-semibold text-slate-200 transition hover:bg-white/[0.08] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300"
+									className="inline-flex w-fit items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm font-semibold text-slate-200 transition hover:border-sky-300/25 hover:bg-sky-300/[0.06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300"
 									onClick={() => setIsFilterOpen((open) => !open)}
 								>
 									<FiFilter />
 									Filtros
 								</button>
 								{isFilterOpen && (
-									<div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 p-0 md:absolute md:inset-auto md:right-0 md:top-full md:z-40 md:block md:w-[min(900px,calc(100vw-18rem))] md:bg-transparent md:p-0">
+									<div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/65 p-3 backdrop-blur-sm">
 										<button type="button" aria-label="Fechar filtros" className="absolute inset-0 md:hidden" onClick={() => setIsFilterOpen(false)} />
-										<div role="dialog" aria-modal="true" aria-labelledby="extract-filters-title" className="relative z-10 max-h-[90dvh] w-full max-w-none overflow-y-auto rounded-none border border-white/10 bg-[#0d1117] p-3 text-slate-200 shadow-2xl sm:p-4 md:mt-2 md:max-h-[calc(100vh-2rem)] md:rounded-lg md:max-w-none">
+										<div role="dialog" aria-modal="true" aria-labelledby="extract-filters-title" className="relative z-10 max-h-[90dvh] w-full max-w-[900px] overflow-y-auto rounded-2xl border border-white/10 bg-[#0b1320] p-4 text-slate-200 shadow-[0_32px_100px_-38px_rgba(0,0,0,0.95)] sm:p-5">
 											<div className="mb-5 flex items-start justify-between gap-3">
 												<div className="min-w-0">
 													<h2 id="extract-filters-title" className="text-sm font-semibold text-white">Filtros do extrato</h2>
@@ -220,19 +222,19 @@ export function Extract() {
 												<div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-12 gap-3 sm:gap-4 items-end">
 													<div className="min-w-0 max-w-full xl:col-span-2 flex flex-col">
 														<label className="text-xs uppercase tracking-[0.12em] text-slate-300 mb-2 sm:tracking-[0.2em]" htmlFor="startDate">Data início</label>
-														<input id="startDate" type="date" className="block w-full max-w-full min-w-0 appearance-none rounded-lg bg-transparent px-2.5 py-2.5 text-[13px] text-slate-200 [color-scheme:dark] border border-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-500 transition sm:px-4 sm:text-sm" onChange={e => setStartDate(e.target.value)} value={startDate} />
+												<input id="startDate" type="date" className="block w-full max-w-full min-w-0 appearance-none rounded-xl border border-white/10 bg-white/[0.035] px-2.5 py-2.5 text-[13px] text-slate-200 [color-scheme:dark] transition focus:border-sky-400/50 focus:outline-none focus:ring-2 focus:ring-sky-400/15 sm:px-4 sm:text-sm" onChange={e => setStartDate(e.target.value)} value={startDate} />
 													</div>
 													<div className="min-w-0 max-w-full xl:col-span-2 flex flex-col">
 														<label className="text-xs uppercase tracking-[0.12em] text-slate-300 mb-2 sm:tracking-[0.2em]" htmlFor="endDate">Data fim</label>
-														<input id="endDate" type="date" className="block w-full max-w-full min-w-0 appearance-none rounded-lg bg-transparent px-2.5 py-2.5 text-[13px] text-slate-200 [color-scheme:dark] border border-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-500 transition sm:px-4 sm:text-sm" onChange={e => setEndDate(e.target.value)} value={endDate} />
+												<input id="endDate" type="date" className="block w-full max-w-full min-w-0 appearance-none rounded-xl border border-white/10 bg-white/[0.035] px-2.5 py-2.5 text-[13px] text-slate-200 [color-scheme:dark] transition focus:border-sky-400/50 focus:outline-none focus:ring-2 focus:ring-sky-400/15 sm:px-4 sm:text-sm" onChange={e => setEndDate(e.target.value)} value={endDate} />
 													</div>
 													<div className="min-w-0 md:col-span-2 xl:col-span-4 flex flex-col">
 														<label className="text-xs uppercase tracking-[0.12em] text-slate-300 mb-2 sm:tracking-[0.2em]" htmlFor="description">Descrição</label>
-														<input id="description" type="text" placeholder="Exemplo: Mercado do mês..." className="w-full min-w-0 rounded-lg bg-transparent px-3 py-2.5 text-sm text-slate-200 border border-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-500 transition placeholder:text-slate-500 sm:px-4" onChange={e => setDescription(e.target.value)} value={description} autoComplete="off" />
+												<input id="description" type="text" placeholder="Exemplo: Mercado do mês..." className="w-full min-w-0 rounded-xl border border-white/10 bg-white/[0.035] px-3 py-2.5 text-sm text-slate-200 transition placeholder:text-slate-500 focus:border-sky-400/50 focus:outline-none focus:ring-2 focus:ring-sky-400/15 sm:px-4" onChange={e => setDescription(e.target.value)} value={description} autoComplete="off" />
 													</div>
 													<div className="min-w-0 xl:col-span-2 flex flex-col">
 														<label className="text-xs uppercase tracking-[0.12em] text-slate-300 mb-2 sm:tracking-[0.2em]" htmlFor="category">Categoria</label>
-														<select id="category" className="w-full min-w-0 rounded-lg bg-transparent px-3 py-2.5 text-sm text-slate-200 border border-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-500 transition sm:px-4" onChange={e => setCategory(e.target.value)} value={category}>
+												<select id="category" className="w-full min-w-0 rounded-xl border border-white/10 bg-[#0e1b2b] px-3 py-2.5 text-sm text-slate-200 transition focus:border-sky-400/50 focus:outline-none focus:ring-2 focus:ring-sky-400/15 sm:px-4" onChange={e => setCategory(e.target.value)} value={category}>
 															<option value="">Selecione</option>
 															{categoryOptions.map(option => (
 																<option key={option._id} value={option._id}>{option.name}</option>
@@ -243,7 +245,7 @@ export function Extract() {
 														<label className="text-xs uppercase tracking-[0.12em] text-slate-300 mb-2 sm:tracking-[0.2em]" htmlFor="card">Cartão</label>
 														<select
 															id="card"
-															className="w-full min-w-0 rounded-lg bg-transparent px-3 py-2.5 text-sm text-slate-200 border border-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-500 transition sm:px-4"
+													className="w-full min-w-0 rounded-xl border border-white/10 bg-[#0e1b2b] px-3 py-2.5 text-sm text-slate-200 transition focus:border-sky-400/50 focus:outline-none focus:ring-2 focus:ring-sky-400/15 sm:px-4"
 															onChange={e => setCard(e.target.value)}
 															value={card}
 															disabled={cards.length === 0}
@@ -294,14 +296,14 @@ export function Extract() {
 														<button
 															type="button"
 															onClick={clearFilters}
-															className="inline-flex min-w-0 items-center justify-center gap-2 rounded-lg border border-white/10 bg-transparent px-3 py-2.5 text-sm font-semibold text-slate-200 transition hover:bg-white/[0.06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0d1117] sm:px-4"
+										className="inline-flex min-w-0 items-center justify-center gap-2 rounded-xl border border-white/10 bg-transparent px-3 py-2.5 text-sm font-semibold text-slate-200 transition hover:bg-white/[0.06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0b1320] sm:px-4"
 														>
 															<FiX />
 															Limpar
 														</button>
 														<button
 															type='submit'
-															className="inline-flex min-w-0 items-center justify-center gap-2 rounded-lg border border-emerald-300/30 bg-emerald-300 px-3 py-2.5 text-sm font-semibold text-slate-950 transition hover:bg-emerald-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0d1117] sm:px-4"
+										className="inline-flex min-w-0 items-center justify-center gap-2 rounded-xl border border-sky-300/30 bg-sky-500 px-3 py-2.5 text-sm font-semibold text-white transition hover:bg-sky-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0b1320] sm:px-4"
 														>
 															<FiSearch />
 															Buscar
@@ -315,7 +317,7 @@ export function Extract() {
 							</div>
 							<button
 								type="button"
-								className="inline-flex w-fit items-center gap-2 rounded-lg border border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm font-semibold text-slate-200 transition hover:bg-white/[0.08]"
+								className="inline-flex w-fit items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm font-semibold text-slate-200 transition hover:border-sky-300/25 hover:bg-sky-300/[0.06]"
 								onClick={() => applyFilters(false)}
 								>
 								<FiRefreshCw />
@@ -324,16 +326,20 @@ export function Extract() {
 						</div>
 					</div>
 
-					<div className="mt-4 mb-6 grid grid-cols-1 gap-3 md:grid-cols-3 md:gap-4">
-						<div className="rounded-lg border border-white/10 bg-white/[0.04] p-4 text-slate-200">
+					<div className="mt-4 mb-6 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4 md:gap-4">
+						<div className="rounded-2xl border border-white/[0.08] bg-[#0b1320]/80 p-4 text-slate-200">
+							<p className="text-xs uppercase text-slate-500">Mês atual</p>
+							<strong className="mt-2 block break-words text-xl font-semibold capitalize text-white sm:text-2xl">{currentMonthLabel}</strong>
+						</div>
+						<div className="rounded-2xl border border-white/[0.08] bg-[#0b1320]/80 p-4 text-slate-200">
 							<p className="text-xs uppercase text-slate-500">Gastos fixos do mês</p>
 							<strong className="block mt-2 break-words text-xl font-semibold text-white sm:text-2xl">{formatToBRL(getTotal(fixedTransactions))}</strong>
 						</div>
-						<div className="rounded-lg border border-white/10 bg-white/[0.04] p-4 text-slate-200">
+						<div className="rounded-2xl border border-white/[0.08] bg-[#0b1320]/80 p-4 text-slate-200">
 							<p className="text-xs uppercase text-slate-500">Gastos variáveis do mês</p>
 							<strong className="block mt-2 break-words text-xl font-semibold text-white sm:text-2xl">{formatToBRL(getTotal(variableTransactions))}</strong>
 						</div>
-						<div className="rounded-lg border border-white/10 bg-white/[0.04] p-4 text-slate-200">
+						<div className="rounded-2xl border border-sky-300/15 bg-gradient-to-br from-sky-400/[0.08] to-[#0b1320] p-4 text-slate-200">
 							<p className="text-xs uppercase text-slate-500">Total do extrato</p>
 							<strong className="block mt-2 break-words text-xl font-semibold text-white sm:text-2xl">{formatToBRL(getTotal([...fixedTransactions, ...variableTransactions]))}</strong>
 						</div>
@@ -342,7 +348,6 @@ export function Extract() {
 					<TableListTransaction
 						list={fixedTransactions}
 						title='Gastos fixos do mês'
-						reload={loadTransaction}
 						cards={cards}
 					/>
 
@@ -351,7 +356,6 @@ export function Extract() {
 					<TableListTransaction
 						list={variableTransactions}
 						title='Gastos variáveis do mês'
-						reload={loadTransaction}
 						cards={cards}
 					/>
 

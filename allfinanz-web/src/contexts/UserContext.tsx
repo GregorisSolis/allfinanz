@@ -5,6 +5,7 @@ interface User {
   name: string;
   email?: string;
   avatar?: string;
+  salary?: number;
   salary_day?: number;
 }
 
@@ -40,6 +41,7 @@ export function UserProvider({ children }: UserProviderProps) {
         name: response.data.user.name,
         email: response.data.user.email,
         avatar: response.data.user.imageUrl,
+        salary: response.data.user.salary,
         salary_day: response.data.user.salary_day
       });
     }

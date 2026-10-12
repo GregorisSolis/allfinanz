@@ -24,7 +24,7 @@ function DateField({
 }) {
 	return (
 		<div className="flex w-full flex-col gap-2 sm:min-w-[190px] sm:flex-1 lg:flex-none">
-			<label className="text-xs uppercase tracking-[0.2em] text-slate-300" htmlFor={id}>
+			<label className="text-xs uppercase tracking-[0.16em] text-slate-300" htmlFor={id}>
 				{label}
 			</label>
 			<div className="relative">
@@ -34,7 +34,7 @@ function DateField({
 				<input
 					id={id}
 					type="date"
-					className="w-full rounded-lg bg-transparent pl-10 pr-3 py-2.5 text-sm text-slate-200 border border-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-500 transition placeholder-white"
+					className="w-full rounded-xl border border-white/10 bg-white/[0.035] py-2.5 pl-10 pr-3 text-sm text-slate-200 transition focus:border-sky-400/50 focus:outline-none focus:ring-2 focus:ring-sky-400/15 placeholder-white"
 					value={value}
 					onChange={(e) => onChange(e.target.value)}
 				/>
@@ -192,8 +192,8 @@ export function Dashboard() {
 	}
 
 	const isLoading = isLoadingReport
-	const shortcutButtonClassName = "rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2 text-xs font-semibold text-slate-200 transition hover:bg-white/[0.08] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0d1117] disabled:cursor-not-allowed disabled:opacity-60"
-	const shortcutSelectedClassName = "border-emerald-300/50 text-emerald-200"
+	const shortcutButtonClassName = "rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-xs font-semibold text-slate-200 transition hover:border-sky-300/25 hover:bg-sky-300/[0.06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0b1320] disabled:cursor-not-allowed disabled:opacity-60"
+	const shortcutSelectedClassName = "border-sky-300/50 bg-sky-300/[0.08] text-sky-200"
 	const activeShortcutLabel = activeShortcut === 'previous'
 		? 'Mês passado'
 		: activeShortcut === 'current'
@@ -208,7 +208,7 @@ export function Dashboard() {
 
 			<div className="mb-4 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
 				<div>
-					<p className="text-sm font-medium text-slate-400">Dashboard</p>
+					<p className="text-sm font-medium text-sky-300">Dashboard</p>
 					<h1 className="mt-1 text-xl font-semibold text-white sm:text-2xl">Controle financeiro</h1>
 					<p className="mt-2 text-sm text-slate-400">
 						Acompanhe o dinheiro disponível, gastos do período e limite diário.
@@ -221,7 +221,7 @@ export function Dashboard() {
 							type="button"
 							aria-haspopup="dialog"
 							aria-expanded={isFilterOpen}
-							className="inline-flex w-fit items-center gap-2 rounded-lg border border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm font-semibold text-slate-200 transition hover:bg-white/[0.08] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 disabled:cursor-not-allowed disabled:opacity-60"
+							className="inline-flex w-fit items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm font-semibold text-slate-200 transition hover:border-sky-300/25 hover:bg-sky-300/[0.06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300 disabled:cursor-not-allowed disabled:opacity-60"
 							onClick={() => setIsFilterOpen((open) => !open)}
 							disabled={isLoading}
 						>
@@ -236,7 +236,7 @@ export function Dashboard() {
 									className="absolute inset-0 md:hidden"
 									onClick={() => setIsFilterOpen(false)}
 								/>
-								<div role="dialog" aria-modal="true" aria-labelledby="dashboard-filters-title" className="relative z-10 max-h-[90dvh] w-full max-w-xl overflow-y-auto rounded-lg border border-white/10 bg-[#0d1117] p-4 text-slate-200 shadow-2xl sm:p-5 md:mt-2 md:max-h-[calc(100vh-2rem)] md:max-w-none">
+								<div role="dialog" aria-modal="true" aria-labelledby="dashboard-filters-title" className="relative z-10 max-h-[90dvh] w-full max-w-xl overflow-y-auto rounded-2xl border border-white/10 bg-[#0b1320] p-4 text-slate-200 shadow-2xl sm:p-5 md:mt-2 md:max-h-[calc(100vh-2rem)] md:max-w-none">
 									<div className="mb-4 flex items-start justify-between gap-3">
 										<div>
 											<p id="dashboard-filters-title" className="text-sm font-semibold text-white">Filtrar relatório</p>
@@ -254,8 +254,8 @@ export function Dashboard() {
 											<button type="button" aria-pressed={activeShortcut === 'previous'} className={`${shortcutButtonClassName} ${activeShortcut === 'previous' ? shortcutSelectedClassName : ''}`} onClick={() => handleMonthShortcut(-1)} disabled={isLoading}>Mês passado</button>
 											<button type="button" aria-pressed={activeShortcut === 'current'} className={`${shortcutButtonClassName} ${activeShortcut === 'current' ? shortcutSelectedClassName : ''}`} onClick={() => handleMonthShortcut(0)} disabled={isLoading}>Mês atual</button>
 											<button type="button" aria-pressed={activeShortcut === 'next'} className={`${shortcutButtonClassName} ${activeShortcut === 'next' ? shortcutSelectedClassName : ''}`} onClick={() => handleMonthShortcut(1)} disabled={isLoading}>Próximo mês</button>
-											<button type="button" className="rounded-lg border border-emerald-300/30 bg-emerald-300 px-4 py-2.5 text-sm font-semibold text-slate-950 transition hover:bg-emerald-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 disabled:cursor-not-allowed disabled:opacity-60" onClick={handleApplyDateRange} disabled={isLoading}>Aplicar</button>
-											<button type="button" className="rounded-lg border border-white/10 bg-transparent px-4 py-2.5 text-sm font-semibold text-slate-200 transition hover:bg-white/[0.06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 disabled:cursor-not-allowed disabled:opacity-60" onClick={handleClearDateRange} disabled={isLoading}>Limpar</button>
+											<button type="button" className="rounded-xl border border-sky-300/30 bg-sky-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-sky-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300 disabled:cursor-not-allowed disabled:opacity-60" onClick={handleApplyDateRange} disabled={isLoading}>Aplicar</button>
+											<button type="button" className="rounded-xl border border-white/10 bg-transparent px-4 py-2.5 text-sm font-semibold text-slate-200 transition hover:bg-white/[0.06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300 disabled:cursor-not-allowed disabled:opacity-60" onClick={handleClearDateRange} disabled={isLoading}>Limpar</button>
 										</div>
 									</div>
 								</div>
@@ -264,7 +264,7 @@ export function Dashboard() {
 					</div>
 					<button
 						type="button"
-						className="inline-flex w-fit items-center gap-2 rounded-lg border border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm font-semibold text-slate-200 transition hover:bg-white/[0.08] disabled:cursor-not-allowed disabled:opacity-60"
+						className="inline-flex w-fit items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm font-semibold text-slate-200 transition hover:border-sky-300/25 hover:bg-sky-300/[0.06] disabled:cursor-not-allowed disabled:opacity-60"
 						onClick={() => updateView()}
 						disabled={isLoading}
 					>
@@ -275,9 +275,9 @@ export function Dashboard() {
 			</div>
 
 			{report && (
-				<div className="mb-4 rounded-lg border border-white/10 bg-white/[0.04] p-4 text-slate-200">
+				<div className="mb-4 rounded-2xl border border-sky-300/15 bg-gradient-to-br from-sky-400/[0.08] to-white/[0.025] p-4 text-slate-200">
 					<div className="flex items-center gap-2 text-sm font-semibold text-white">
-						<FiCalendar className="text-slate-400" />
+						<FiCalendar className="text-sky-300" />
 						Período do relatório
 					</div>
 					<div className="mt-4 grid gap-3 text-sm sm:grid-cols-2 xl:grid-cols-4">

@@ -47,8 +47,8 @@ export function ChartReport(props: ChartReportProps) {
     helper?: string;
   }) => (
     <div className={[
-      "rounded-lg border border-white/10 bg-white/[0.04] p-4 no-select sm:p-5",
-      size === "large" ? "flex min-h-[180px] flex-col justify-center bg-[#0d1117] shadow-[0_20px_60px_-32px_rgba(0,0,0,0.8)] sm:min-h-[240px]" : "",
+      "rounded-2xl border border-white/[0.08] bg-[#0b1320]/80 p-4 no-select shadow-[0_18px_50px_-36px_rgba(0,0,0,0.9)] sm:p-5",
+      size === "large" ? "flex min-h-[180px] flex-col justify-center border-sky-300/15 bg-gradient-to-br from-sky-400/[0.08] to-[#0b1320] shadow-[0_24px_60px_-34px_rgba(14,165,233,0.18)] sm:min-h-[240px]" : "",
     ].join(" ")}>
       <p className={[
         "font-medium uppercase text-slate-400",
@@ -59,7 +59,7 @@ export function ChartReport(props: ChartReportProps) {
       <p className={[
         "mt-3 break-words font-semibold tracking-normal",
         size === "large" ? "text-3xl sm:text-5xl" : "text-xl sm:text-2xl",
-        tone === "good" ? "text-emerald-300" : "",
+        tone === "good" ? "text-sky-300" : "",
         tone === "warn" ? "text-amber-300" : "",
         tone === "danger" ? "text-rose-300" : "",
         tone === "default" ? "text-slate-50" : "",
@@ -88,20 +88,20 @@ export function ChartReport(props: ChartReportProps) {
           </div>
         </div>
 
-        <div className="rounded-lg border border-white/10 bg-[#0d1117] p-4 shadow-[0_20px_60px_-38px_rgba(0,0,0,0.9)] sm:p-5">
+        <div className="rounded-2xl border border-white/[0.08] bg-[#0b1320]/80 p-4 shadow-[0_20px_60px_-38px_rgba(0,0,0,0.9)] sm:p-5">
           <div className="flex items-start justify-between gap-4">
             <div>
               <p className="text-xs font-medium uppercase text-slate-400">Avanço do período</p>
               <p className="mt-2 text-3xl font-semibold text-white">{progress}%</p>
             </div>
-            <p className="rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2 text-sm text-slate-300">
+            <p className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-sm text-slate-300">
               {list.period.currentDay}/{list.period.totalDays} dias
             </p>
           </div>
 
           <div className="mt-5 h-3 overflow-hidden rounded-full bg-white/[0.07]">
             <div
-              className="h-full rounded-full bg-emerald-300 transition-[width]"
+              className="h-full rounded-full bg-gradient-to-r from-blue-500 to-sky-300 transition-[width]"
               style={{ width: `${progress}%` }}
             />
           </div>
