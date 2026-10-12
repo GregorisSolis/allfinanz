@@ -6,6 +6,7 @@ import { FiEye, FiEyeOff, FiLock, FiMail } from 'react-icons/fi'
 import { isAuthenticated } from '../services/auth'
 import { useUser } from '../contexts/UserContext'
 import Dialog from '../components/Dialog'
+import logo from '../assets/logo.png'
 
 function getLoginErrorMessage(error: unknown) {
 	if (error && typeof error === 'object' && 'isAxiosError' in error) {
@@ -98,7 +99,9 @@ export function Login() {
 	}
 
 	return (
-		<div className="flex items-center justify-center min-h-screen px-4">
+		<div className="relative flex h-[100dvh] min-h-[560px] items-center justify-center overflow-y-auto bg-[#070d18] px-4 py-8 text-slate-100 sm:px-6">
+		<div className="pointer-events-none absolute -left-40 -top-48 h-[30rem] w-[30rem] rounded-full bg-blue-600/20 blur-[120px]" />
+		<div className="pointer-events-none absolute -bottom-56 right-[8%] h-[34rem] w-[34rem] rounded-full bg-sky-500/10 blur-[140px]" />
 		<Dialog
 			open={Boolean(loginError)}
 			onOpenChange={open => {
@@ -111,75 +114,80 @@ export function Login() {
 			cancelText="Fechar"
 			confirmVariant="default"
 		/>
-		<div className="w-full bg-[#0d1117] text-slate-100 p-6 rounded-lg border border-white/10 shadow-[0_20px_60px_-38px_rgba(0,0,0,0.9)] max-w-md">
-
-			<form className="space-y-6" onSubmit={setLogin} noValidate>
-
-				<div className="flex flex-col items-center w-full my-10 mx-auto">
-					<h2 className="text-2xl font-semibold text-white">Login</h2>
-					<p className="mt-2 text-sm text-slate-400">Acesse sua conta para continuar.</p>
+		<div className="relative z-10 w-full max-w-md overflow-hidden rounded-[2rem] border border-white/10 bg-[#0b1320]/95 p-6 text-slate-100 shadow-[0_32px_100px_-38px_rgba(0,0,0,0.95)] backdrop-blur-xl sm:p-9">
+			<div className="mb-9 flex flex-col items-center justify-center gap-3 text-center">
+				<div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-2xl bg-white p-1 shadow-[0_8px_30px_-10px_rgba(56,189,248,0.45)]">
+					<img src={logo} alt="Allfinanz" className="h-full w-full object-contain" />
 				</div>
+				<div className="text-center">
+					<h1 className="text-2xl font-semibold tracking-tight text-white">Allfinanz</h1>
+					<p className="mt-1 text-sm text-slate-400">Suas finanças em equilíbrio</p>
+				</div>
+			</div>
+
+			<form className="space-y-5" onSubmit={setLogin} noValidate>
 
 				<div className="flex flex-col">
-					<label className="text-xs uppercase tracking-[0.2em] text-slate-300 mb-2" htmlFor="email">E-mail</label>
-					<div className="flex items-center rounded-lg border border-slate-700 bg-transparent px-4 py-2.5 transition focus-within:ring-2 focus-within:ring-slate-500">
-						<FiMail className="text-sm text-slate-400 mr-2 flex-shrink-0" />
+					<label className="mb-2 text-sm font-medium text-slate-300" htmlFor="email">E-mail</label>
+					<div className="flex h-12 items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.035] px-4 transition focus-within:border-sky-400/50 focus-within:bg-sky-400/[0.04] focus-within:ring-2 focus-within:ring-sky-400/15">
+						<FiMail className="shrink-0 text-base text-slate-500" />
 						<input
 							type="email"
 							id="email"
 							placeholder="seu@email.com"
-							className="bg-transparent outline-none text-sm text-slate-200 w-full placeholder:text-slate-500"
+							className="w-full bg-transparent text-sm text-slate-100 outline-none placeholder:text-slate-600"
+							autoComplete="email"
 							onChange={e => setEmail(e.target.value)}
 						/>
 					</div>
 				</div>
 
 				<div className="flex flex-col">
-					<label className="text-xs uppercase tracking-[0.2em] text-slate-300 mb-2" htmlFor="password">Senha</label>
-					<div className="flex items-center rounded-lg border border-slate-700 bg-transparent px-4 py-2.5 transition focus-within:ring-2 focus-within:ring-slate-500">
-						<FiLock className="text-sm text-slate-400 mr-2 flex-shrink-0" />
+					<label className="mb-2 text-sm font-medium text-slate-300" htmlFor="password">Senha</label>
+					<div className="flex h-12 items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.035] px-4 transition focus-within:border-sky-400/50 focus-within:bg-sky-400/[0.04] focus-within:ring-2 focus-within:ring-sky-400/15">
+						<FiLock className="shrink-0 text-base text-slate-500" />
 						<input
 							id="password"
 							type={showPassword ? "text" : "password"}
 							placeholder="••••••••"
-							className="bg-transparent outline-none text-sm text-slate-200 w-full placeholder:text-slate-500"
+							className="w-full bg-transparent text-sm text-slate-100 outline-none placeholder:text-slate-600"
 							onChange={e => setPassword(e.target.value)}
-							autoComplete="off"
+							autoComplete="current-password"
 						/>
 						<button
 							type="button"
 							onClick={() => setShowPassword(!showPassword)}
-							className="focus:outline-none ml-2 flex-shrink-0"
-							tabIndex={-1}
+							className="ml-2 shrink-0 rounded-lg p-1 text-slate-500 transition hover:text-slate-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+							aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
 						>
 							{showPassword ? (
-								<FiEyeOff className="text-sm text-slate-400 hover:text-slate-200 transition" />
+								<FiEyeOff className="text-base" />
 							) : (
-								<FiEye className="text-sm text-slate-400 hover:text-slate-200 transition" />
+								<FiEye className="text-base" />
 							)}
 						</button>
 					</div>
 				</div>
 
-				<div className="pt-4">
+				<div className="pt-2">
 					<button
 						type="submit"
-						className="w-full rounded-lg border border-emerald-300/30 bg-emerald-300 px-4 py-2.5 text-sm font-semibold text-slate-950 transition hover:bg-emerald-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0d1117]"
+						className="h-12 w-full rounded-2xl border border-sky-300/30 bg-sky-500 px-5 text-sm font-semibold text-white shadow-[0_10px_30px_-12px_rgba(14,165,233,0.7)] transition hover:bg-sky-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0b1320]"
 					>
 						Entrar
 					</button>
 				</div>
 			</form>
 
-			<div className="w-full flex justify-between items-center mt-6 pt-4 border-t border-white/10">
+			<div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-white/[0.08] pt-5">
 				<a
-					className="rounded-lg border border-white/10 bg-transparent px-4 py-2.5 text-sm font-semibold text-slate-200 transition hover:bg-white/[0.06] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300"
+					className="text-sm font-medium text-slate-300 transition hover:text-sky-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
 					href="/registrate"
 				>
 					Criar conta
 				</a>
 				<a
-					className="rounded-lg border border-white/10 bg-transparent px-4 py-2.5 text-sm font-semibold text-slate-200 transition hover:bg-white/[0.06] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300"
+					className="text-sm text-slate-500 transition hover:text-sky-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
 					href="/recuperar-cuenta"
 				>
 					Esqueci minha senha
