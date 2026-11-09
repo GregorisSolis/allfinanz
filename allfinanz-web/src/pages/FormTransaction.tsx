@@ -119,9 +119,10 @@ export function FormTransaction() {
 						timeZone: 'America/Sao_Paulo',
 					});
 					if (isCopy) {
-						const [year, month, day] = dateStr.split('-').map(Number);
-						const targetYear = month === 12 ? year + 1 : year;
-						const targetMonth = month === 12 ? 1 : month + 1;
+						const [, , day] = dateStr.split('-').map(Number);
+						const [currentYear, currentMonth] = date_now().split('-').map(Number);
+						const targetYear = currentMonth === 12 ? currentYear + 1 : currentYear;
+						const targetMonth = currentMonth === 12 ? 1 : currentMonth + 1;
 						const targetDay = Math.min(day, new Date(targetYear, targetMonth, 0).getDate());
 						setTransactionDate(`${targetYear}-${String(targetMonth).padStart(2, '0')}-${String(targetDay).padStart(2, '0')}`);
 						setDividedIn(0);
