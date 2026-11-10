@@ -4,6 +4,7 @@ const Transaction = require('../models/transaction')
 const User = require('../models/user')
 
 const { buildDateFilter, toDecimalFormat, formatToTwoDecimals } = require('../../core/utils');
+const getNextMonthCopyDate = require('../../core/nextMonthCopyDate');
 
 const router = express.Router()
 
@@ -123,6 +124,10 @@ function buildStatement(period, fixed, variable) {
 
 //CREAR UNA TRANSACCIÓN
 router.post('/', async (req, res) => {
+    const copyFromTransactionId = req.body.copyFromTransactionId;
+    const isNextMonthCopy = Boolean(copyFromTransactionId);
+    delete req.body.copyFromTransactionId;
+
     let { amount, date } = req.body;
 
     if (amount === undefined || amount === null || amount === '') {
@@ -135,6 +140,12 @@ router.post('/', async (req, res) => {
         req.body.dividedIn = req.body.dividedIn || 0;
     }
 
+    if (isNextMonthCopy) {
+        req.body.fixed = false;
+        req.body.dividedIn = 0;
+        req.body.isDivided = false;
+    }
+
     if (!req.body.description || req.body.description.trim() === "") {
         return res.status(400).send({ message: 'Invalid description.' });
     }
@@ -145,8 +156,10 @@ router.post('/', async (req, res) => {
     }
     req.body = installments.normalized;
 
-    // Ajustar fecha a hora de Brasilia (UTC-3)
-    if (date) {
+    if (isNextMonthCopy) {
+        req.body.date = getNextMonthCopyDate();
+    } else if (date) {
+        // Ajustar fecha a hora de Brasilia (UTC-3)
         const inputDate = new Date(date);
         // Restar 3 horas para pasar UTC a BRT
         const brazilDate = new Date(inputDate.getTime() - 3 * 60 * 60 * 1000);
@@ -156,6 +169,17 @@ router.post('/', async (req, res) => {
     }
 
     try {
+        if (isNextMonthCopy) {
+            const sourceTransaction = await Transaction.findOne({
+                _id: copyFromTransactionId,
+                user: req.userId
+            });
+
+            if (!sourceTransaction) {
+                return res.status(404).send({ message: 'Transação original não encontrada para este usuário.' });
+            }
+        }
+
         const transaction = await Transaction.create({ ...req.body, user: req.userId });
         return res.send({ transaction });
     } catch (err) {
@@ -259,6 +283,15 @@ router.get('/:transaction_id', authMiddleware, async (req, res) => {
 
         if (!transaction) {
             return res.status(404).send({ message: 'Transação não encontrada para este usuário.' });
+        }
+
+        if (req.query.copy === 'next-month') {
+            const copyPreview = transaction.toObject();
+            copyPreview.date = getNextMonthCopyDate();
+            copyPreview.fixed = false;
+            copyPreview.dividedIn = 0;
+            copyPreview.isDivided = false;
+            return res.send({ transaction: copyPreview });
         }
 
         return res.send({ transaction });

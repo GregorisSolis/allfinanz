@@ -68,6 +68,7 @@ export function FormTransaction() {
 		loadCards();
 
 		if(id){
+			setIsTransactionLoading(true);
 			getTransaction();
 		}
 
@@ -78,7 +79,7 @@ export function FormTransaction() {
 	const [isAdjusting, setIsAdjusting] = useState(false);
 	const [showCopyConfirmation, setShowCopyConfirmation] = useState(false);
 	const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
-	const [isTransactionLoading, setIsTransactionLoading] = useState(Boolean(id) && !isCopy);
+	const [isTransactionLoading, setIsTransactionLoading] = useState(Boolean(id));
 	let [cards, setCards] = useState<any[]>([])
 	const [amount, setAmount] = useState(0);
 	const [inputValue, setInputValue] = useState('');
@@ -101,7 +102,10 @@ export function FormTransaction() {
 	}
 
 	async function getTransaction() {
-		await API.get(`/transaction/${id}`, { withCredentials: true })
+		await API.get(`/transaction/${id}`, {
+			withCredentials: true,
+			params: isCopy ? { copy: 'next-month' } : undefined,
+		})
 			.then(resp => {
 				const data = resp.data.transaction;
 				setAmount(data.amount);
@@ -118,19 +122,7 @@ export function FormTransaction() {
 					const dateStr = new Date(data.date).toLocaleDateString('sv-SE', {
 						timeZone: 'America/Sao_Paulo',
 					});
-					if (isCopy) {
-						const [, , day] = dateStr.split('-').map(Number);
-						const [currentYear, currentMonth] = date_now().split('-').map(Number);
-						const targetYear = currentMonth === 12 ? currentYear + 1 : currentYear;
-						const targetMonth = currentMonth === 12 ? 1 : currentMonth + 1;
-						const targetDay = Math.min(day, new Date(targetYear, targetMonth, 0).getDate());
-						setTransactionDate(`${targetYear}-${String(targetMonth).padStart(2, '0')}-${String(targetDay).padStart(2, '0')}`);
-						setDividedIn(0);
-						setIsDivided(false);
-						setFixed(false);
-					} else {
-						setTransactionDate(dateStr);
-					}
+					setTransactionDate(dateStr);
 				}
 			})
 			.catch(() => {
@@ -240,7 +232,8 @@ export function FormTransaction() {
 						card,
 						dividedIn,
 						isDivided: dividedIn > 0,
-						fixed
+						fixed,
+						copyFromTransactionId: isCopy ? id : undefined
 					},
 					{ withCredentials: true }
 				)
@@ -518,6 +511,7 @@ export function FormTransaction() {
 							className={fieldClassName}
 							value={transactionDate}
 							onChange={e => setTransactionDate(e.target.value)}
+							disabled={isCopy}
 						/>
 					</div>
 
@@ -532,7 +526,7 @@ export function FormTransaction() {
 							onChange={(e) => setDividedIn(Number(e.target.value))}
 							value={dividedIn}
 							autoComplete="off"
-							disabled={fixed}
+							disabled={fixed || isCopy}
 						/>
 					</div> 
 					
@@ -543,6 +537,7 @@ export function FormTransaction() {
 								id="fixed"
 								className="mt-1 h-4 w-4 rounded border-white/20 bg-transparent text-sky-300 focus:ring-sky-300"
 								checked={fixed}
+								disabled={isCopy}
 								onChange={(e) => {
 									const checked = e.target.checked;
 									setFixed(checked);
@@ -612,10 +607,11 @@ export function FormTransaction() {
 						</div>
 						<button
 							type="submit"
-							className="inline-flex items-center justify-center gap-2 rounded-2xl border border-sky-300/30 bg-sky-500 px-6 py-3 text-sm font-semibold text-white shadow-[0_10px_30px_-12px_rgba(14,165,233,0.65)] transition hover:bg-sky-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0b1320]"
+							disabled={isTransactionLoading}
+							className="inline-flex items-center justify-center gap-2 rounded-2xl border border-sky-300/30 bg-sky-500 px-6 py-3 text-sm font-semibold text-white shadow-[0_10px_30px_-12px_rgba(14,165,233,0.65)] transition hover:bg-sky-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0b1320] disabled:cursor-not-allowed disabled:opacity-60"
 						>
 							<FiSave />
-							{isEditing ? "Salvar alterações" : isCopy ? "Criar cópia" : "Adicionar"}
+							{isTransactionLoading ? 'Carregando...' : isEditing ? "Salvar alterações" : isCopy ? "Criar cópia" : "Adicionar"}
 						</button>
 					</div>
 				</form>
